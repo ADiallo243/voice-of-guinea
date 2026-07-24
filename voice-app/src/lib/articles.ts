@@ -150,3 +150,18 @@ export function formatArticleDate(date: string) {
     year: "numeric",
   }).format(new Date(`${date}T12:00:00Z`));
 }
+
+export function getReadingTime(article: Article) {
+  const words = [
+    article.title,
+    article.summary,
+    ...article.blocks
+      .filter((block) => block.type !== "image")
+      .map((block) => block.text),
+  ]
+    .join(" ")
+    .trim()
+    .split(/\s+/).length;
+
+  return Math.max(1, Math.ceil(words / 200));
+}

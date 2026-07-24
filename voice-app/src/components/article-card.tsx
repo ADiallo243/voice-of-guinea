@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { Article, formatArticleDate } from "@/lib/articles";
+import { Article, formatArticleDate, getReadingTime } from "@/lib/articles";
 
 export function ArticleCard({
   article,
@@ -23,7 +23,10 @@ export function ArticleCard({
         </h2>
         <p>{article.summary}</p>
         {large && <Link href={`/articles/${article.slug}`} className="card-button">Lire l’article</Link>}
-        <time dateTime={article.publishedAt}>{formatArticleDate(article.publishedAt)}</time>
+        <div className="card-meta">
+          <time dateTime={article.publishedAt}>{formatArticleDate(article.publishedAt)}</time>
+          <span>{getReadingTime(article)} min de lecture</span>
+        </div>
       </div>
     </article>
   );

@@ -4,7 +4,8 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { categoryHref } from "@/components/article-card";
 import { ShareButtons } from "@/components/share-buttons";
-import { articles, formatArticleDate, getArticle } from "@/lib/articles";
+import { ReadingProgress } from "@/components/reading-progress";
+import { articles, formatArticleDate, getArticle, getReadingTime } from "@/lib/articles";
 
 export function generateStaticParams() {
   return articles.map((article) => ({ slug: article.slug }));
@@ -43,6 +44,7 @@ export default async function ArticlePage({
 
   return (
     <article className="shell article-page">
+      <ReadingProgress />
       <header className="article-header">
         <Link href={categoryHref(article.category)} className="eyebrow">{article.category}</Link>
         <h1>{article.title}</h1>
@@ -50,6 +52,7 @@ export default async function ArticlePage({
         <div className="article-byline">
           <span>Par {article.author}</span>
           <time dateTime={article.publishedAt}>{formatArticleDate(article.publishedAt)}</time>
+          <span>{getReadingTime(article)} min de lecture</span>
         </div>
         <ShareButtons title={article.title} />
       </header>

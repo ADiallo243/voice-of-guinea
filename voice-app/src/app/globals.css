@@ -56,10 +56,11 @@ h1, h2, blockquote { font-family: var(--font-display), serif; }
 .article-card:hover .card-image img { transform: scale(1.045); }
 .card-content { padding-top: 20px; }
 .card-content h2 { font-size: 1.65rem; line-height: 1.13; letter-spacing: -.025em; margin: 9px 0 10px; }
-.card-content h2 a { background-image: linear-gradient(var(--red), var(--red)); background-position: 0 100%; background-repeat: no-repeat; background-size: 0 2px; transition: background-size .28s ease; }
-.article-card:hover .card-content h2 a { background-size: 100% 2px; }
 .card-content p { color: var(--muted); line-height: 1.55; margin: 0 0 15px; }
 .card-content time { font-size: .78rem; color: var(--muted); }
+.card-meta { display: flex; align-items: center; flex-wrap: wrap; gap: 9px; color: var(--muted); font-size: .78rem; }
+.card-meta time { font-size: inherit; }
+.card-meta span::before { content: "•"; color: var(--red); margin-right: 9px; }
 .article-card-large { display: grid; grid-template-columns: 1.45fr .8fr; background: transparent; }
 .article-card-large .card-image { aspect-ratio: 1.12 / 1; border-radius: 18px; box-shadow: var(--shadow); }
 .article-card-large .card-content { padding: 10px 0 10px 30px; display: flex; flex-direction: column; justify-content: center; }
@@ -103,6 +104,7 @@ h1, h2, blockquote { font-family: var(--font-display), serif; }
 .article-header h1 { font-size: clamp(2.8rem, 6vw, 5.4rem); letter-spacing: -.045em; line-height: 1.02; margin: 18px 0 22px; }
 .article-deck { color: var(--muted); font-size: 1.25rem; line-height: 1.6; max-width: 750px; margin: auto; }
 .article-byline { display: flex; justify-content: center; gap: 25px; margin: 25px 0; color: var(--muted); font-size: .86rem; }
+.reading-progress { position: fixed; z-index: 100; top: 0; left: 0; right: 0; height: 4px; background: linear-gradient(90deg, var(--yellow), var(--red), var(--green)); transform: scaleX(0); transform-origin: left center; will-change: transform; box-shadow: 0 1px 5px rgba(0,0,0,.16); }
 .share-row { display: flex; justify-content: center; align-items: center; flex-wrap: wrap; gap: 10px; font-size: .8rem; }
 .share-row > span { font-weight: 800; text-transform: uppercase; letter-spacing: .08em; }
 .share-row a, .share-row button { border: 1px solid var(--line); background: transparent; padding: 8px 12px; font: inherit; cursor: pointer; }
