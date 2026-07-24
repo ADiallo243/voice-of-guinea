@@ -11,6 +11,7 @@ const links = [
   { href: "/culture", label: "Culture" },
   { href: "/divertissement", label: "Divertissement" },
   { href: "/a-propos", label: "À propos" },
+  { href: "/contact", label: "Contact" },
 ];
 
 export function SiteHeader() {
@@ -21,8 +22,12 @@ export function SiteHeader() {
     <>
       <div className="topline">
         <div className="shell topline-inner">
-          <span>Conakry, Guinée</span>
-          <span>L’information qui nous rassemble</span>
+          <strong><i /> DERNIÈRE MINUTE</strong>
+          <div className="ticker">
+            <span>Guinée : Facebook perturbé, recours aux VPN.</span>
+            <span>Féguifoot en crise : une assemblée attendue.</span>
+            <span>Projet minier : nouvel intérêt économique.</span>
+          </div>
         </div>
       </div>
       <header className="site-header">
@@ -55,12 +60,6 @@ export function SiteHeader() {
           </nav>
         </div>
       </header>
-      <div className="newsline">
-        <div className="shell newsline-inner">
-          <strong>À LA UNE</strong>
-          <span>La Guinée racontée d’ici, avec contexte et proximité.</span>
-        </div>
-      </div>
     </>
   );
 }

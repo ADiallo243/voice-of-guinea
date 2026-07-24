@@ -8,14 +8,20 @@ export default function Home() {
   return (
     <>
       <section className="shell hero-section">
-        <div className="section-heading">
-          <div>
-            <span className="section-kicker">Le regard Voice of Guinea</span>
-            <h1>L’actualité guinéenne, au plus près de vous.</h1>
-          </div>
-          <p>Comprendre les événements, découvrir les talents et suivre les histoires qui font avancer la Guinée.</p>
+        <div className="home-lead">
+          <ArticleCard article={lead} large />
+          <aside className="trending">
+            <h2>Tendance</h2>
+            <div>
+              {articles.slice(0, 4).map((article, index) => (
+                <Link href={`/articles/${article.slug}`} key={article.slug}>
+                  <span>0{index + 1}</span>
+                  {article.title}
+                </Link>
+              ))}
+            </div>
+          </aside>
         </div>
-        <ArticleCard article={lead} large />
       </section>
 
       <section className="section-muted">
@@ -31,12 +37,6 @@ export default function Home() {
             {latest.slice(0, 3).map((article) => <ArticleCard key={article.slug} article={article} />)}
           </div>
         </div>
-      </section>
-
-      <section className="shell statement">
-        <span>NOTRE MISSION</span>
-        <blockquote>Raconter la Guinée avec justesse, donner du contexte et faire entendre celles et ceux qui la font vivre.</blockquote>
-        <Link href="/a-propos" className="button">Découvrir Voice of Guinea</Link>
       </section>
 
       <section className="shell section-space">

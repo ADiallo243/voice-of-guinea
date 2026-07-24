@@ -22,6 +22,7 @@ export function ArticleCard({
           <Link href={`/articles/${article.slug}`}>{article.title}</Link>
         </h2>
         <p>{article.summary}</p>
+        {large && <Link href={`/articles/${article.slug}`} className="card-button">Lire l’article</Link>}
         <time dateTime={article.publishedAt}>{formatArticleDate(article.publishedAt)}</time>
       </div>
     </article>
