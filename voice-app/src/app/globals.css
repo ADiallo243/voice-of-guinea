@@ -172,3 +172,108 @@ figcaption { color: var(--muted); font-size: .74rem; margin-top: 8px; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
 }
+
+/* Newsroom admin */
+.admin-frame { min-height: 100vh; background: #f5f5f2; color: #1a1b19; }
+.admin-sidebar { position: fixed; inset: 0 auto 0 0; width: 245px; background: #171a17; color: white; padding: 26px 18px; display: flex; flex-direction: column; z-index: 20; }
+.admin-brand { display: flex; align-items: center; gap: 12px; padding: 0 8px 28px; border-bottom: 1px solid #323632; }
+.admin-brand img { width: 66px; height: auto; }
+.admin-brand span { color: #a9aca7; font-size: .75rem; text-transform: uppercase; letter-spacing: .12em; }
+.admin-sidebar nav { display: grid; gap: 5px; padding-top: 25px; }
+.admin-sidebar nav a { display: flex; align-items: center; gap: 12px; padding: 12px 13px; border-radius: 9px; color: #c5c8c3; font-weight: 650; font-size: .9rem; transition: background .2s, color .2s; }
+.admin-sidebar nav a:hover { background: #292d29; color: white; }
+.admin-sidebar nav i { width: 20px; color: #e4bd43; font-style: normal; text-align: center; }
+.admin-account { margin-top: auto; border-top: 1px solid #323632; padding: 20px 10px 0; }
+.admin-account > span { display: block; overflow: hidden; text-overflow: ellipsis; margin-bottom: 7px; font-size: .82rem; }
+.admin-account button { border: 0; background: none; color: #8f938e; padding: 0; cursor: pointer; font: inherit; font-size: .78rem; }
+.admin-main { margin-left: 245px; padding: 55px clamp(30px, 5vw, 75px) 90px; }
+.admin-kicker { color: var(--red); font-size: .7rem; font-weight: 850; letter-spacing: .14em; text-transform: uppercase; }
+.admin-header { display: flex; justify-content: space-between; align-items: end; gap: 30px; margin-bottom: 38px; }
+.admin-header h1 { font-family: var(--font-display); font-size: clamp(2.6rem, 4vw, 4.3rem); line-height: 1; letter-spacing: -.04em; margin: 7px 0 8px; }
+.admin-header p { color: #73766f; margin: 0; }
+.admin-primary, .admin-secondary { border: 0; border-radius: 999px; padding: 13px 19px; font: inherit; font-size: .84rem; font-weight: 800; cursor: pointer; }
+.admin-primary { background: var(--red); color: white; }
+.admin-secondary { background: white; border: 1px solid #d9dcd6; color: #363833; }
+.admin-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 28px; }
+.admin-stats article { background: white; border: 1px solid #e2e3df; border-radius: 14px; padding: 22px; box-shadow: 0 8px 30px rgba(20,25,20,.035); }
+.admin-stats article > span { color: #777b75; font-size: .78rem; }
+.admin-stats strong { display: block; font-family: var(--font-display); font-size: 2.8rem; line-height: 1; margin: 19px 0 8px; }
+.admin-stats small { color: #999c96; }
+.admin-panel { background: white; border: 1px solid #e2e3df; border-radius: 15px; overflow: hidden; }
+.admin-panel-heading { display: flex; justify-content: space-between; align-items: end; padding: 24px 26px; border-bottom: 1px solid #e8e9e5; }
+.admin-panel-heading h2 { font-family: var(--font-display); font-size: 1.75rem; margin: 5px 0 0; }
+.admin-panel-heading > a { color: var(--red); font-size: .8rem; font-weight: 750; }
+.admin-table-row { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; align-items: center; gap: 22px; padding: 19px 26px; border-bottom: 1px solid #ecece9; }
+.admin-table-row:last-child { border-bottom: 0; }
+.admin-table-row > div { min-width: 0; }
+.admin-table-row strong { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: .91rem; }
+.admin-table-row div > span { display: block; color: #93968f; font-size: .74rem; margin-top: 5px; }
+.admin-table-row > a, .text-button { color: var(--red); font-size: .78rem; font-weight: 750; background: none; border: 0; cursor: pointer; }
+.status { border-radius: 999px; padding: 5px 9px; font-size: .68rem; font-weight: 800; }
+.status.published, .status.active { background: #e5f3ea; color: #277247; }
+.admin-toolbar { display: flex; gap: 12px; padding: 20px 25px; border-bottom: 1px solid #e8e9e5; }
+.admin-toolbar input, .admin-toolbar select { border: 1px solid #dfe1dc; border-radius: 9px; padding: 10px 12px; background: #fafaf8; font: inherit; }
+.admin-toolbar input { flex: 1; }
+.drag-handle { color: #aaa; cursor: grab; }
+.category-stats { grid-template-columns: repeat(3, 1fr); }
+.admin-stats .category-name { font-family: var(--font-display); font-size: 1.7rem; }
+.admin-login { min-height: 100vh; display: grid; grid-template-columns: minmax(430px, .85fr) 1.15fr; }
+.login-panel { padding: 55px clamp(35px, 7vw, 100px); display: flex; flex-direction: column; justify-content: center; background: var(--paper); }
+.login-panel > img { width: 95px; height: auto; margin-bottom: 55px; }
+.login-panel h1 { font-family: var(--font-display); font-size: clamp(2.8rem, 5vw, 4.8rem); line-height: .98; letter-spacing: -.045em; margin: 12px 0 18px; }
+.login-panel > p { color: var(--muted); line-height: 1.6; max-width: 490px; }
+.login-panel > a { color: var(--muted); font-size: .8rem; margin-top: 28px; }
+.login-form { display: grid; gap: 17px; margin-top: 25px; }
+.login-form label, .article-editor label, .editor-box label { display: grid; gap: 8px; font-size: .78rem; font-weight: 750; color: #555951; }
+.login-form input, .article-editor input, .article-editor textarea, .article-editor select { width: 100%; border: 1px solid #d9dcd5; border-radius: 9px; background: white; padding: 12px 13px; font: inherit; color: #222; }
+.login-form button { border: 0; border-radius: 999px; padding: 13px; background: var(--red); color: white; font: inherit; font-weight: 800; cursor: pointer; margin-top: 5px; }
+.form-error { color: var(--red); font-size: .8rem; }
+.login-visual { display: flex; align-items: end; padding: 80px; background: linear-gradient(145deg, rgba(0,0,0,.25), rgba(0,0,0,.7)), url("/images/news/guinee-u17-feminine-equipe-niger-2026.jpg") center/cover; color: white; }
+.login-visual blockquote { font-size: clamp(2.6rem, 5vw, 5rem); line-height: 1.04; margin: 0; }
+.admin-notice { background: #fff3d5; border: 1px solid #ead494; border-radius: 10px; padding: 16px; margin-top: 22px; }
+.admin-notice p { margin: 7px 0 0; line-height: 1.5; font-size: .86rem; }
+.admin-setup { min-height: 100vh; display: grid; place-items: center; padding: 35px; background: #191c19; color: white; }
+.admin-setup > div { max-width: 720px; }
+.admin-setup h1 { font-family: var(--font-display); font-size: clamp(3rem, 7vw, 6rem); line-height: .97; margin: 14px 0 25px; }
+.admin-setup p, .admin-setup li { color: #bfc3bd; line-height: 1.7; }
+.admin-setup ol { padding: 20px 0 20px 22px; }
+.admin-setup a { color: #e7c34d; font-weight: 800; }
+.admin-access-denied { max-width: 700px; padding-top: 15vh; }
+.admin-access-denied h1 { font-size: 3.5rem; }
+.article-editor { display: grid; grid-template-columns: minmax(0, 1fr) 310px; gap: 25px; align-items: start; }
+.editor-main, .editor-box { background: white; border: 1px solid #e2e3df; border-radius: 14px; padding: 25px; }
+.editor-main { display: grid; gap: 22px; }
+.editor-title input { font-family: var(--font-display); font-size: 2rem; }
+.article-editor textarea { resize: vertical; line-height: 1.6; }
+.editor-sidebar { display: grid; gap: 16px; }
+.editor-box { display: grid; gap: 16px; }
+.editor-box h2 { font-family: var(--font-sans); font-size: .9rem; margin: 0; }
+.editor-box .check-row { display: flex; align-items: center; gap: 9px; }
+.check-row input { width: auto; }
+.upload-zone { text-align: center; border: 1px dashed #c9ccc5; border-radius: 10px; padding: 22px 10px; cursor: pointer; }
+.upload-zone input { display: none; }
+.upload-zone span { color: #969a93; font-size: .7rem; }
+.editor-actions { display: flex; gap: 10px; }
+
+@media (max-width: 900px) {
+  .admin-sidebar { position: static; width: auto; min-height: auto; }
+  .admin-frame { display: block; }
+  .admin-sidebar nav { grid-template-columns: repeat(4, 1fr); }
+  .admin-account { display: none; }
+  .admin-main { margin-left: 0; padding: 35px 20px 65px; }
+  .admin-stats { grid-template-columns: repeat(2, 1fr); }
+  .article-editor { grid-template-columns: 1fr; }
+  .admin-login { grid-template-columns: 1fr; }
+  .login-visual { display: none; }
+}
+
+@media (max-width: 600px) {
+  .admin-sidebar nav { display: flex; overflow-x: auto; }
+  .admin-sidebar nav a { white-space: nowrap; }
+  .admin-header { align-items: flex-start; flex-direction: column; }
+  .admin-stats, .category-stats { grid-template-columns: 1fr; }
+  .admin-table-row { grid-template-columns: minmax(0, 1fr) auto; }
+  .admin-table-row > a { display: none; }
+  .admin-toolbar { flex-direction: column; }
+  .editor-actions { width: 100%; }
+}

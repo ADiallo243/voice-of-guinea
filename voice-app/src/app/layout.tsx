@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { Playfair_Display, Source_Sans_3 } from "next/font/google";
-import { SiteFooter } from "@/components/site-footer";
-import { SiteHeader } from "@/components/site-header";
+import { SiteChrome } from "@/components/site-chrome";
 import "./globals.css";
 
 const display = Playfair_Display({
@@ -31,9 +30,7 @@ export default function RootLayout({
   return (
     <html lang="fr">
       <body className={`${display.variable} ${sans.variable}`}>
-        <SiteHeader />
-        <main>{children}</main>
-        <SiteFooter />
+        <SiteChrome>{children}</SiteChrome>
       </body>
     </html>
   );
