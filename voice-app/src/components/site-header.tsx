@@ -14,6 +14,13 @@ const links = [
   { href: "/contact", label: "Contact" },
 ];
 
+const headlines = [
+  "Guinée : Facebook perturbé, recours aux VPN.",
+  "Féguifoot en crise : une assemblée attendue.",
+  "Projet minier : nouvel intérêt économique.",
+  "Le Syli féminin U17 domine le Niger.",
+];
+
 export function SiteHeader() {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
@@ -23,10 +30,15 @@ export function SiteHeader() {
       <div className="topline">
         <div className="shell topline-inner">
           <strong><i /> DERNIÈRE MINUTE</strong>
-          <div className="ticker">
-            <span>Guinée : Facebook perturbé, recours aux VPN.</span>
-            <span>Féguifoot en crise : une assemblée attendue.</span>
-            <span>Projet minier : nouvel intérêt économique.</span>
+          <div className="ticker-window">
+            <div className="ticker">
+              {[...headlines, ...headlines].map((headline, index) => (
+                <span key={`${headline}-${index}`}>
+                  {headline}
+                  <i aria-hidden="true">•</i>
+                </span>
+              ))}
+            </div>
           </div>
         </div>
       </div>
