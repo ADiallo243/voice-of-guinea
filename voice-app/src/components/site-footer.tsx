@@ -23,7 +23,7 @@ export function SiteFooter() {
           <Link href="/rss.xml">Flux RSS</Link>
         </div>
         <div className="footer-newsletter">
-          <h2>La lettre de Voice of Guinea</h2>
+          <h2>Newsletter</h2>
           <p>Recevez notre sélection d’actualités directement dans votre boîte mail.</p>
           <NewsletterForm compact />
         </div>

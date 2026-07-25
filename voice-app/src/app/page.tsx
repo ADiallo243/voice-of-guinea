@@ -73,7 +73,7 @@ export default async function Home() {
       <section className="newsletter-band">
         <div className="shell newsletter-band-inner">
           <div>
-            <span className="section-kicker">La lettre de Voice of Guinea</span>
+            <span className="section-kicker">Newsletter</span>
             <h2>L’essentiel de la Guinée, directement dans votre boîte mail.</h2>
             <p>Une sélection éditoriale claire, sans bruit inutile.</p>
           </div>

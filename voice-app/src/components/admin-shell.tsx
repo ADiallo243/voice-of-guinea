@@ -7,7 +7,7 @@ const adminLinks = [
   { href: "/admin/articles", label: "Articles", icon: "▤" },
   { href: "/admin/breaking-news", label: "Dernière minute", icon: "●" },
   { href: "/admin/categories", label: "Catégories", icon: "◇" },
-  { href: "/admin/newsletter", label: "La lettre de Voice of Guinea", icon: "✉" },
+  { href: "/admin/newsletter", label: "Newsletter", icon: "✉" },
   { href: "/admin/statistiques", label: "Statistiques", icon: "↗" },
   { href: "/admin/equipe", label: "Équipe", icon: "◎", ownerOnly: true },
 ];
