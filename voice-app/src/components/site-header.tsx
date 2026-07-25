@@ -13,6 +13,7 @@ const links = [
   { href: "/divertissement", label: "Divertissement" },
   { href: "/a-propos", label: "À propos" },
   { href: "/contact", label: "Contact" },
+  { href: "/recherche", label: "Recherche" },
 ];
 
 export function SiteHeader({ headlines }: { headlines: BreakingHeadline[] }) {

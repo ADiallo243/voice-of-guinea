@@ -90,6 +90,9 @@ export async function saveArticle(formData: FormData) {
     title,
     slug: text(formData, "slug") || slugify(title),
     excerpt,
+    seo_title: text(formData, "seoTitle") || null,
+    seo_description: text(formData, "seoDescription") || null,
+    correction_note: text(formData, "correctionNote") || null,
     content: contentBlocks(rawContent),
     hero_image_url: uploadedImage || existingImage || null,
     hero_image_alt: text(formData, "imageAlt"),
@@ -101,6 +104,18 @@ export async function saveArticle(formData: FormData) {
     published_at: status === "published" ? new Date().toISOString() : null,
     scheduled_for: status === "scheduled" ? text(formData, "scheduledFor") || null : null,
   };
+  if (
+    status === "published"
+    && (!payload.category_id
+      || !payload.hero_image_url
+      || !payload.hero_image_alt
+      || !payload.image_credit
+      || payload.content.length < 3)
+  ) {
+    throw new Error(
+      "Avant publication, ajoutez une catégorie, au moins trois blocs de contenu, une image, son texte alternatif et son crédit.",
+    );
+  }
 
   if (payload.featured) {
     await newsroom.supabase.from("articles").update({ featured: false }).eq("featured", true);

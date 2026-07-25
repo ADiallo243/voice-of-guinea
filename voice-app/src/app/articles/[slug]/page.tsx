@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 import { ArticleCard, categoryHref } from "@/components/article-card";
 import { ShareButtons } from "@/components/share-buttons";
 import { ReadingProgress } from "@/components/reading-progress";
+import { SaveArticle } from "@/components/save-article";
 import { ArticleView } from "@/components/article-view";
 import { formatArticleDate, getReadingTime } from "@/lib/articles";
 import { getPublicArticle, getPublishedArticles } from "@/lib/content";
@@ -24,8 +25,8 @@ export async function generateMetadata({
   if (!article) return {};
 
   return {
-    title: article.title,
-    description: article.summary,
+    title: article.seoTitle || article.title,
+    description: article.seoDescription || article.summary,
     alternates: { canonical: `/articles/${article.slug}` },
     authors: [{ name: article.author }],
     openGraph: {
@@ -111,12 +112,19 @@ export default async function ArticlePage({
           <span>{getReadingTime(article)} min de lecture</span>
         </div>
         <ShareButtons title={article.title} />
+        <SaveArticle slug={article.slug} />
       </header>
       <figure className="article-hero">
         <Image src={article.image} alt={article.imageAlt} fill priority sizes="(max-width: 900px) 100vw, 1100px" />
         <figcaption>Photo : {article.imageCredit}</figcaption>
       </figure>
       <div className="article-body">
+        {article.correctionNote && (
+          <aside className="correction-note">
+            <strong>Note de la rédaction</strong>
+            <p>{article.correctionNote}</p>
+          </aside>
+        )}
         {article.blocks.map((block, index) => {
           if (block.type === "heading") return <h2 key={index}>{block.text}</h2>;
           if (block.type === "paragraph") return <p key={index}>{block.text}</p>;

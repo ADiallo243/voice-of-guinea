@@ -15,6 +15,9 @@ type ArticleRecord = {
   status: string;
   featured: boolean;
   scheduled_for: string | null;
+  seo_title?: string | null;
+  seo_description?: string | null;
+  correction_note?: string | null;
 };
 
 function contentToText(content: ArticleRecord["content"] | null) {
@@ -42,11 +45,15 @@ export function ArticleEditorForm({
         <label className="editor-title">Titre de l’article<input name="title" required defaultValue={article?.title} placeholder="Écrivez un titre clair et précis…" /></label>
         <label>Adresse de l’article<input name="slug" defaultValue={article?.slug} placeholder="Créée automatiquement si elle reste vide" /></label>
         <label>Résumé<textarea name="excerpt" required rows={3} defaultValue={article?.excerpt} placeholder="Le résumé visible sur les cartes et dans les résultats de recherche…" /></label>
+        <div className="editor-section-label"><strong>Référencement</strong><span>Laissez vide pour reprendre le titre et le résumé.</span></div>
+        <label>Titre SEO<input name="seoTitle" maxLength={70} defaultValue={article?.seo_title ?? ""} placeholder="60 caractères environ" /></label>
+        <label>Description SEO<textarea name="seoDescription" maxLength={170} rows={3} defaultValue={article?.seo_description ?? ""} placeholder="Description claire pour Google" /></label>
         <label>
           Contenu
           <textarea name="content" required rows={20} defaultValue={contentToText(article?.content ?? null)} placeholder={"Commencez à écrire…\n\nUtilisez ## devant un intertitre."} />
           <small>Séparez les paragraphes par une ligne vide. Utilisez <code>##</code> pour un intertitre.</small>
         </label>
+        <label>Note de correction ou de mise à jour<textarea name="correctionNote" rows={3} defaultValue={article?.correction_note ?? ""} placeholder="Expliquez clairement une correction importante apportée après publication." /></label>
       </section>
       <aside className="editor-sidebar">
         <div className="editor-box">
@@ -61,6 +68,16 @@ export function ArticleEditorForm({
           </label>
           {canPublish && <label>Date de programmation<input type="datetime-local" name="scheduledFor" defaultValue={article?.scheduled_for?.slice(0, 16)} /></label>}
           {canPublish && <label className="check-row"><input type="checkbox" name="featured" defaultChecked={article?.featured} /> Mettre à la une</label>}
+        </div>
+        <div className="editor-box publication-checklist">
+          <h2>Vérifications avant publication</h2>
+          <ul>
+            <li>Titre et résumé précis</li>
+            <li>Sources relues dans le contenu</li>
+            <li>Catégorie sélectionnée</li>
+            <li>Image, texte alternatif et crédit</li>
+            <li>Noms, dates et chiffres vérifiés</li>
+          </ul>
         </div>
         <div className="editor-box">
           <h2>Classement</h2>

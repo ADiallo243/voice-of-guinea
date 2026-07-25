@@ -8,7 +8,13 @@ import {
 } from "./articles";
 import { getSupabaseConfig, hasSupabaseConfig } from "./supabase/config";
 
-export type PublicArticle = Article & { id?: string; updatedAt?: string };
+export type PublicArticle = Article & {
+  id?: string;
+  updatedAt?: string;
+  correctionNote?: string;
+  seoTitle?: string;
+  seoDescription?: string;
+};
 export type BreakingHeadline = { text: string; href: string };
 type ArticleRow = {
   id: string;
@@ -22,6 +28,9 @@ type ArticleRow = {
   featured: boolean;
   published_at: string;
   updated_at: string;
+  correction_note?: string | null;
+  seo_title?: string | null;
+  seo_description?: string | null;
   categories: { name: string } | { name: string }[] | null;
 };
 
@@ -46,6 +55,9 @@ function mapArticle(row: ArticleRow): PublicArticle {
     category: categoryName(category?.name),
     publishedAt: row.published_at,
     updatedAt: row.updated_at,
+    correctionNote: row.correction_note || undefined,
+    seoTitle: row.seo_title || undefined,
+    seoDescription: row.seo_description || undefined,
     author: "Voice of Guinea",
     image: row.hero_image_url || "/brand/logo.svg",
     imageAlt: row.hero_image_alt || row.title,
@@ -59,7 +71,7 @@ export async function getPublishedArticles(): Promise<PublicArticle[]> {
   if (!hasSupabaseConfig()) return fallbackArticles;
   const { data, error } = await publicClient()
     .from("articles")
-    .select("id, slug, title, excerpt, content, hero_image_url, hero_image_alt, image_credit, featured, published_at, updated_at, categories(name)")
+    .select("id, slug, title, excerpt, content, hero_image_url, hero_image_alt, image_credit, featured, published_at, updated_at, correction_note, seo_title, seo_description, categories(name)")
     .eq("status", "published")
     .lte("published_at", new Date().toISOString())
     .order("published_at", { ascending: false });
@@ -71,7 +83,7 @@ export async function getPublicArticle(slug: string): Promise<PublicArticle | un
   if (!hasSupabaseConfig()) return getFallbackArticle(slug);
   const { data, error } = await publicClient()
     .from("articles")
-    .select("id, slug, title, excerpt, content, hero_image_url, hero_image_alt, image_credit, featured, published_at, updated_at, categories(name)")
+    .select("id, slug, title, excerpt, content, hero_image_url, hero_image_alt, image_credit, featured, published_at, updated_at, correction_note, seo_title, seo_description, categories(name)")
     .eq("slug", slug)
     .eq("status", "published")
     .lte("published_at", new Date().toISOString())
