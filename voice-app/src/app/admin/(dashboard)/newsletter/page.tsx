@@ -40,7 +40,7 @@ export default async function NewsletterAdminPage({
       <header className="admin-header">
         <div>
           <span className="admin-kicker">Audience directe</span>
-          <h1>Newsletter</h1>
+          <h1>La lettre de Voice of Guinea</h1>
           <p>Suivez les inscriptions, confirmations et désabonnements de votre audience.</p>
         </div>
         <span className="period-pill">Double confirmation activée</span>

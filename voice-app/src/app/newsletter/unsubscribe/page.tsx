@@ -35,7 +35,7 @@ export default async function NewsletterUnsubscribePage({
 
   return (
     <section className="shell newsletter-result">
-      <span className="section-kicker">Newsletter</span>
+      <span className="section-kicker">La lettre de Voice of Guinea</span>
       <h1>{unsubscribed ? "Vous êtes désabonné." : "Impossible de traiter ce lien."}</h1>
       <p>
         {unsubscribed

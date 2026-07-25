@@ -37,7 +37,7 @@ export default async function NewsletterConfirmationPage({
 
   return (
     <section className="shell newsletter-result">
-      <span className="section-kicker">Newsletter</span>
+      <span className="section-kicker">La lettre de Voice of Guinea</span>
       <h1>{confirmed ? "Votre abonnement est confirmé." : "Ce lien n’est plus valide."}</h1>
       <p>
         {confirmed

@@ -16,7 +16,7 @@ export default function ContactPage() {
           <h2>Écrivez à la rédaction</h2>
           <p>Pour une proposition de sujet, un partenariat ou une correction, notre équipe vous répondra dès que possible.</p>
         </div>
-        <a className="button" href="mailto:contact@voiceofguinea.com">contact@voiceofguinea.com</a>
+        <a className="button" href="mailto:voiceofguinea@gmail.com">voiceofguinea@gmail.com</a>
       </div>
     </div>
   );
