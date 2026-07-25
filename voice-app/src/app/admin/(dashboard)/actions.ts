@@ -28,6 +28,13 @@ function slugify(value: string) {
     .replace(/(^-|-$)/g, "");
 }
 
+function refreshPublicSite() {
+  revalidatePath("/", "layout");
+  revalidatePath("/sitemap.xml");
+  revalidatePath("/news-sitemap.xml");
+  revalidatePath("/rss.xml");
+}
+
 function contentBlocks(content: string) {
   return content
     .split(/\n{2,}/)
@@ -101,6 +108,7 @@ export async function saveArticle(formData: FormData) {
 
   revalidatePath("/admin");
   revalidatePath("/admin/articles");
+  refreshPublicSite();
   redirect(`/admin/articles/${result.data.id}/edit?saved=1`);
 }
 
@@ -111,6 +119,7 @@ export async function deleteArticle(formData: FormData) {
   if (error) throw new Error(error.message);
   revalidatePath("/admin");
   revalidatePath("/admin/articles");
+  refreshPublicSite();
   redirect("/admin/articles?deleted=1");
 }
 
@@ -131,6 +140,7 @@ export async function saveCategory(formData: FormData) {
     : await newsroom.supabase.from("categories").insert(payload);
   if (result.error) throw new Error(result.error.message);
   revalidatePath("/admin/categories");
+  refreshPublicSite();
 }
 
 export async function deleteCategory(formData: FormData) {
@@ -138,6 +148,7 @@ export async function deleteCategory(formData: FormData) {
   const { error } = await newsroom.supabase.from("categories").delete().eq("id", text(formData, "id"));
   if (error) throw new Error(error.message);
   revalidatePath("/admin/categories");
+  refreshPublicSite();
 }
 
 export async function saveBreakingNews(formData: FormData) {
@@ -164,6 +175,7 @@ export async function saveBreakingNews(formData: FormData) {
   if (result.error) throw new Error(result.error.message);
   revalidatePath("/admin");
   revalidatePath("/admin/breaking-news");
+  refreshPublicSite();
 }
 
 export async function deleteBreakingNews(formData: FormData) {
@@ -172,6 +184,7 @@ export async function deleteBreakingNews(formData: FormData) {
   if (error) throw new Error(error.message);
   revalidatePath("/admin");
   revalidatePath("/admin/breaking-news");
+  refreshPublicSite();
 }
 
 export async function importMigratedArticles() {
@@ -196,6 +209,7 @@ export async function importMigratedArticles() {
   if (error) throw new Error(error.message);
   revalidatePath("/admin");
   revalidatePath("/admin/articles");
+  refreshPublicSite();
 }
 
 export async function inviteTeamMember(formData: FormData) {
