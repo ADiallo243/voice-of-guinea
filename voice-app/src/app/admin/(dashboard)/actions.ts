@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { articles as migratedArticles } from "@/lib/articles";
+import { sendSocialPackEmail } from "@/lib/social-pack-email";
 import { getNewsroomUser } from "@/lib/supabase/admin";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin-client";
 
@@ -69,6 +70,10 @@ async function uploadHeroImage(formData: FormData, userId: string) {
 export async function saveArticle(formData: FormData) {
   const newsroom = await requireNewsroom();
   const id = text(formData, "id");
+  const previous = id
+    ? await newsroom.supabase.from("articles").select("status").eq("id", id).maybeSingle()
+    : null;
+  if (previous?.error) throw new Error(previous.error.message);
   const title = text(formData, "title");
   const excerpt = text(formData, "excerpt");
   const rawContent = text(formData, "content");
@@ -109,6 +114,21 @@ export async function saveArticle(formData: FormData) {
   revalidatePath("/admin");
   revalidatePath("/admin/articles");
   refreshPublicSite();
+  if (status === "published" && previous?.data?.status !== "published") {
+    try {
+      await sendSocialPackEmail({
+        id: result.data.id,
+        title: payload.title,
+        excerpt: payload.excerpt,
+        slug: payload.slug,
+        imageUrl: payload.hero_image_url,
+        imageAlt: payload.hero_image_alt,
+        imageCredit: payload.image_credit,
+      });
+    } catch (error) {
+      console.error("The article was published, but its social pack email failed.", error);
+    }
+  }
   redirect(`/admin/articles/${result.data.id}/edit?saved=1`);
 }
 
