@@ -37,7 +37,7 @@ function refreshPublicSite() {
 
 function contentBlocks(content: string) {
   return content
-    .split(/\n{2,}/)
+    .split(/\r?\n\s*\r?\n/)
     .map((part) => part.trim())
     .filter(Boolean)
     .map((part) =>
