@@ -25,7 +25,15 @@ export const metadata: Metadata = {
     template: "%s | Voice of Guinea",
   },
   description: siteConfig.description,
-  icons: { icon: "/brand/favicon.png" },
+  icons: {
+    icon: [
+      { url: "/brand/icon-192.png", type: "image/png", sizes: "192x192" },
+      { url: "/brand/icon-512.png", type: "image/png", sizes: "512x512" },
+    ],
+    shortcut: "/brand/icon-192.png",
+    apple: "/brand/apple-touch-icon.png",
+  },
+  manifest: "/manifest.webmanifest",
   alternates: {
     types: { "application/rss+xml": `${siteConfig.url}/rss.xml` },
   },
