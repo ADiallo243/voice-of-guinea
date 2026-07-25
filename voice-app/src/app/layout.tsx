@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Playfair_Display, Source_Sans_3 } from "next/font/google";
+import Script from "next/script";
 import { SiteChrome } from "@/components/site-chrome";
 import { getBreakingHeadlines } from "@/lib/content";
 import { siteConfig } from "@/lib/site";
@@ -14,6 +15,8 @@ const sans = Source_Sans_3({
   variable: "--font-sans",
   subsets: ["latin"],
 });
+
+const googleAnalyticsId = "G-V707W55KR5";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteConfig.url),
@@ -30,6 +33,9 @@ export const metadata: Metadata = {
   authors: [{ name: siteConfig.publisher, url: siteConfig.url }],
   creator: siteConfig.publisher,
   publisher: siteConfig.publisher,
+  verification: {
+    google: "wcod8hDc5J5eCXLCnjL8R2QKLfdj4mhEX3GLkRQVsqY",
+  },
   openGraph: {
     type: "website",
     locale: siteConfig.locale,
@@ -55,6 +61,18 @@ export default async function RootLayout({
     <html lang="fr">
       <body className={`${display.variable} ${sans.variable}`}>
         <SiteChrome headlines={headlines}>{children}</SiteChrome>
+        <Script
+          src={`https://www.googletagmanager.com/gtag/js?id=${googleAnalyticsId}`}
+          strategy="afterInteractive"
+        />
+        <Script id="google-analytics" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', '${googleAnalyticsId}');
+          `}
+        </Script>
       </body>
     </html>
   );
