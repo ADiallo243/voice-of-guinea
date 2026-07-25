@@ -26,7 +26,7 @@ export default async function Home() {
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }} />
       <section className="shell hero-section">
         <div className="home-lead">
-          <ArticleCard article={lead} large />
+          <ArticleCard article={lead} large headingLevel={1} />
           <aside className="trending">
             <h2>Tendance</h2>
             <div>

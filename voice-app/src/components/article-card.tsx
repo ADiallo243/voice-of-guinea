@@ -5,10 +5,14 @@ import { Article, formatArticleDate, getReadingTime } from "@/lib/articles";
 export function ArticleCard({
   article,
   large = false,
+  headingLevel = 2,
 }: {
   article: Article;
   large?: boolean;
+  headingLevel?: 1 | 2;
 }) {
+  const Heading = headingLevel === 1 ? "h1" : "h2";
+
   return (
     <article className={large ? "article-card article-card-large" : "article-card"}>
       <Link href={`/articles/${article.slug}`} className="card-image">
@@ -18,9 +22,9 @@ export function ArticleCard({
         <Link href={categoryHref(article.category)} className="eyebrow">
           {article.category}
         </Link>
-        <h2>
+        <Heading>
           <Link href={`/articles/${article.slug}`}>{article.title}</Link>
-        </h2>
+        </Heading>
         <p>{article.summary}</p>
         {large && <Link href={`/articles/${article.slug}`} className="card-button">Lire l’article</Link>}
         <div className="card-meta">
