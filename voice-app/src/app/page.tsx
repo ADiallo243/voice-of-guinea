@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { ArticleCard } from "@/components/article-card";
+import { NewsletterForm } from "@/components/newsletter-form";
 import { getPublishedArticles } from "@/lib/content";
 import { siteConfig } from "@/lib/site";
 
@@ -67,6 +68,17 @@ export default async function Home() {
         {articles.find((article) => article.category === "Divertissement") && (
           <ArticleCard article={articles.find((article) => article.category === "Divertissement")!} large />
         )}
+      </section>
+
+      <section className="newsletter-band">
+        <div className="shell newsletter-band-inner">
+          <div>
+            <span className="section-kicker">La lettre de Voice of Guinea</span>
+            <h2>L’essentiel de la Guinée, directement dans votre boîte mail.</h2>
+            <p>Une sélection éditoriale claire, sans bruit inutile.</p>
+          </div>
+          <NewsletterForm />
+        </div>
       </section>
     </>
   );

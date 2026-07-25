@@ -277,3 +277,32 @@ export async function updateTeamMember(formData: FormData) {
   if (authError) throw new Error(authError.message);
   revalidatePath("/admin/equipe");
 }
+
+export async function updateNewsletterSubscriber(formData: FormData) {
+  const newsroom = await requireNewsroom(["owner", "editor"]);
+  const id = text(formData, "id");
+  const status = text(formData, "status");
+  if (!["pending", "active", "unsubscribed"].includes(status)) {
+    throw new Error("Statut d’abonnement invalide.");
+  }
+  const { error } = await newsroom.supabase
+    .from("newsletter_subscribers")
+    .update({
+      status,
+      confirmed_at: status === "active" ? new Date().toISOString() : null,
+      unsubscribed_at: status === "unsubscribed" ? new Date().toISOString() : null,
+    })
+    .eq("id", id);
+  if (error) throw new Error(error.message);
+  revalidatePath("/admin/newsletter");
+}
+
+export async function deleteNewsletterSubscriber(formData: FormData) {
+  const newsroom = await requireNewsroom(["owner"]);
+  const { error } = await newsroom.supabase
+    .from("newsletter_subscribers")
+    .delete()
+    .eq("id", text(formData, "id"));
+  if (error) throw new Error(error.message);
+  revalidatePath("/admin/newsletter");
+}

@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { NewsletterForm } from "./newsletter-form";
 
 export function SiteFooter() {
   return (
@@ -20,6 +21,11 @@ export function SiteFooter() {
           <Link href="/a-propos">À propos</Link>
           <Link href="/contact">Contact</Link>
           <Link href="/rss.xml">Flux RSS</Link>
+        </div>
+        <div className="footer-newsletter">
+          <h2>La lettre de Voice of Guinea</h2>
+          <p>Recevez notre sélection d’actualités directement dans votre boîte mail.</p>
+          <NewsletterForm compact />
         </div>
       </div>
       <div className="shell footer-bottom">
