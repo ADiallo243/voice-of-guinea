@@ -42,6 +42,9 @@ img { display: block; }
 .nav a { transition: opacity .2s, transform .2s, border-color .2s; }
 .nav a:hover, .nav a.active { color: white; border-color: white; }
 .nav a:hover { opacity: .78; transform: translateY(-1px); }
+.nav .nav-search { display: grid; place-items: center; padding-inline: 5px; }
+.nav-search svg { width: 19px; height: 19px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; }
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
 .menu-button { display: none; }
 .newsline { color: white; background: var(--green); }
 .newsline-inner { display: flex; align-items: center; min-height: 39px; gap: 22px; font-size: .84rem; }

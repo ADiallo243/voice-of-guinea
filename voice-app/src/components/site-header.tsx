@@ -58,10 +58,19 @@ export function SiteHeader({ headlines }: { headlines: BreakingHeadline[] }) {
               <Link
                 key={link.href}
                 href={link.href}
-                className={pathname === link.href ? "active" : ""}
+                className={`${pathname === link.href ? "active" : ""}${link.href === "/recherche" ? " nav-search" : ""}`}
+                aria-label={link.href === "/recherche" ? "Rechercher" : undefined}
                 onClick={() => setOpen(false)}
               >
-                {link.label}
+                {link.href === "/recherche" ? (
+                  <>
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                      <circle cx="11" cy="11" r="6.5" />
+                      <path d="m16 16 4 4" />
+                    </svg>
+                    <span className="sr-only">Recherche</span>
+                  </>
+                ) : link.label}
               </Link>
             ))}
           </nav>
