@@ -7,14 +7,18 @@ const adminLinks = [
   { href: "/admin/articles", label: "Articles", icon: "▤" },
   { href: "/admin/breaking-news", label: "Dernière minute", icon: "●" },
   { href: "/admin/categories", label: "Catégories", icon: "◇" },
+  { href: "/admin/statistiques", label: "Statistiques", icon: "↗" },
+  { href: "/admin/equipe", label: "Équipe", icon: "◎", ownerOnly: true },
 ];
 
 export function AdminShell({
   children,
   name,
+  role,
 }: {
   children: React.ReactNode;
   name?: string;
+  role?: string | null;
 }) {
   return (
     <div className="admin-frame">
@@ -24,7 +28,7 @@ export function AdminShell({
           <span>Newsroom</span>
         </Link>
         <nav>
-          {adminLinks.map((link) => (
+          {adminLinks.filter((link) => !link.ownerOnly || role === "owner").map((link) => (
             <Link href={link.href} key={link.href}>
               <i>{link.icon}</i>
               {link.label}

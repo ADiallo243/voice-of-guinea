@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { articles as migratedArticles } from "@/lib/articles";
 import { getNewsroomUser } from "@/lib/supabase/admin";
+import { createSupabaseAdminClient } from "@/lib/supabase/admin-client";
 
 type Role = "owner" | "editor" | "author";
 
@@ -195,4 +196,50 @@ export async function importMigratedArticles() {
   if (error) throw new Error(error.message);
   revalidatePath("/admin");
   revalidatePath("/admin/articles");
+}
+
+export async function inviteTeamMember(formData: FormData) {
+  await requireNewsroom(["owner"]);
+  const email = text(formData, "email").toLowerCase();
+  const fullName = text(formData, "fullName");
+  const role = text(formData, "role") as Role;
+  if (!email || !["editor", "author"].includes(role)) {
+    throw new Error("Une adresse e-mail et un rôle valide sont obligatoires.");
+  }
+
+  const admin = createSupabaseAdminClient();
+  const { data, error } = await admin.auth.admin.inviteUserByEmail(email, {
+    data: { full_name: fullName },
+    redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3001"}/admin/login`,
+  });
+  if (error) throw new Error(error.message);
+  if (data.user) {
+    const { error: profileError } = await admin
+      .from("profiles")
+      .update({ full_name: fullName, role, active: true })
+      .eq("id", data.user.id);
+    if (profileError) throw new Error(profileError.message);
+  }
+  revalidatePath("/admin/equipe");
+}
+
+export async function updateTeamMember(formData: FormData) {
+  const newsroom = await requireNewsroom(["owner"]);
+  const id = text(formData, "id");
+  const role = text(formData, "role") as Role;
+  const active = formData.get("active") === "on";
+  if (id === newsroom.user.id && (!active || role !== "owner")) {
+    throw new Error("Vous ne pouvez pas désactiver ou rétrograder votre propre compte propriétaire.");
+  }
+  if (!["owner", "editor", "author"].includes(role)) throw new Error("Rôle invalide.");
+
+  const { error } = await newsroom.supabase.from("profiles").update({ role, active }).eq("id", id);
+  if (error) throw new Error(error.message);
+
+  const admin = createSupabaseAdminClient();
+  const { error: authError } = await admin.auth.admin.updateUserById(id, {
+    ban_duration: active ? "none" : "876000h",
+  });
+  if (authError) throw new Error(authError.message);
+  revalidatePath("/admin/equipe");
 }

@@ -40,5 +40,5 @@ export default async function DashboardLayout({
     );
   }
 
-  return <AdminShell name={newsroom.profile.full_name || newsroom.user.email}>{children}</AdminShell>;
+  return <AdminShell name={newsroom.profile.full_name || newsroom.user.email} role={newsroom.profile.role}>{children}</AdminShell>;
 }
