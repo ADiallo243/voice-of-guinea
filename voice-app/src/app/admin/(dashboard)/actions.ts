@@ -33,7 +33,6 @@ function refreshPublicSite() {
   revalidatePath("/", "layout");
   revalidatePath("/sitemap.xml");
   revalidatePath("/news-sitemap.xml");
-  revalidatePath("/rss.xml");
 }
 
 function contentBlocks(content: string) {

@@ -1,7 +1,6 @@
 "use server";
 
 import { createSupabaseAdminClient } from "@/lib/supabase/admin-client";
-import { sendNewsletterConfirmation } from "@/lib/newsletter-email";
 
 export type NewsletterState = {
   status: "idle" | "success" | "error";
@@ -17,7 +16,7 @@ export async function subscribeToNewsletter(
   void previousState;
   const email = String(formData.get("email") ?? "").trim().toLowerCase();
   const website = String(formData.get("website") ?? "").trim();
-  if (website) return { status: "success", message: "Vérifiez votre boîte e-mail pour confirmer." };
+  if (website) return { status: "success", message: "Merci, votre abonnement est activé." };
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || email.length > 254) {
     return { status: "error", message: "Entrez une adresse e-mail valide." };
   }
@@ -26,7 +25,7 @@ export async function subscribeToNewsletter(
     const supabase = createSupabaseAdminClient();
     const { data: existing, error: lookupError } = await supabase
       .from("newsletter_subscribers")
-      .select("id, status, confirmation_token, confirmation_sent_at")
+      .select("id, status")
       .ilike("email", email)
       .maybeSingle();
     if (lookupError) throw lookupError;
@@ -35,20 +34,15 @@ export async function subscribeToNewsletter(
       return { status: "success", message: "Cette adresse est déjà abonnée." };
     }
 
-    const recentlySent = existing?.confirmation_sent_at
-      && Date.now() - new Date(existing.confirmation_sent_at).getTime() < 15 * 60 * 1000;
-    if (recentlySent) {
-      return { status: "success", message: "Un e-mail de confirmation a déjà été envoyé." };
-    }
-
-    const token = existing?.confirmation_token ?? crypto.randomUUID();
+    const now = new Date().toISOString();
     if (existing) {
       const { error } = await supabase
         .from("newsletter_subscribers")
         .update({
-          status: "pending",
-          confirmation_token: token,
-          consent_at: new Date().toISOString(),
+          status: "active",
+          consent_at: now,
+          confirmed_at: now,
+          confirmation_sent_at: null,
           unsubscribed_at: null,
         })
         .eq("id", existing.id);
@@ -56,22 +50,16 @@ export async function subscribeToNewsletter(
     } else {
       const { error } = await supabase.from("newsletter_subscribers").insert({
         email,
-        status: "pending",
+        status: "active",
         source: "website",
-        confirmation_token: token,
+        confirmed_at: now,
       });
       if (error) throw error;
     }
 
-    await sendNewsletterConfirmation(email, token);
-    const { error: sentAtError } = await supabase
-      .from("newsletter_subscribers")
-      .update({ confirmation_sent_at: new Date().toISOString() })
-      .ilike("email", email);
-    if (sentAtError) console.error("Could not store newsletter confirmation timestamp.", sentAtError);
     return {
       status: "success",
-      message: "Vérifiez votre boîte e-mail pour confirmer votre abonnement.",
+      message: "Merci, votre abonnement est activé.",
     };
   } catch (error) {
     console.error("Newsletter subscription failed.", error);

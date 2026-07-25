@@ -20,7 +20,6 @@ export function SiteFooter() {
           <h2>Voice of Guinea</h2>
           <Link href="/a-propos">À propos</Link>
           <Link href="/contact">Contact</Link>
-          <Link href="/rss.xml">Flux RSS</Link>
         </div>
         <div className="footer-newsletter">
           <h2>Newsletter</h2>

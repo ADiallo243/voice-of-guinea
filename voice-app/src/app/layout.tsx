@@ -34,9 +34,6 @@ export const metadata: Metadata = {
     apple: "/brand/apple-touch-icon.png",
   },
   manifest: "/manifest.webmanifest",
-  alternates: {
-    types: { "application/rss+xml": `${siteConfig.url}/rss.xml` },
-  },
   applicationName: siteConfig.name,
   authors: [{ name: siteConfig.publisher, url: siteConfig.url }],
   creator: siteConfig.publisher,
