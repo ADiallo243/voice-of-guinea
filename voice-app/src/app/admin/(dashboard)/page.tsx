@@ -1,33 +1,26 @@
 import Link from "next/link";
-import { articles as migratedArticles } from "@/lib/articles";
-import { hasSupabaseConfig } from "@/lib/supabase/config";
 import { getNewsroomUser } from "@/lib/supabase/admin";
+import { importMigratedArticles } from "./actions";
+
+const statusLabel: Record<string, string> = {
+  published: "Publié",
+  draft: "Brouillon",
+  scheduled: "Programmé",
+  archived: "Archivé",
+};
 
 export default async function AdminDashboard() {
-  let stats = {
-    published: migratedArticles.length,
-    drafts: 0,
-    scheduled: 0,
-    breaking: 4,
-  };
-
-  if (hasSupabaseConfig()) {
-    const newsroom = await getNewsroomUser();
-    if (newsroom?.profile?.role) {
-      const [published, drafts, scheduled, breaking] = await Promise.all([
-        newsroom.supabase.from("articles").select("*", { count: "exact", head: true }).eq("status", "published"),
-        newsroom.supabase.from("articles").select("*", { count: "exact", head: true }).eq("status", "draft"),
-        newsroom.supabase.from("articles").select("*", { count: "exact", head: true }).eq("status", "scheduled"),
-        newsroom.supabase.from("breaking_news").select("*", { count: "exact", head: true }).eq("active", true),
-      ]);
-      stats = {
-        published: published.count ?? 0,
-        drafts: drafts.count ?? 0,
-        scheduled: scheduled.count ?? 0,
-        breaking: breaking.count ?? 0,
-      };
-    }
-  }
+  const newsroom = await getNewsroomUser();
+  const [published, drafts, scheduled, breaking, recent, views, activity] = await Promise.all([
+    newsroom!.supabase.from("articles").select("*", { count: "exact", head: true }).eq("status", "published"),
+    newsroom!.supabase.from("articles").select("*", { count: "exact", head: true }).eq("status", "draft"),
+    newsroom!.supabase.from("articles").select("*", { count: "exact", head: true }).eq("status", "scheduled"),
+    newsroom!.supabase.from("breaking_news").select("*", { count: "exact", head: true }).eq("active", true),
+    newsroom!.supabase.from("articles").select("id, title, status, created_at, categories(name)").order("created_at", { ascending: false }).limit(6),
+    newsroom!.supabase.from("article_daily_views").select("views"),
+    newsroom!.supabase.from("activity_log").select("id, action, entity_type, created_at, profiles(full_name)").order("created_at", { ascending: false }).limit(5),
+  ]);
+  const totalViews = (views.data ?? []).reduce((sum, row) => sum + Number(row.views), 0);
 
   return (
     <>
@@ -35,31 +28,52 @@ export default async function AdminDashboard() {
         <div>
           <span className="admin-kicker">Vue d’ensemble</span>
           <h1>Bonjour, la rédaction.</h1>
-          <p>Voici l’activité de Voice of Guinea.</p>
+          <p>Les données importantes de Voice of Guinea, en un coup d’œil.</p>
         </div>
         <Link href="/admin/articles/new" className="admin-primary">+ Nouvel article</Link>
       </header>
-      <section className="admin-stats">
-        <article><span>Articles publiés</span><strong>{stats.published}</strong><small>Contenus en ligne</small></article>
-        <article><span>Brouillons</span><strong>{stats.drafts}</strong><small>À finaliser</small></article>
-        <article><span>Programmés</span><strong>{stats.scheduled}</strong><small>À venir</small></article>
-        <article><span>Dernière minute</span><strong>{stats.breaking}</strong><small>Éléments actifs</small></article>
+      <section className="admin-stats five-stats">
+        <article><span>Articles publiés</span><strong>{published.count ?? 0}</strong><small>Contenus en ligne</small></article>
+        <article><span>Brouillons</span><strong>{drafts.count ?? 0}</strong><small>À finaliser</small></article>
+        <article><span>Programmés</span><strong>{scheduled.count ?? 0}</strong><small>À venir</small></article>
+        <article><span>Dernière minute</span><strong>{breaking.count ?? 0}</strong><small>Éléments actifs</small></article>
+        <article className="views-stat"><span>Lectures enregistrées</span><strong>{totalViews.toLocaleString("fr-FR")}</strong><small>Depuis le suivi</small></article>
       </section>
-      <section className="admin-panel">
-        <div className="admin-panel-heading">
-          <div><span className="admin-kicker">Contenu</span><h2>Articles récents</h2></div>
-          <Link href="/admin/articles">Gérer les articles →</Link>
-        </div>
-        <div className="admin-table">
-          {migratedArticles.slice(0, 5).map((article) => (
-            <div className="admin-table-row" key={article.slug}>
-              <div><strong>{article.title}</strong><span>{article.category}</span></div>
-              <span className="status published">Publié</span>
-              <Link href={`/articles/${article.slug}`}>Voir</Link>
+      <div className="dashboard-columns">
+        <section className="admin-panel">
+          <div className="admin-panel-heading">
+            <div><span className="admin-kicker">Contenu</span><h2>Articles récents</h2></div>
+            <Link href="/admin/articles">Tout gérer →</Link>
+          </div>
+          {recent.data?.length ? (
+            <div className="admin-table">
+              {recent.data.map((article) => (
+                <div className="admin-table-row" key={article.id}>
+                  <div><strong>{article.title}</strong><span>{article.categories?.[0]?.name ?? "Sans catégorie"}</span></div>
+                  <span className={`status ${article.status}`}>{statusLabel[article.status]}</span>
+                  <Link href={`/admin/articles/${article.id}/edit`}>Modifier</Link>
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
-      </section>
+          ) : (
+            <div className="admin-empty">
+              <strong>Votre base d’articles est prête.</strong>
+              <p>Importez maintenant les cinq articles du site existant.</p>
+              {newsroom?.profile?.role === "owner" && <form action={importMigratedArticles}><button type="submit" className="admin-secondary">Importer les articles</button></form>}
+            </div>
+          )}
+        </section>
+        <section className="admin-panel activity-panel">
+          <div className="admin-panel-heading"><div><span className="admin-kicker">Équipe</span><h2>Activité récente</h2></div></div>
+          {activity.data?.length ? (
+            <div className="activity-list">
+              {activity.data.map((item) => (
+                <div key={item.id}><i /><p><strong>{item.profiles?.[0]?.full_name || "La rédaction"}</strong> a effectué l’action « {item.action} » sur {item.entity_type}.</p><time>{new Intl.DateTimeFormat("fr-FR", { dateStyle: "medium", timeStyle: "short" }).format(new Date(item.created_at))}</time></div>
+              ))}
+            </div>
+          ) : <div className="admin-empty compact"><p>L’activité apparaîtra après la prochaine migration.</p></div>}
+        </section>
+      </div>
     </>
   );
 }
