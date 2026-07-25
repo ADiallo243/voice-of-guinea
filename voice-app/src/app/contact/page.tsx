@@ -1,6 +1,10 @@
 import type { Metadata } from "next";
 
-export const metadata: Metadata = { title: "Contact" };
+export const metadata: Metadata = {
+  title: "Contacter la rédaction",
+  description: "Contactez la rédaction de Voice of Guinea pour proposer un sujet, signaler une correction ou discuter d’un partenariat.",
+  alternates: { canonical: "/contact" },
+};
 
 export default function ContactPage() {
   return (

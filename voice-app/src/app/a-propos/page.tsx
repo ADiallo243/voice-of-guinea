@@ -1,7 +1,11 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
-export const metadata: Metadata = { title: "À propos" };
+export const metadata: Metadata = {
+  title: "À propos",
+  description: "Découvrez la mission et la ligne éditoriale de Voice of Guinea, média numérique consacré à la Guinée.",
+  alternates: { canonical: "/a-propos" },
+};
 
 export default function AboutPage() {
   return (

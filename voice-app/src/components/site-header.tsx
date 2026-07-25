@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
+import type { BreakingHeadline } from "@/lib/content";
 
 const links = [
   { href: "/", label: "Accueil" },
@@ -14,14 +15,7 @@ const links = [
   { href: "/contact", label: "Contact" },
 ];
 
-const headlines = [
-  "Guinée : Facebook perturbé, recours aux VPN.",
-  "Féguifoot en crise : une assemblée attendue.",
-  "Projet minier : nouvel intérêt économique.",
-  "Le Syli féminin U17 domine le Niger.",
-];
-
-export function SiteHeader() {
+export function SiteHeader({ headlines }: { headlines: BreakingHeadline[] }) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
 
@@ -33,10 +27,10 @@ export function SiteHeader() {
           <div className="ticker-window">
             <div className="ticker">
               {[...headlines, ...headlines].map((headline, index) => (
-                <span key={`${headline}-${index}`}>
-                  {headline}
+                <Link key={`${headline.text}-${index}`} href={headline.href}>
+                  {headline.text}
                   <i aria-hidden="true">•</i>
-                </span>
+                </Link>
               ))}
             </div>
           </div>

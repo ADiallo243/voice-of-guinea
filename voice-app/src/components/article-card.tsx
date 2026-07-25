@@ -35,5 +35,12 @@ export function ArticleCard({
 export function categoryHref(category: Article["category"]) {
   if (category === "Actualités") return "/actualites";
   if (category === "Divertissement") return "/divertissement";
-  return "/culture";
+  if (category === "Culture") return "/culture";
+  const slug = category
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/(^-|-$)/g, "");
+  return `/categories/${slug}`;
 }

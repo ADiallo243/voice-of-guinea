@@ -30,8 +30,9 @@ img { display: block; }
 .ticker-window { min-width: 0; flex: 1; overflow: hidden; mask-image: linear-gradient(to right, transparent, black 5%, black 95%, transparent); }
 .ticker { display: flex; width: max-content; white-space: nowrap; animation: tickerForward 32s linear infinite; will-change: transform; }
 .ticker:hover { animation-play-state: paused; }
-.ticker span { display: inline-flex; align-items: center; gap: 34px; padding-right: 34px; color: #e9e7e2; }
-.ticker span i { color: var(--yellow); font-style: normal; font-size: .7rem; }
+.ticker a { display: inline-flex; align-items: center; gap: 34px; padding-right: 34px; color: #e9e7e2; }
+.ticker a:hover { color: white; text-decoration: underline; text-underline-offset: 3px; }
+.ticker a i { color: var(--yellow); font-style: normal; font-size: .7rem; }
 .site-header { background: var(--red); color: white; border-bottom: 1px solid #a81e20; }
 .header-inner { min-height: 68px; display: flex; align-items: center; justify-content: space-between; }
 .brand img { width: 83px; height: auto; }
@@ -100,6 +101,8 @@ h1, h2, blockquote { font-family: var(--font-display), serif; }
 .contact-box h2 { font-size: 2rem; margin: 0 0 10px; }
 .contact-box p { max-width: 540px; color: var(--muted); line-height: 1.6; }
 .article-page { max-width: 1100px; padding-top: 85px; padding-bottom: 110px; }
+.breadcrumbs { display: flex; align-items: center; gap: 9px; margin-bottom: 42px; color: var(--muted); font-size: .76rem; }
+.breadcrumbs a:hover { color: var(--red); }
 .article-header { max-width: 900px; margin: 0 auto 50px; text-align: center; }
 .article-header h1 { font-size: clamp(2.8rem, 6vw, 5.4rem); letter-spacing: -.045em; line-height: 1.02; margin: 18px 0 22px; }
 .article-deck { color: var(--muted); font-size: 1.25rem; line-height: 1.6; max-width: 750px; margin: auto; }
@@ -117,6 +120,7 @@ figcaption { color: var(--muted); font-size: .74rem; margin-top: 8px; }
 .article-body h2 { font-size: 2.2rem; line-height: 1.2; margin: 55px 0 20px; }
 .inline-image { margin: 45px -90px; }
 .inline-image img { width: 100%; height: auto; border-radius: 16px; }
+.related-section { margin-top: 95px; padding-top: 55px; border-top: 1px solid var(--line); }
 .site-footer { background: #161916; color: #dedbd4; padding: 70px 0 25px; }
 .footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 70px; }
 .footer-grid img { width: 110px; height: auto; margin-bottom: 22px; }

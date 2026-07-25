@@ -1,4 +1,4 @@
-export type Category = "Actualités" | "Culture" | "Divertissement";
+export type Category = string;
 
 export type ContentBlock =
   | { type: "heading"; text: string }
@@ -148,7 +148,7 @@ export function formatArticleDate(date: string) {
     day: "numeric",
     month: "long",
     year: "numeric",
-  }).format(new Date(`${date}T12:00:00Z`));
+  }).format(new Date(date.includes("T") ? date : `${date}T12:00:00Z`));
 }
 
 export function getReadingTime(article: Article) {

@@ -1,14 +1,15 @@
 import { ArticleCard } from "@/components/article-card";
-import { Category, getArticlesByCategory } from "@/lib/articles";
+import { Category } from "@/lib/articles";
+import { getPublishedByCategory } from "@/lib/content";
 
-export function CategoryPage({
+export async function CategoryPage({
   category,
   intro,
 }: {
   category: Category;
   intro: string;
 }) {
-  const categoryArticles = getArticlesByCategory(category);
+  const categoryArticles = await getPublishedByCategory(category);
 
   return (
     <div className="shell page-section">
