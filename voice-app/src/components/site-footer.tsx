@@ -1,6 +1,8 @@
 import Image from "next/image";
 import Link from "next/link";
+import { siteConfig } from "@/lib/site";
 import { NewsletterForm } from "./newsletter-form";
+import { PrivacyPreferencesButton } from "./privacy-preferences-button";
 
 export function SiteFooter() {
   return (
@@ -19,7 +21,11 @@ export function SiteFooter() {
         <div>
           <h2>Voice of Guinea</h2>
           <Link href="/a-propos">À propos</Link>
+          <Link href="/normes-editoriales">Normes éditoriales</Link>
+          <Link href="/corrections">Corrections</Link>
+          <Link href="/confidentialite">Confidentialité</Link>
           <Link href="/contact">Contact</Link>
+          <a href={siteConfig.socialLinks.instagram} target="_blank" rel="noreferrer">Instagram ↗</a>
         </div>
         <div className="footer-newsletter">
           <h2>Newsletter</h2>
@@ -29,7 +35,10 @@ export function SiteFooter() {
       </div>
       <div className="shell footer-bottom">
         <span>© {new Date().getFullYear()} Voice of Guinea</span>
-        <span>Conakry · Montréal · Le monde</span>
+        <div>
+          <span>Conakry · Montréal · Le monde</span>
+          <PrivacyPreferencesButton />
+        </div>
       </div>
     </footer>
   );

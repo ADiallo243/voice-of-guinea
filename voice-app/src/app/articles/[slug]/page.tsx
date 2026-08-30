@@ -11,6 +11,12 @@ import { formatArticleDate, getReadingTime } from "@/lib/articles";
 import { getPublicArticle, getPublishedArticles } from "@/lib/content";
 import { siteConfig } from "@/lib/site";
 
+function metadataTitle(title: string) {
+  if (title.length <= 62) return title;
+  const shortened = title.slice(0, 59).replace(/\s+\S*$/, "").trim();
+  return `${shortened}…`;
+}
+
 export async function generateStaticParams() {
   return (await getPublishedArticles()).map((article) => ({ slug: article.slug }));
 }
@@ -25,7 +31,7 @@ export async function generateMetadata({
   if (!article) return {};
 
   return {
-    title: article.seoTitle || article.title,
+    title: article.seoTitle || metadataTitle(article.title),
     description: article.seoDescription || article.summary,
     alternates: { canonical: `/articles/${article.slug}` },
     authors: [{ name: article.author }],

@@ -3,6 +3,8 @@ import { categoryHref } from "@/components/article-card";
 import { getPublishedArticles } from "@/lib/content";
 import { siteConfig } from "@/lib/site";
 
+export const dynamic = "force-dynamic";
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const articles = await getPublishedArticles();
   const extraCategories = [...new Set(articles.map((article) => article.category))]
@@ -19,6 +21,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { path: "/culture", priority: 0.8, frequency: "weekly" as const },
     { path: "/divertissement", priority: 0.8, frequency: "weekly" as const },
     { path: "/a-propos", priority: 0.5, frequency: "monthly" as const },
+    { path: "/normes-editoriales", priority: 0.4, frequency: "monthly" as const },
+    { path: "/corrections", priority: 0.4, frequency: "monthly" as const },
+    { path: "/confidentialite", priority: 0.3, frequency: "yearly" as const },
     { path: "/contact", priority: 0.4, frequency: "yearly" as const },
   ];
 

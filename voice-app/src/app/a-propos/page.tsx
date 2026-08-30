@@ -16,6 +16,11 @@ export default function AboutPage() {
         <p className="lead">Voice of Guinea est un média numérique indépendant consacré à l’actualité, la culture et aux talents guinéens.</p>
         <p>Notre ambition est simple : publier une information accessible, utile et proche des réalités quotidiennes. Nous voulons aller au-delà des titres, ajouter du contexte et ouvrir une fenêtre sur les initiatives qui transforment le pays.</p>
         <p>Depuis la Guinée et sa diaspora, nous construisons un espace où les histoires locales peuvent voyager sans perdre leur vérité.</p>
+        <h2>Notre engagement</h2>
+        <p>Nous distinguons les faits des commentaires, cherchons à attribuer clairement les informations et corrigeons les erreurs portées à notre connaissance. Notre travail éditorial est appelé à évoluer avec le média, mais la clarté envers les lecteurs reste notre point de départ.</p>
+        <p>
+          Consultez nos <Link href="/normes-editoriales">normes éditoriales</Link> et notre <Link href="/corrections">politique de corrections</Link>.
+        </p>
       </div>
       <Link href="/contact" className="button">Nous contacter</Link>
     </div>

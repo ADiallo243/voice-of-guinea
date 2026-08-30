@@ -18,8 +18,9 @@ export function SiteChrome({
 
   return (
     <>
+      <a className="skip-link" href="#contenu-principal">Aller au contenu principal</a>
       <SiteHeader headlines={headlines} />
-      <main>{children}</main>
+      <main id="contenu-principal" tabIndex={-1}>{children}</main>
       <SiteFooter />
     </>
   );

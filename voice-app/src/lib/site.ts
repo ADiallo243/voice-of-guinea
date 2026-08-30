@@ -9,5 +9,8 @@ export const siteConfig = {
   email: "voiceofguinea@gmail.com",
   location: "Conakry, Guinée",
   logo: "/brand/logo.svg",
-  socialImage: "/images/news/guinee-acces-facebook-vpn.jpg",
+  socialImage: "/brand/icon-512.png",
+  socialLinks: {
+    instagram: "https://www.instagram.com/voiceofguinea/",
+  },
 };

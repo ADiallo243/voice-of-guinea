@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 
 export const metadata: Metadata = {
   title: "Contacter la rédaction",
@@ -18,6 +19,7 @@ export default function ContactPage() {
         </div>
         <a className="button" href="mailto:voiceofguinea@gmail.com">voiceofguinea@gmail.com</a>
       </div>
+      <p className="contact-note">Pour demander la rectification d’un article, consultez aussi notre <Link href="/corrections">politique de corrections</Link>.</p>
     </div>
   );
 }

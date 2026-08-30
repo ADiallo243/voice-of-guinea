@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Playfair_Display, Source_Sans_3 } from "next/font/google";
-import Script from "next/script";
+import { AnalyticsConsent } from "@/components/analytics-consent";
 import { SiteChrome } from "@/components/site-chrome";
 import { getBreakingHeadlines } from "@/lib/content";
 import { siteConfig } from "@/lib/site";
@@ -15,8 +15,6 @@ const sans = Source_Sans_3({
   variable: "--font-sans",
   subsets: ["latin"],
 });
-
-const googleAnalyticsId = "G-V707W55KR5";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteConfig.url),
@@ -51,7 +49,7 @@ export const metadata: Metadata = {
     images: [{ url: siteConfig.socialImage, alt: siteConfig.name }],
   },
   twitter: {
-    card: "summary_large_image",
+    card: "summary",
     title: "Voice of Guinea — L’actualité guinéenne, autrement",
     description: siteConfig.description,
     images: [siteConfig.socialImage],
@@ -62,22 +60,42 @@ export default async function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   const headlines = await getBreakingHeadlines();
+  const organizationSchema = {
+    "@context": "https://schema.org",
+    "@type": "NewsMediaOrganization",
+    name: siteConfig.name,
+    url: siteConfig.url,
+    logo: `${siteConfig.url}${siteConfig.logo}`,
+    email: siteConfig.email,
+    address: {
+      "@type": "PostalAddress",
+      addressLocality: "Conakry",
+      addressCountry: "GN",
+    },
+    sameAs: Object.values(siteConfig.socialLinks),
+    ethicsPolicy: `${siteConfig.url}/normes-editoriales`,
+    correctionsPolicy: `${siteConfig.url}/corrections`,
+  };
+  const websiteSchema = {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    name: siteConfig.name,
+    url: siteConfig.url,
+    inLanguage: siteConfig.language,
+    publisher: { "@type": "NewsMediaOrganization", name: siteConfig.publisher },
+    potentialAction: {
+      "@type": "SearchAction",
+      target: `${siteConfig.url}/recherche?q={search_term_string}`,
+      "query-input": "required name=search_term_string",
+    },
+  };
   return (
     <html lang="fr">
       <body className={`${display.variable} ${sans.variable}`}>
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }} />
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteSchema) }} />
         <SiteChrome headlines={headlines}>{children}</SiteChrome>
-        <Script
-          src={`https://www.googletagmanager.com/gtag/js?id=${googleAnalyticsId}`}
-          strategy="afterInteractive"
-        />
-        <Script id="google-analytics" strategy="afterInteractive">
-          {`
-            window.dataLayer = window.dataLayer || [];
-            function gtag(){dataLayer.push(arguments);}
-            gtag('js', new Date());
-            gtag('config', '${googleAnalyticsId}');
-          `}
-        </Script>
+        <AnalyticsConsent />
       </body>
     </html>
   );

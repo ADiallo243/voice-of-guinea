@@ -36,7 +36,8 @@ export default async function SearchPage({
         <h1>Rechercher dans Voice of Guinea</h1>
       </div>
       <form className="public-search" role="search">
-        <input name="q" type="search" defaultValue={query} placeholder="Sujet, personnalité, lieu…" autoFocus />
+        <label className="sr-only" htmlFor="recherche-q">Sujet, personnalité ou lieu</label>
+        <input id="recherche-q" name="q" type="search" defaultValue={query} placeholder="Sujet, personnalité, lieu…" />
         <button type="submit">Rechercher</button>
       </form>
       {query && (
