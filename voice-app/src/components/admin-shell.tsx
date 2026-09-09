@@ -8,8 +8,8 @@ import { signOut } from "@/app/admin/actions";
 const adminLinks = [
   { href: "/admin", label: "Vue d’ensemble", icon: "⌂" },
   { href: "/admin/articles", label: "Articles", icon: "▤" },
-  { href: "/admin/breaking-news", label: "Dernière minute", icon: "●" },
-  { href: "/admin/categories", label: "Catégories", icon: "◇" },
+  { href: "/admin/breaking-news", label: "Dernière minute", icon: "●", managerOnly: true },
+  { href: "/admin/categories", label: "Catégories", icon: "◇", managerOnly: true },
   { href: "/admin/newsletter", label: "Newsletter", icon: "✉", editorOnly: true },
   { href: "/admin/statistiques", label: "Pilotage", icon: "↗", ownerOnly: true },
   { href: "/admin/equipe", label: "Équipe", icon: "◎", ownerOnly: true },
@@ -38,6 +38,7 @@ export function AdminShell({
         <nav aria-label="Navigation de la rédaction">
           {adminLinks
             .filter((link) => !link.ownerOnly || role === "owner")
+            .filter((link) => !link.managerOnly || role === "owner" || role === "editor")
             .filter((link) => !link.editorOnly || role === "owner" || role === "editor")
             .map((link) => (
             <Link

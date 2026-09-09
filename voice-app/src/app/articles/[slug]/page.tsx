@@ -8,6 +8,7 @@ import { ReadingProgress } from "@/components/reading-progress";
 import { SaveArticle } from "@/components/save-article";
 import { formatArticleDate, getReadingTime } from "@/lib/articles";
 import { getPublicArticle, getPublishedArticles } from "@/lib/content";
+import { serializeJsonLd } from "@/lib/json-ld";
 import { siteConfig } from "@/lib/site";
 
 export async function generateStaticParams() {
@@ -97,8 +98,8 @@ export default async function ArticlePage({
 
   return (
     <article className="shell article-page">
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(newsSchema) }} />
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: serializeJsonLd(newsSchema) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: serializeJsonLd(breadcrumbSchema) }} />
       <ReadingProgress />
       <nav className="breadcrumbs" aria-label="Fil d’Ariane">
         <Link href="/">Accueil</Link><span>›</span><Link href={categoryHref(article.category)}>{article.category}</Link>

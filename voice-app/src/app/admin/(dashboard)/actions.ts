@@ -6,6 +6,7 @@ import { articles as migratedArticles } from "@/lib/articles";
 import { sendSocialPackEmail } from "@/lib/social-pack-email";
 import { getNewsroomUser } from "@/lib/supabase/admin";
 import { createSupabaseAdminClient, hasSupabaseSecret } from "@/lib/supabase/admin-client";
+import { getSupabaseConfig } from "@/lib/supabase/config";
 
 type Role = "owner" | "editor" | "author";
 
@@ -68,6 +69,19 @@ function externalHttpUrl(value: string) {
     return url.protocol === "https:" || url.protocol === "http:" ? url.toString() : null;
   } catch {
     return null;
+  }
+}
+
+function isAllowedArticleImageUrl(value: string) {
+  if (!value) return true;
+  if (value.startsWith("/images/")) return true;
+  try {
+    const imageUrl = new URL(value);
+    const supabaseUrl = new URL(getSupabaseConfig().url);
+    return imageUrl.origin === supabaseUrl.origin
+      && imageUrl.pathname.startsWith("/storage/v1/object/public/article-images/");
+  } catch {
+    return false;
   }
 }
 
@@ -134,6 +148,10 @@ export async function saveArticle(formData: FormData) {
 
   const uploadedImage = await uploadHeroImage(formData, newsroom.user.id);
   const existingImage = text(formData, "existingImage");
+  const heroImageUrl = uploadedImage || existingImage || null;
+  if (heroImageUrl && !isAllowedArticleImageUrl(heroImageUrl)) {
+    throw new Error("L’image doit provenir de la bibliothèque Voice of Guinea.");
+  }
   const publishedAt = status === "published"
     ? publicationDateValue
       ? publicationDateValue.toISOString()
@@ -152,7 +170,7 @@ export async function saveArticle(formData: FormData) {
     source_notes: text(formData, "sourceNotes") || null,
     editorial_notes: manager ? text(formData, "editorialNotes") || null : previous?.data?.editorial_notes || null,
     content: contentBlocks(rawContent),
-    hero_image_url: uploadedImage || existingImage || null,
+    hero_image_url: heroImageUrl,
     hero_image_alt: text(formData, "imageAlt"),
     image_credit: text(formData, "imageCredit") || null,
     category_id: text(formData, "categoryId") || null,
@@ -165,7 +183,7 @@ export async function saveArticle(formData: FormData) {
     reviewed_by: manager && ["needs_changes", "scheduled", "published"].includes(status) ? newsroom.user.id : null,
   };
   if (
-    status === "published"
+    ["published", "scheduled"].includes(status)
     && (!payload.category_id
       || !payload.hero_image_url
       || !payload.hero_image_alt
@@ -173,12 +191,16 @@ export async function saveArticle(formData: FormData) {
       || payload.content.length < 3)
   ) {
     throw new Error(
-      "Avant publication, ajoutez une catégorie, au moins trois blocs de contenu, une image, son texte alternatif et son crédit.",
+      "Avant de publier ou programmer, ajoutez une catégorie, au moins trois blocs de contenu, une image, son texte alternatif et son crédit.",
     );
   }
 
   if (payload.featured && status === "published") {
-    await newsroom.supabase.from("articles").update({ featured: false }).eq("featured", true);
+    const { error: clearFeaturedError } = await newsroom.supabase
+      .from("articles")
+      .update({ featured: false })
+      .eq("featured", true);
+    if (clearFeaturedError) throw new Error(clearFeaturedError.message);
   }
 
   const result = id
@@ -388,9 +410,11 @@ export async function inviteTeamMember(formData: FormData) {
   }
 
   const admin = createSupabaseAdminClient();
+  const callback = new URL("/auth/callback", process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3001");
+  callback.searchParams.set("next", "/admin/setup-password");
   const { data, error } = await admin.auth.admin.inviteUserByEmail(email, {
     data: { full_name: fullName },
-    redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3001"}/admin/login`,
+    redirectTo: callback.toString(),
   });
   if (error) throw new Error(error.message);
   if (data.user) {
@@ -401,6 +425,7 @@ export async function inviteTeamMember(formData: FormData) {
     if (profileError) throw new Error(profileError.message);
   }
   revalidatePath("/admin/equipe");
+  redirect(`/admin/equipe?invite=sent&email=${encodeURIComponent(email)}`);
 }
 
 export async function updateTeamMember(formData: FormData) {

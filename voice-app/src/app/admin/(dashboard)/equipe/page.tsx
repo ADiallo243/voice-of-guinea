@@ -9,9 +9,14 @@ const roleLabel: Record<string, string> = {
   author: "Auteur",
 };
 
-export default async function TeamPage() {
+export default async function TeamPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ invite?: string; email?: string }>;
+}) {
   const newsroom = await getNewsroomUser();
   if (newsroom?.profile?.role !== "owner") redirect("/admin");
+  const { invite, email } = await searchParams;
   const secretReady = hasSupabaseSecret();
   const { data: profiles } = await newsroom.supabase
     .from("profiles")
@@ -24,6 +29,7 @@ export default async function TeamPage() {
       <header className="admin-header">
         <div><span className="admin-kicker">Accès & permissions</span><h1>Équipe</h1><p>Invitez vos collaborateurs et contrôlez précisément leurs droits.</p></div>
       </header>
+      {invite === "sent" && <p className="admin-flash success" role="status">Invitation envoyée à {email || "ce nouveau membre"}. La personne choisira son mot de passe depuis l’e-mail reçu.</p>}
       {!secretReady && (
         <div className="admin-config-warning">
           <strong>Une dernière clé serveur est nécessaire pour envoyer des invitations.</strong>

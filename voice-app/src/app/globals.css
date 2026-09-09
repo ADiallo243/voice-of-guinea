@@ -337,10 +337,13 @@ figcaption { color: var(--muted); font-size: .74rem; margin-top: 8px; }
 .login-panel > p { color: var(--muted); line-height: 1.6; max-width: 490px; }
 .login-panel > a { color: var(--muted); font-size: .8rem; margin-top: 28px; }
 .login-form { display: grid; gap: 17px; margin-top: 25px; }
+.login-form.compact { margin-top: 13px; }
 .login-form label, .article-editor label, .editor-box label { display: grid; gap: 8px; font-size: .76rem; font-weight: 720; color: #5e6064; }
 .login-form input, .article-editor input, .article-editor textarea, .article-editor select { width: 100%; border: 1px solid rgba(0,0,0,.12); border-radius: 12px; background: rgba(255,255,255,.92); padding: 12px 13px; font: inherit; color: #232326; box-shadow: 0 1px 1px rgba(0,0,0,.02); transition: border-color .2s, box-shadow .2s; }
 .login-form input:focus, .article-editor input:focus, .article-editor textarea:focus, .article-editor select:focus { outline: none; border-color: rgba(18,104,64,.7); box-shadow: 0 0 0 4px rgba(18,104,64,.11); }
 .login-form button { border: 0; border-radius: 999px; padding: 13px; background: var(--red); color: white; font: inherit; font-weight: 800; cursor: pointer; margin-top: 5px; }
+.password-recovery { margin-top: 22px; color: #666861; font-size: .82rem; }
+.password-recovery summary { cursor: pointer; font-weight: 720; }
 .form-error { color: var(--red); font-size: .8rem; }
 .login-visual { display: flex; align-items: end; padding: 80px; background: linear-gradient(145deg, rgba(0,0,0,.25), rgba(0,0,0,.7)), url("/images/news/guinee-u17-feminine-equipe-niger-2026.jpg") center/cover; color: white; }
 .login-visual blockquote { font-size: clamp(2.6rem, 5vw, 5rem); line-height: 1.04; margin: 0; }
