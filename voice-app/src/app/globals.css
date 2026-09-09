@@ -288,6 +288,8 @@ figcaption { color: var(--muted); font-size: .74rem; margin-top: 8px; }
 .admin-primary { background: #d1262b; color: white; box-shadow: 0 7px 16px rgba(209, 38, 43, .18); }
 .admin-primary:hover { background: #b92226; transform: translateY(-1px); box-shadow: 0 10px 22px rgba(209, 38, 43, .24); }
 .admin-secondary { background: rgba(255,255,255,.75); border: 1px solid rgba(0,0,0,.09); color: #303034; }
+.admin-flash { margin: -18px 0 24px; border-radius: 14px; padding: 13px 16px; font-size: .84rem; font-weight: 650; }
+.admin-flash.success { background: #e9f5ed; color: #21683d; border: 1px solid #c7e5d0; }
 .admin-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-bottom: 28px; }
 .admin-stats article { position: relative; overflow: hidden; background: rgba(255,255,255,.78); border: 1px solid rgba(0,0,0,.075); border-radius: 22px; padding: 23px 24px; box-shadow: 0 12px 30px rgba(25, 25, 28, .035); }
 .admin-stats article::after { content: ""; position: absolute; right: -22px; bottom: -35px; width: 106px; height: 106px; border-radius: 50%; background: radial-gradient(circle, rgba(218, 186, 89, .14), transparent 67%); pointer-events: none; }

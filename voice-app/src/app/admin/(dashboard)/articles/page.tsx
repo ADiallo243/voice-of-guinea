@@ -14,10 +14,10 @@ const statusLabel: Record<string, string> = {
 export default async function AdminArticlesPage({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string; status?: string }>;
+  searchParams: Promise<{ q?: string; status?: string; import?: string }>;
 }) {
   const newsroom = await getNewsroomUser();
-  const { q = "", status = "" } = await searchParams;
+  const { q = "", status = "", import: importState } = await searchParams;
   let query = newsroom!.supabase
     .from("articles")
     .select("id, title, slug, status, featured, created_at, published_at, categories(name), profiles(full_name)")
@@ -33,6 +33,7 @@ export default async function AdminArticlesPage({
         <div><span className="admin-kicker">Contenu</span><h1>Articles</h1><p>Créez, modifiez, programmez et organisez vos publications.</p></div>
         <Link href="/admin/articles/new" className="admin-primary">+ Nouvel article</Link>
       </header>
+      {importState === "success" && <p className="admin-flash success" role="status">Les cinq articles existants ont été importés. Vous pouvez maintenant les revoir et les publier.</p>}
       <section className="admin-panel">
         <form className="admin-toolbar">
           <input name="q" type="search" defaultValue={q} placeholder="Rechercher un article…" />

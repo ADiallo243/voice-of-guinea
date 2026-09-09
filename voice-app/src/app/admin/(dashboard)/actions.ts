@@ -284,11 +284,13 @@ export async function deleteBreakingNews(formData: FormData) {
 
 export async function importMigratedArticles() {
   const newsroom = await requireNewsroom(["owner"]);
-  const { data: categories } = await newsroom.supabase.from("categories").select("id, name");
+  const { data: categories, error: categoriesError } = await newsroom.supabase.from("categories").select("id, name");
+  if (categoriesError) throw new Error(categoriesError.message);
   const categoryIds = new Map((categories ?? []).map((category) => [category.name, category.id]));
   const payload = migratedArticles.map((article) => ({
     title: article.title,
     slug: article.slug,
+    byline: article.author || "Voice of Guinea",
     excerpt: article.summary,
     content: article.blocks,
     hero_image_url: article.image,
@@ -297,14 +299,36 @@ export async function importMigratedArticles() {
     category_id: categoryIds.get(article.category) ?? null,
     author_id: newsroom.user.id,
     status: "published",
-    featured: Boolean(article.featured),
+    featured: false,
     published_at: `${article.publishedAt}T12:00:00Z`,
   }));
+
+  // The database intentionally permits only one featured published article.
+  // Clear any old feature first, then restore the designated migrated lead.
+  const { error: clearFeatureError } = await newsroom.supabase
+    .from("articles")
+    .update({ featured: false })
+    .eq("status", "published")
+    .eq("featured", true);
+  if (clearFeatureError) throw new Error(clearFeatureError.message);
+
   const { error } = await newsroom.supabase.from("articles").upsert(payload, { onConflict: "slug" });
   if (error) throw new Error(error.message);
+
+  const featuredArticle = migratedArticles.find((article) => article.featured);
+  if (featuredArticle) {
+    const { error: setFeatureError } = await newsroom.supabase
+      .from("articles")
+      .update({ featured: true })
+      .eq("slug", featuredArticle.slug)
+      .eq("status", "published");
+    if (setFeatureError) throw new Error(setFeatureError.message);
+  }
+
   revalidatePath("/admin");
   revalidatePath("/admin/articles");
   refreshPublicSite();
+  redirect("/admin/articles?import=success");
 }
 
 export async function inviteTeamMember(formData: FormData) {
