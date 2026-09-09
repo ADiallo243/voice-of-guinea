@@ -13,7 +13,7 @@ export default async function AnalyticsPage() {
 
   const [categories, articles, authors, subscribers, activity] = await Promise.all([
     newsroom.supabase.from("categories").select("id, name, articles(count)").eq("active", true).order("display_order"),
-    newsroom.supabase.from("articles").select("id, title, status, updated_at, categories(name), profiles(full_name)"),
+    newsroom.supabase.from("articles").select("id, title, status, updated_at, categories(name), profiles!articles_author_id_fkey(full_name)"),
     newsroom.supabase.from("profiles").select("id, full_name, articles(count)").eq("active", true),
     newsroom.supabase.from("newsletter_subscribers").select("status"),
     newsroom.supabase.from("activity_log").select("id", { count: "exact", head: true }),

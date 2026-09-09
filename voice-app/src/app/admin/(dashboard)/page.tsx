@@ -19,7 +19,7 @@ export default async function AdminDashboard() {
     newsroom!.supabase.from("articles").select("*", { count: "exact", head: true }).eq("status", "scheduled"),
     newsroom!.supabase.from("breaking_news").select("*", { count: "exact", head: true }).eq("active", true),
     newsroom!.supabase.from("articles").select("id, title, status, created_at, categories(name)").order("created_at", { ascending: false }).limit(6),
-    newsroom!.supabase.from("articles").select("id, title, status, updated_at, categories(name), profiles(full_name)").in("status", ["in_review", "needs_changes", "scheduled"]).order("updated_at", { ascending: false }).limit(6),
+    newsroom!.supabase.from("articles").select("id, title, status, updated_at, categories(name), profiles!articles_author_id_fkey(full_name)").in("status", ["in_review", "needs_changes", "scheduled"]).order("updated_at", { ascending: false }).limit(6),
     newsroom!.supabase.from("activity_log").select("id, action, entity_type, entity_id, created_at, profiles(full_name)").order("created_at", { ascending: false }).limit(5),
   ]);
   const articleActivityIds = (activity.data ?? []).filter((item) => item.entity_type === "articles" && item.entity_id).map((item) => item.entity_id);

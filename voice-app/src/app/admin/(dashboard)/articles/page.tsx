@@ -20,7 +20,7 @@ export default async function AdminArticlesPage({
   const { q = "", status = "", import: importState } = await searchParams;
   let query = newsroom!.supabase
     .from("articles")
-    .select("id, title, slug, status, featured, created_at, published_at, categories(name), profiles(full_name)")
+    .select("id, title, slug, status, featured, created_at, published_at, categories(name), profiles!articles_author_id_fkey(full_name)")
     .order("created_at", { ascending: false });
   if (q) query = query.ilike("title", `%${q}%`);
   if (status) query = query.eq("status", status);
