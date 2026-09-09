@@ -202,7 +202,7 @@ export async function saveArticle(formData: FormData) {
       console.error("The article was published, but its social pack email failed.", error);
     }
   }
-  redirect(`/admin/articles/${result.data.id}/edit?saved=1`);
+  redirect(`/admin/articles?saved=${id ? "updated" : "created"}`);
 }
 
 export async function deleteArticle(formData: FormData) {

@@ -14,10 +14,10 @@ const statusLabel: Record<string, string> = {
 export default async function AdminArticlesPage({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string; status?: string; import?: string }>;
+  searchParams: Promise<{ q?: string; status?: string; import?: string; saved?: string; deleted?: string }>;
 }) {
   const newsroom = await getNewsroomUser();
-  const { q = "", status = "", import: importState } = await searchParams;
+  const { q = "", status = "", import: importState, saved, deleted } = await searchParams;
   let query = newsroom!.supabase
     .from("articles")
     .select("id, title, slug, status, featured, created_at, published_at, categories(name), profiles!articles_author_id_fkey(full_name)")
@@ -34,6 +34,8 @@ export default async function AdminArticlesPage({
         <Link href="/admin/articles/new" className="admin-primary">+ Nouvel article</Link>
       </header>
       {importState === "success" && <p className="admin-flash success" role="status">Les cinq articles existants ont été importés. Vous pouvez maintenant les revoir et les publier.</p>}
+      {saved && <p className="admin-flash success" role="status">{saved === "created" ? "L’article a été créé avec succès." : "Les modifications ont été enregistrées avec succès."}</p>}
+      {deleted && <p className="admin-flash success" role="status">L’article a été supprimé.</p>}
       {error && <div className="admin-config-warning"><strong>Les articles ne peuvent pas être lus pour le moment.</strong><p>{error.message}</p></div>}
       <section className="admin-panel">
         <form className="admin-toolbar">
