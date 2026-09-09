@@ -1,5 +1,8 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { signOut } from "@/app/admin/actions";
 
 const adminLinks = [
@@ -21,25 +24,37 @@ export function AdminShell({
   name?: string;
   role?: string | null;
 }) {
+  const pathname = usePathname();
+  const displayName = name || "Administrateur";
+  const roleLabel = role === "owner" ? "Propriétaire" : role === "editor" ? "Éditeur" : "Auteur";
+
   return (
     <div className="admin-frame">
       <aside className="admin-sidebar">
         <Link href="/admin" className="admin-brand">
           <Image src="/brand/logo.svg" alt="Voice of Guinea" width={92} height={48} />
-          <span>Newsroom</span>
+          <span>Rédaction</span>
         </Link>
-        <nav>
+        <nav aria-label="Navigation de la rédaction">
           {adminLinks.filter((link) => !link.ownerOnly || role === "owner").map((link) => (
-            <Link href={link.href} key={link.href}>
+            <Link
+              href={link.href}
+              key={link.href}
+              className={pathname === link.href ? "active" : ""}
+            >
               <i>{link.icon}</i>
               {link.label}
             </Link>
           ))}
         </nav>
         <div className="admin-account">
-          <span>{name || "Administrateur"}</span>
-          <form action={signOut}>
-            <button type="submit">Se déconnecter</button>
+          <span className="admin-avatar" aria-hidden="true">{displayName.slice(0, 1).toUpperCase()}</span>
+          <div>
+            <strong>{displayName}</strong>
+            <span>{roleLabel}</span>
+          </div>
+          <form action={signOut} title="Se déconnecter">
+            <button type="submit" aria-label="Se déconnecter">↗</button>
           </form>
         </div>
       </aside>
