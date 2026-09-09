@@ -28,7 +28,12 @@ export function SiteHeader({ headlines }: { headlines: BreakingHeadline[] }) {
           <div className="ticker-window">
             <div className="ticker">
               {[...headlines, ...headlines].map((headline, index) => (
-                <Link key={`${headline.text}-${index}`} href={headline.href}>
+                <Link
+                  key={`${headline.text}-${index}`}
+                  href={headline.href}
+                  aria-hidden={index >= headlines.length || undefined}
+                  tabIndex={index >= headlines.length ? -1 : undefined}
+                >
                   {headline.text}
                   <i aria-hidden="true">•</i>
                 </Link>
@@ -46,14 +51,15 @@ export function SiteHeader({ headlines }: { headlines: BreakingHeadline[] }) {
             className="menu-button"
             type="button"
             aria-expanded={open}
-            aria-label="Ouvrir le menu"
+            aria-controls="navigation-principale"
+            aria-label={open ? "Fermer le menu" : "Ouvrir le menu"}
             onClick={() => setOpen(!open)}
           >
             <span />
             <span />
             <span />
           </button>
-          <nav className={open ? "nav open" : "nav"} aria-label="Navigation principale">
+          <nav id="navigation-principale" className={open ? "nav open" : "nav"} aria-label="Navigation principale">
             {links.map((link) => (
               <Link
                 key={link.href}

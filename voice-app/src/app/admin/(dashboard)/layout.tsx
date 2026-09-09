@@ -3,6 +3,10 @@ import { AdminShell } from "@/components/admin-shell";
 import { hasSupabaseConfig } from "@/lib/supabase/config";
 import { getNewsroomUser } from "@/lib/supabase/admin";
 
+// Every dashboard page depends on the authenticated user's cookie and role.
+// Rendering it at request time prevents build-time access without a session.
+export const dynamic = "force-dynamic";
+
 export default async function DashboardLayout({
   children,
 }: {

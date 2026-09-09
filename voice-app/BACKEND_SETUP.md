@@ -26,6 +26,10 @@ variable beginning with `NEXT_PUBLIC_`.
 
 Restart `npm run dev` after changing environment variables.
 
+## 2.1 Publish scheduled articles
+
+The deployment contains a Vercel Cron job that checks for due scheduled articles every five minutes. Add a long, random `CRON_SECRET` to the Vercel production environment and to `.env.local`. Vercel sends this secret to the protected cron route automatically. The available cron frequency depends on your Vercel plan; if five-minute scheduling is unavailable, change the schedule in `vercel.json` to the most frequent interval your plan supports.
+
 ## 3. Create the owner
 
 1. Create the first user in **Authentication → Users**.

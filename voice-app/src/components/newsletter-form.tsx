@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState } from "react";
+import Link from "next/link";
 import { subscribeToNewsletter, type NewsletterState } from "@/app/newsletter/actions";
 
 const initialState: NewsletterState = { status: "idle", message: "" };
@@ -19,7 +20,7 @@ export function NewsletterForm({ compact = false }: { compact?: boolean }) {
         <button type="submit" disabled={pending}>{pending ? "Envoi…" : "S’abonner"}</button>
       </div>
       {state.message && <p className={`newsletter-message ${state.status}`} role="status">{state.message}</p>}
-      <small>En vous inscrivant, vous acceptez de recevoir nos e-mails. Désabonnement possible à tout moment.</small>
+      <small>En vous inscrivant, vous acceptez de recevoir nos e-mails. Désabonnement possible à tout moment. Consultez notre <Link href="/confidentialite">politique de confidentialité</Link>.</small>
     </form>
   );
 }

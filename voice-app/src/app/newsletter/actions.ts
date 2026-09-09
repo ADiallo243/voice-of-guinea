@@ -1,5 +1,6 @@
 "use server";
 
+import { redirect } from "next/navigation";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin-client";
 
 export type NewsletterState = {
@@ -68,4 +69,29 @@ export async function subscribeToNewsletter(
       message: "L’inscription est momentanément indisponible. Réessayez plus tard.",
     };
   }
+}
+
+export async function unsubscribeFromNewsletter(formData: FormData) {
+  const token = String(formData.get("token") ?? "").trim();
+  const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(token);
+
+  if (!isUuid) redirect("/newsletter/unsubscribe?error=invalid-token");
+
+  try {
+    const supabase = createSupabaseAdminClient();
+    const { error } = await supabase
+      .from("newsletter_subscribers")
+      .update({
+        status: "unsubscribed",
+        unsubscribed_at: new Date().toISOString(),
+      })
+      .eq("unsubscribe_token", token);
+
+    if (error) throw error;
+  } catch (error) {
+    console.error("Newsletter unsubscribe failed.", error);
+    redirect("/newsletter/unsubscribe?error=unavailable");
+  }
+
+  redirect("/newsletter/unsubscribe?unsubscribed=1");
 }

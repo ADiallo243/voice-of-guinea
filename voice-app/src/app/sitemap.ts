@@ -9,7 +9,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     .filter((category) => !["Actualités", "Culture", "Divertissement"].includes(category))
     .map((category) => ({
       url: `${siteConfig.url}${categoryHref(category)}`,
-      lastModified: new Date(),
       changeFrequency: "weekly" as const,
       priority: 0.7,
     }));
@@ -19,13 +18,18 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { path: "/culture", priority: 0.8, frequency: "weekly" as const },
     { path: "/divertissement", priority: 0.8, frequency: "weekly" as const },
     { path: "/a-propos", priority: 0.5, frequency: "monthly" as const },
+    { path: "/normes-editoriales", priority: 0.4, frequency: "monthly" as const },
+    { path: "/corrections", priority: 0.4, frequency: "monthly" as const },
+    { path: "/confidentialite", priority: 0.3, frequency: "yearly" as const },
+    { path: "/cookies", priority: 0.3, frequency: "yearly" as const },
+    { path: "/accessibilite", priority: 0.3, frequency: "yearly" as const },
+    { path: "/mentions-legales", priority: 0.3, frequency: "yearly" as const },
     { path: "/contact", priority: 0.4, frequency: "yearly" as const },
   ];
 
   return [
     ...pages.map((page) => ({
       url: `${siteConfig.url}${page.path}`,
-      lastModified: new Date(),
       changeFrequency: page.frequency,
       priority: page.priority,
     })),

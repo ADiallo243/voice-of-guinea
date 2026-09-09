@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { CookieSettingsButton } from "./cookie-settings-button";
 import { NewsletterForm } from "./newsletter-form";
 
 export function SiteFooter() {
@@ -20,6 +21,13 @@ export function SiteFooter() {
           <h2>Voice of Guinea</h2>
           <Link href="/a-propos">À propos</Link>
           <Link href="/contact">Contact</Link>
+          <Link href="/normes-editoriales">Normes éditoriales</Link>
+          <Link href="/corrections">Corrections</Link>
+          <Link href="/confidentialite">Confidentialité</Link>
+          <Link href="/cookies">Cookies</Link>
+          <Link href="/accessibilite">Accessibilité</Link>
+          <Link href="/mentions-legales">Mentions légales</Link>
+          <CookieSettingsButton />
         </div>
         <div className="footer-newsletter">
           <h2>Newsletter</h2>

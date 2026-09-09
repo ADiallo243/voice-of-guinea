@@ -70,7 +70,7 @@ export async function saveArticle(formData: FormData) {
   const newsroom = await requireNewsroom();
   const id = text(formData, "id");
   const previous = id
-    ? await newsroom.supabase.from("articles").select("status").eq("id", id).maybeSingle()
+    ? await newsroom.supabase.from("articles").select("status, published_at").eq("id", id).maybeSingle()
     : null;
   if (previous?.error) throw new Error(previous.error.message);
   const title = text(formData, "title");
@@ -81,10 +81,20 @@ export async function saveArticle(formData: FormData) {
   const status = manager && ["published", "scheduled", "archived"].includes(requestedStatus)
     ? requestedStatus
     : "draft";
+  const scheduledFor = text(formData, "scheduledFor");
+  const scheduledDate = scheduledFor ? new Date(scheduledFor) : null;
   if (!title || !excerpt || !rawContent) throw new Error("Titre, résumé et contenu sont obligatoires.");
+  if (status === "scheduled" && (!scheduledDate || Number.isNaN(scheduledDate.getTime()) || scheduledDate <= new Date())) {
+    throw new Error("Choisissez une date de programmation valide et future.");
+  }
 
   const uploadedImage = await uploadHeroImage(formData, newsroom.user.id);
   const existingImage = text(formData, "existingImage");
+  const publishedAt = status === "published"
+    ? previous?.data?.status === "published" && previous.data.published_at
+      ? previous.data.published_at
+      : new Date().toISOString()
+    : null;
   const payload = {
     title,
     slug: text(formData, "slug") || slugify(title),
@@ -100,8 +110,8 @@ export async function saveArticle(formData: FormData) {
     author_id: newsroom.user.id,
     status,
     featured: manager && formData.get("featured") === "on",
-    published_at: status === "published" ? new Date().toISOString() : null,
-    scheduled_for: status === "scheduled" ? text(formData, "scheduledFor") || null : null,
+    published_at: publishedAt,
+    scheduled_for: status === "scheduled" ? scheduledDate!.toISOString() : null,
   };
   if (
     status === "published"
@@ -116,7 +126,7 @@ export async function saveArticle(formData: FormData) {
     );
   }
 
-  if (payload.featured) {
+  if (payload.featured && status === "published") {
     await newsroom.supabase.from("articles").update({ featured: false }).eq("featured", true);
   }
 
