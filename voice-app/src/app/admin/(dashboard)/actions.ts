@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
 import { articles as migratedArticles } from "@/lib/articles";
 import { sendSocialPackEmail } from "@/lib/social-pack-email";
 import { getNewsroomUser } from "@/lib/supabase/admin";
-import { createSupabaseAdminClient } from "@/lib/supabase/admin-client";
+import { createSupabaseAdminClient, hasSupabaseSecret } from "@/lib/supabase/admin-client";
 
 type Role = "owner" | "editor" | "author";
 
@@ -112,11 +112,13 @@ export async function saveArticle(formData: FormData) {
   const publicationDate = text(formData, "publicationDate");
   const publicationDateValue = publicationDate ? new Date(`${publicationDate}T12:00:00Z`) : null;
   const byline = text(formData, "byline");
+  const activityDetail = text(formData, "activityDetail");
   if (!title || !excerpt || !rawContent) throw new Error("Titre, résumé et contenu sont obligatoires.");
   if (title.length > 200 || excerpt.length > 500 || rawContent.length > 50_000) {
     throw new Error("Le titre, le résumé ou le contenu dépasse la limite autorisée.");
   }
   if (byline.length > 120) throw new Error("Le nom de l’auteur ne peut pas dépasser 120 caractères.");
+  if (activityDetail.length > 280) throw new Error("Le détail de la modification ne peut pas dépasser 280 caractères.");
   if (status === "scheduled" && (!scheduledDate || Number.isNaN(scheduledDate.getTime()) || scheduledDate <= new Date())) {
     throw new Error("Choisissez une date de programmation valide et future.");
   }
@@ -183,6 +185,33 @@ export async function saveArticle(formData: FormData) {
     ? await newsroom.supabase.from("articles").update(payload).eq("id", id).select("id").single()
     : await newsroom.supabase.from("articles").insert(payload).select("id").single();
   if (result.error) throw new Error(result.error.message);
+
+  // The trigger creates the audit entry. Attach the editor's own explanation to
+  // that exact entry without exposing it on the public article.
+  if (activityDetail && hasSupabaseSecret()) {
+    try {
+      const database = createSupabaseAdminClient();
+      const { data: activity } = await database
+        .from("activity_log")
+        .select("id, details")
+        .eq("actor_id", newsroom.user.id)
+        .eq("entity_type", "articles")
+        .eq("entity_id", result.data.id)
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      if (activity) {
+        const existingDetails = activity.details && typeof activity.details === "object" ? activity.details : {};
+        const { error: activityError } = await database
+          .from("activity_log")
+          .update({ details: { ...existingDetails, note: activityDetail } })
+          .eq("id", activity.id);
+        if (activityError) console.error("Article saved, but its activity note failed.", activityError);
+      }
+    } catch (error) {
+      console.error("Article saved, but its activity note failed.", error);
+    }
+  }
 
   revalidatePath("/admin");
   revalidatePath("/admin/articles");

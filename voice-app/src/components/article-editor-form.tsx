@@ -68,6 +68,7 @@ export function ArticleEditorForm({
           <small>Séparez les paragraphes par une ligne vide. Utilisez <code>##</code> pour un intertitre.</small>
         </label>
         <label>Notes de sources <span className="field-help">Interne à la rédaction — liens, contacts, documents et éléments à vérifier.</span><textarea name="sourceNotes" rows={4} defaultValue={article?.source_notes ?? ""} placeholder="Sources, liens, contacts ou éléments à vérifier avant publication…" /></label>
+        <label>Détail pour l’activité récente <span className="field-help">Interne à la rédaction. Résumez en une phrase ce qui a changé.</span><textarea name="activityDetail" maxLength={280} rows={3} placeholder="Ex. J’ai corrigé les chiffres et ajouté la déclaration du ministère." /></label>
         <label>Note de correction ou de mise à jour<textarea name="correctionNote" rows={3} defaultValue={article?.correction_note ?? ""} placeholder="Expliquez clairement une correction importante apportée après publication." /></label>
       </section>
       <aside className="editor-sidebar">

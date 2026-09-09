@@ -422,6 +422,7 @@ figcaption { color: var(--muted); font-size: .74rem; margin-top: 8px; }
 .activity-list > div:last-child { border-bottom: 0; }
 .activity-list i { position: absolute; left: 23px; top: 24px; width: 8px; height: 8px; background: var(--green); border-radius: 50%; }
 .activity-list p { font-size: .8rem; line-height: 1.45; margin: 0 0 6px; }
+.activity-list .activity-detail { display: block; margin-top: 5px; color: #6e746c; font-size: .76rem; font-style: italic; line-height: 1.45; }
 .activity-list time { color: #969a93; font-size: .68rem; }
 .admin-config-warning { border: 1px solid #e6c96e; background: #fff6d9; border-radius: 13px; padding: 17px 20px; margin-bottom: 24px; }
 .admin-config-warning strong { display: block; }

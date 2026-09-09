@@ -11,6 +11,12 @@ const statusLabel: Record<string, string> = {
   archived: "Archivé",
 };
 
+function activityNote(details: unknown) {
+  if (!details || typeof details !== "object" || Array.isArray(details)) return null;
+  const note = (details as Record<string, unknown>).note;
+  return typeof note === "string" && note.trim() ? note.trim() : null;
+}
+
 export default async function AdminDashboard() {
   const newsroom = await getNewsroomUser();
   const [published, drafts, scheduled, breaking, recent, queue, activity] = await Promise.all([
@@ -20,7 +26,7 @@ export default async function AdminDashboard() {
     newsroom!.supabase.from("breaking_news").select("*", { count: "exact", head: true }).eq("active", true),
     newsroom!.supabase.from("articles").select("id, title, status, created_at, categories(name)").order("created_at", { ascending: false }).limit(6),
     newsroom!.supabase.from("articles").select("id, title, status, updated_at, categories(name), profiles!articles_author_id_fkey(full_name)").in("status", ["in_review", "needs_changes", "scheduled"]).order("updated_at", { ascending: false }).limit(6),
-    newsroom!.supabase.from("activity_log").select("id, action, entity_type, entity_id, created_at, profiles(full_name)").order("created_at", { ascending: false }).limit(5),
+    newsroom!.supabase.from("activity_log").select("id, action, entity_type, entity_id, details, created_at, profiles(full_name)").order("created_at", { ascending: false }).limit(5),
   ]);
   const articleActivityIds = (activity.data ?? []).filter((item) => item.entity_type === "articles" && item.entity_id).map((item) => item.entity_id);
   const activityArticles = articleActivityIds.length
@@ -90,7 +96,7 @@ export default async function AdminDashboard() {
           {activity.data?.length ? (
             <div className="activity-list">
               {activity.data.map((item) => (
-                <div key={item.id}><i /><p><strong>{item.profiles?.[0]?.full_name || "La rédaction"}</strong> {item.action === "insert" ? "a créé" : item.action === "delete" ? "a supprimé" : "a mis à jour"} {item.entity_type === "articles" ? `l’article « ${articleTitles.get(item.entity_id) ?? "contenu supprimé"} »` : item.entity_type === "categories" ? "une catégorie" : item.entity_type === "breaking_news" ? "la dernière minute" : item.entity_type === "profiles" ? "un accès équipe" : "la newsletter"}.</p><time>{new Intl.DateTimeFormat("fr-FR", { dateStyle: "medium", timeStyle: "short" }).format(new Date(item.created_at))}</time></div>
+                <div key={item.id}><i /><p><strong>{item.profiles?.[0]?.full_name || "La rédaction"}</strong> {item.action === "insert" ? "a créé" : item.action === "delete" ? "a supprimé" : "a mis à jour"} {item.entity_type === "articles" ? `l’article « ${articleTitles.get(item.entity_id) ?? "contenu supprimé"} »` : item.entity_type === "categories" ? "une catégorie" : item.entity_type === "breaking_news" ? "la dernière minute" : item.entity_type === "profiles" ? "un accès équipe" : "la newsletter"}.{activityNote(item.details) && <span className="activity-detail">{activityNote(item.details)}</span>}</p><time>{new Intl.DateTimeFormat("fr-FR", { dateStyle: "medium", timeStyle: "short" }).format(new Date(item.created_at))}</time></div>
               ))}
             </div>
           ) : <div className="admin-empty compact"><p>L’activité apparaîtra après la prochaine migration.</p></div>}
