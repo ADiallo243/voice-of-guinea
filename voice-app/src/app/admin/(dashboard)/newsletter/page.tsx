@@ -1,3 +1,4 @@
+import { redirect } from "next/navigation";
 import { getNewsroomUser } from "@/lib/supabase/admin";
 import { deleteNewsletterSubscriber, updateNewsletterSubscriber } from "../actions";
 
@@ -19,6 +20,7 @@ export default async function NewsletterAdminPage({
   searchParams: Promise<{ q?: string; status?: string }>;
 }) {
   const newsroom = await getNewsroomUser();
+  if (!newsroom?.profile?.role || !["owner", "editor"].includes(newsroom.profile.role)) redirect("/admin");
   const { q = "", status = "" } = await searchParams;
   let query = newsroom!.supabase
     .from("newsletter_subscribers")

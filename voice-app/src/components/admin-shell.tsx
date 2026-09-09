@@ -10,8 +10,8 @@ const adminLinks = [
   { href: "/admin/articles", label: "Articles", icon: "▤" },
   { href: "/admin/breaking-news", label: "Dernière minute", icon: "●" },
   { href: "/admin/categories", label: "Catégories", icon: "◇" },
-  { href: "/admin/newsletter", label: "Newsletter", icon: "✉" },
-  { href: "/admin/statistiques", label: "Statistiques", icon: "↗" },
+  { href: "/admin/newsletter", label: "Newsletter", icon: "✉", editorOnly: true },
+  { href: "/admin/statistiques", label: "Pilotage", icon: "↗", ownerOnly: true },
   { href: "/admin/equipe", label: "Équipe", icon: "◎", ownerOnly: true },
 ];
 
@@ -36,7 +36,10 @@ export function AdminShell({
           <span>Rédaction</span>
         </Link>
         <nav aria-label="Navigation de la rédaction">
-          {adminLinks.filter((link) => !link.ownerOnly || role === "owner").map((link) => (
+          {adminLinks
+            .filter((link) => !link.ownerOnly || role === "owner")
+            .filter((link) => !link.editorOnly || role === "owner" || role === "editor")
+            .map((link) => (
             <Link
               href={link.href}
               key={link.href}
@@ -45,7 +48,7 @@ export function AdminShell({
               <i>{link.icon}</i>
               {link.label}
             </Link>
-          ))}
+            ))}
         </nav>
         <div className="admin-account">
           <span className="admin-avatar" aria-hidden="true">{displayName.slice(0, 1).toUpperCase()}</span>

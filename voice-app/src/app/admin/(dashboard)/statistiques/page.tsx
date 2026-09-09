@@ -1,24 +1,39 @@
+import { redirect } from "next/navigation";
 import { getNewsroomUser } from "@/lib/supabase/admin";
+
+const statusLabel: Record<string, string> = {
+  in_review: "À relire",
+  needs_changes: "À corriger",
+  scheduled: "Programmé",
+};
 
 export default async function AnalyticsPage() {
   const newsroom = await getNewsroomUser();
-  const [categories, articles, authors] = await Promise.all([
-    newsroom!.supabase.from("categories").select("id, name, articles(count)").eq("active", true).order("display_order"),
-    newsroom!.supabase.from("articles").select("id, status, published_at"),
-    newsroom!.supabase.from("profiles").select("id, full_name, articles(count)").eq("active", true),
+  if (newsroom?.profile?.role !== "owner") redirect("/admin");
+
+  const [categories, articles, authors, subscribers, activity] = await Promise.all([
+    newsroom.supabase.from("categories").select("id, name, articles(count)").eq("active", true).order("display_order"),
+    newsroom.supabase.from("articles").select("id, title, status, updated_at, categories(name), profiles(full_name)"),
+    newsroom.supabase.from("profiles").select("id, full_name, articles(count)").eq("active", true),
+    newsroom.supabase.from("newsletter_subscribers").select("status"),
+    newsroom.supabase.from("activity_log").select("id", { count: "exact", head: true }),
   ]);
-  const published = (articles.data ?? []).filter((article) => article.status === "published").length;
+  const allArticles = articles.data ?? [];
+  const published = allArticles.filter((article) => article.status === "published").length;
+  const reviewQueue = allArticles.filter((article) => ["in_review", "needs_changes", "scheduled"].includes(article.status));
+  const confirmedSubscribers = (subscribers.data ?? []).filter((subscriber) => subscriber.status === "active").length;
 
   return (
     <>
       <header className="admin-header">
-        <div><span className="admin-kicker">Performance</span><h1>Statistiques</h1><p>Suivez la production éditoriale ici et l’audience fiable dans Google Analytics.</p></div>
-        <a className="period-pill" href="https://analytics.google.com/" target="_blank" rel="noreferrer">Ouvrir Google Analytics</a>
+        <div><span className="admin-kicker">Direction</span><h1>Pilotage</h1><p>Le tableau privé de la rédaction : production, équipe, abonnés et suivi des changements.</p></div>
+        <span className="period-pill">Accès propriétaire</span>
       </header>
       <section className="admin-stats analytics-summary">
-        <article><span>Articles publiés</span><strong>{published}</strong><small>Contenus en ligne</small></article>
-        <article><span>En préparation</span><strong>{(articles.data ?? []).filter((article) => article.status === "draft").length}</strong><small>Brouillons actuels</small></article>
-        <article><span>Équipe active</span><strong>{authors.data?.length ?? 0}</strong><small>Propriétaires, éditeurs et auteurs</small></article>
+        <article><span>À décider</span><strong>{allArticles.filter((article) => article.status === "in_review").length}</strong><small>Articles à relire</small></article>
+        <article><span>À corriger</span><strong>{allArticles.filter((article) => article.status === "needs_changes").length}</strong><small>Retours en attente</small></article>
+        <article><span>Abonnés confirmés</span><strong>{confirmedSubscribers}</strong><small>Audience newsletter</small></article>
+        <article><span>Changements suivis</span><strong>{activity.count ?? 0}</strong><small>Journal d’audit</small></article>
       </section>
       <div className="analytics-grid">
         <section className="admin-panel">
@@ -30,6 +45,10 @@ export default async function AnalyticsPage() {
           <div className="category-breakdown">{(authors.data ?? []).map((author) => <div key={author.id}><span>{author.full_name || "Membre de la rédaction"}</span><strong>{author.articles?.[0]?.count ?? 0}</strong></div>)}</div>
         </section>
       </div>
+      <section className="admin-panel editorial-queue owner-queue">
+        <div className="admin-panel-heading"><div><span className="admin-kicker">Décisions à venir</span><h2>Suivi de publication</h2><p>{published} article{published > 1 ? "s" : ""} déjà publié{published > 1 ? "s" : ""}, et {reviewQueue.length} élément{reviewQueue.length > 1 ? "s" : ""} dans le circuit.</p></div></div>
+        {reviewQueue.length ? <div className="queue-list">{reviewQueue.slice(0, 8).map((article) => <div className="queue-row" key={article.id}><div><strong>{article.title}</strong><span>{article.categories?.[0]?.name ?? "Sans catégorie"} · {article.profiles?.[0]?.full_name ?? "La rédaction"}</span></div><span className={`status ${article.status}`}>{statusLabel[article.status]}</span></div>)}</div> : <div className="admin-empty compact"><p>Aucun article n’attend une décision éditoriale.</p></div>}
+      </section>
     </>
   );
 }
