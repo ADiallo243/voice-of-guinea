@@ -36,7 +36,7 @@ export async function generateMetadata({
       title: article.title,
       description: article.summary,
       publishedTime: article.publishedAt,
-      modifiedTime: article.updatedAt,
+      modifiedTime: article.lastEditedAt || article.publishedAt,
       authors: [article.author],
       section: article.category,
       images: [{ url: article.image, alt: article.imageAlt }],
@@ -71,10 +71,14 @@ export default async function ArticlePage({
     description: article.summary,
     image: [imageUrl],
     datePublished: article.publishedAt,
-    dateModified: article.updatedAt || article.publishedAt,
+    dateModified: article.lastEditedAt || article.publishedAt,
     articleSection: article.category,
     inLanguage: "fr",
-    author: [{ "@type": "Organization", name: article.author, url: siteConfig.url }],
+    author: [{
+      "@type": article.author === siteConfig.publisher ? "Organization" : "Person",
+      name: article.author,
+      ...(article.author === siteConfig.publisher ? { url: siteConfig.url } : {}),
+    }],
     publisher: {
       "@type": "NewsMediaOrganization",
       name: siteConfig.publisher,
@@ -104,10 +108,14 @@ export default async function ArticlePage({
         <h1>{article.title}</h1>
         <p className="article-deck">{article.summary}</p>
         <div className="article-byline">
-          <span>Par {article.author}</span>
-          <time dateTime={article.publishedAt}>{formatArticleDate(article.publishedAt)}</time>
-          {article.updatedAt && <span>Mis à jour le {formatArticleDate(article.updatedAt)}</span>}
-          <span>{getReadingTime(article)} min de lecture</span>
+          <div className="byline-person">
+            <span className="byline-avatar" aria-hidden="true">{article.author.slice(0, 1).toUpperCase()}</span>
+            <div><strong>Par {article.author}</strong><time dateTime={article.publishedAt}>Publié le {formatArticleDate(article.publishedAt)}</time></div>
+          </div>
+          <div className="article-timestamps">
+            {article.lastEditedAt && <time dateTime={article.lastEditedAt}>Mis à jour le {formatArticleDate(article.lastEditedAt)}</time>}
+            <span>{getReadingTime(article)} min de lecture</span>
+          </div>
         </div>
         <ShareButtons title={article.title} />
         <SaveArticle slug={article.slug} />

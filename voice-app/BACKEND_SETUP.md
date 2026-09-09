@@ -8,7 +8,7 @@ demo content when the database is unavailable or empty.
 
 1. Create a Supabase project.
 2. In **SQL Editor**, run every file in `supabase/migrations/` in numerical
-   order, from `001_initial_newsroom.sql` through `010_hash_newsletter_tokens.sql`.
+   order, from `001_initial_newsroom.sql` through `011_article_byline_and_edit_dates.sql`.
 3. In **Authentication → Providers → Email**, disable public sign-ups. Newsroom
    accounts should be invited deliberately.
 

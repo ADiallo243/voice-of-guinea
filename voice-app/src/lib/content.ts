@@ -11,6 +11,7 @@ import { getSupabaseConfig, hasSupabaseConfig } from "./supabase/config";
 export type PublicArticle = Article & {
   id?: string;
   updatedAt?: string;
+  lastEditedAt?: string;
   correctionNote?: string;
   seoTitle?: string;
   seoDescription?: string;
@@ -28,6 +29,8 @@ type ArticleRow = {
   featured: boolean;
   published_at: string;
   updated_at: string;
+  byline?: string | null;
+  last_edited_at?: string | null;
   correction_note?: string | null;
   seo_title?: string | null;
   seo_description?: string | null;
@@ -59,10 +62,11 @@ function mapArticle(row: ArticleRow): PublicArticle {
     category: categoryName(category?.name),
     publishedAt: row.published_at,
     updatedAt: row.updated_at,
+    lastEditedAt: row.last_edited_at || undefined,
     correctionNote: row.correction_note || undefined,
     seoTitle: row.seo_title || undefined,
     seoDescription: row.seo_description || undefined,
-    author: "Voice of Guinea",
+    author: row.byline || "Voice of Guinea",
     image: row.hero_image_url || "/brand/logo.svg",
     imageAlt: row.hero_image_alt || row.title,
     imageCredit: row.image_credit || "Voice of Guinea",
@@ -75,7 +79,7 @@ export async function getPublishedArticles(): Promise<PublicArticle[]> {
   if (!hasSupabaseConfig()) return canUseDemoContent() ? fallbackArticles : [];
   const { data, error } = await publicClient()
     .from("articles")
-    .select("id, slug, title, excerpt, content, hero_image_url, hero_image_alt, image_credit, featured, published_at, updated_at, correction_note, seo_title, seo_description, categories(name)")
+    .select("id, slug, title, excerpt, content, hero_image_url, hero_image_alt, image_credit, featured, published_at, updated_at, byline, last_edited_at, correction_note, seo_title, seo_description, categories(name)")
     .eq("status", "published")
     .lte("published_at", new Date().toISOString())
     .order("published_at", { ascending: false });
@@ -87,7 +91,7 @@ export async function getPublicArticle(slug: string): Promise<PublicArticle | un
   if (!hasSupabaseConfig()) return canUseDemoContent() ? getFallbackArticle(slug) : undefined;
   const { data, error } = await publicClient()
     .from("articles")
-    .select("id, slug, title, excerpt, content, hero_image_url, hero_image_alt, image_credit, featured, published_at, updated_at, correction_note, seo_title, seo_description, categories(name)")
+    .select("id, slug, title, excerpt, content, hero_image_url, hero_image_alt, image_credit, featured, published_at, updated_at, byline, last_edited_at, correction_note, seo_title, seo_description, categories(name)")
     .eq("slug", slug)
     .eq("status", "published")
     .lte("published_at", new Date().toISOString())

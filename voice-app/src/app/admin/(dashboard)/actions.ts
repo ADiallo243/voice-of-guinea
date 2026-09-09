@@ -95,7 +95,7 @@ export async function saveArticle(formData: FormData) {
   const newsroom = await requireNewsroom();
   const id = text(formData, "id");
   const previous = id
-    ? await newsroom.supabase.from("articles").select("status, published_at, editorial_notes").eq("id", id).maybeSingle()
+    ? await newsroom.supabase.from("articles").select("status, published_at, editorial_notes, author_id").eq("id", id).maybeSingle()
     : null;
   if (previous?.error) throw new Error(previous.error.message);
   const title = text(formData, "title");
@@ -109,27 +109,40 @@ export async function saveArticle(formData: FormData) {
     : requestedStatus === "in_review" ? "in_review" : "draft";
   const scheduledFor = text(formData, "scheduledFor");
   const scheduledDate = scheduledFor ? new Date(scheduledFor) : null;
+  const publicationDate = text(formData, "publicationDate");
+  const publicationDateValue = publicationDate ? new Date(`${publicationDate}T12:00:00Z`) : null;
+  const byline = text(formData, "byline");
   if (!title || !excerpt || !rawContent) throw new Error("Titre, résumé et contenu sont obligatoires.");
   if (title.length > 200 || excerpt.length > 500 || rawContent.length > 50_000) {
     throw new Error("Le titre, le résumé ou le contenu dépasse la limite autorisée.");
   }
+  if (byline.length > 120) throw new Error("Le nom de l’auteur ne peut pas dépasser 120 caractères.");
   if (status === "scheduled" && (!scheduledDate || Number.isNaN(scheduledDate.getTime()) || scheduledDate <= new Date())) {
     throw new Error("Choisissez une date de programmation valide et future.");
   }
   if (status === "needs_changes" && !text(formData, "editorialNotes")) {
     throw new Error("Expliquez à l’auteur les modifications demandées.");
   }
+  if (status === "published" && publicationDate && (!publicationDateValue || Number.isNaN(publicationDateValue.getTime()))) {
+    throw new Error("Choisissez une date de publication valide.");
+  }
+  if (status === "published" && publicationDateValue && publicationDateValue > new Date(Date.now() + 24 * 60 * 60 * 1000)) {
+    throw new Error("Pour une publication future, utilisez plutôt la programmation.");
+  }
 
   const uploadedImage = await uploadHeroImage(formData, newsroom.user.id);
   const existingImage = text(formData, "existingImage");
   const publishedAt = status === "published"
-    ? previous?.data?.status === "published" && previous.data.published_at
+    ? publicationDateValue
+      ? publicationDateValue.toISOString()
+      : previous?.data?.status === "published" && previous.data.published_at
       ? previous.data.published_at
       : new Date().toISOString()
     : null;
   const payload = {
     title,
     slug: text(formData, "slug") || slugify(title),
+    byline: byline || null,
     excerpt,
     seo_title: text(formData, "seoTitle") || null,
     seo_description: text(formData, "seoDescription") || null,
@@ -141,7 +154,7 @@ export async function saveArticle(formData: FormData) {
     hero_image_alt: text(formData, "imageAlt"),
     image_credit: text(formData, "imageCredit") || null,
     category_id: text(formData, "categoryId") || null,
-    author_id: newsroom.user.id,
+    author_id: previous?.data?.author_id || newsroom.user.id,
     status,
     featured: manager && formData.get("featured") === "on",
     published_at: publishedAt,

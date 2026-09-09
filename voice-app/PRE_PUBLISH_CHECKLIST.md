@@ -16,7 +16,7 @@ This checklist supports a responsible launch. It is not a substitute for advice 
 - [ ] Use **Gérer mes cookies** in the footer, refuse, and confirm that `_ga` cookies are removed.
 - [ ] Set GA4 data retention deliberately and review data sharing, Google Signals and advertising-personalization settings. Keep advertising features disabled unless there is a documented need and suitable consent.
 - [ ] Implement and document a retention process for unsubscribed newsletter records.
-- [ ] Add newsletter double opt-in before sending newsletters at scale.
+- [ ] Confirm newsletter double opt-in works before sending newsletters at scale.
 
 ## Accessibility and publishing quality
 
@@ -28,11 +28,12 @@ This checklist supports a responsible launch. It is not a substitute for advice 
 
 ## Google and operations
 
+- [ ] In the Vercel project, set **Root Directory** to `voice-app`; confirm the deployment preview serves `/culture` rather than the legacy `culture.html` page.
 - [ ] Verify a **Domain property** in Google Search Console through DNS.
 - [ ] Submit `https://www.voiceofguinea.com/sitemap.xml` and `https://www.voiceofguinea.com/news-sitemap.xml`.
 - [ ] Inspect the home page and several published articles in Search Console after deployment.
 - [ ] Add `CRON_SECRET` in Vercel and confirm a scheduled test article is published at the expected time.
-- [ ] Apply every Supabase migration through `010_hash_newsletter_tokens.sql` in order, then confirm the Storage policies and RLS policies are active.
+- [ ] Apply every Supabase migration through `011_article_byline_and_edit_dates.sql` in order, then confirm the Storage policies and RLS policies are active.
 - [ ] Configure Resend plus Cloudflare Turnstile and add `NEWSLETTER_FROM_EMAIL`, `TURNSTILE_SECRET_KEY`, and `NEWSLETTER_RATE_LIMIT_SECRET` in Vercel.
 - [ ] Confirm a newsletter address remains pending until the recipient explicitly completes the confirmation page; confirm the unsubscribe and confirmation URLs never appear in Google Analytics.
 - [ ] Enable Supabase Auth MFA and leaked-password protection for the newsroom, disable public sign-ups, and restrict Auth redirect URLs to your production domain.

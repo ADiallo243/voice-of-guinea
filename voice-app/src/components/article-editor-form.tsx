@@ -20,6 +20,8 @@ type ArticleRecord = {
   correction_note?: string | null;
   source_notes?: string | null;
   editorial_notes?: string | null;
+  byline?: string | null;
+  published_at?: string | null;
 };
 
 type ArticleRevision = {
@@ -54,6 +56,7 @@ export function ArticleEditorForm({
       <input type="hidden" name="existingImage" value={article?.hero_image_url ?? ""} />
       <section className="editor-main">
         <label className="editor-title">Titre de l’article<input name="title" required defaultValue={article?.title} placeholder="Écrivez un titre clair et précis…" /></label>
+        <label>Nom de l’auteur <input name="byline" maxLength={120} defaultValue={article?.byline ?? ""} placeholder="Ex. Aminata Diallo" /><span className="field-help">Visible sur le site. Laissez vide pour afficher Voice of Guinea.</span></label>
         <label>Adresse de l’article<input name="slug" defaultValue={article?.slug} placeholder="Créée automatiquement si elle reste vide" /></label>
         <label>Résumé<textarea name="excerpt" required rows={3} defaultValue={article?.excerpt} placeholder="Le résumé visible sur les cartes et dans les résultats de recherche…" /></label>
         <div className="editor-section-label"><strong>Référencement</strong><span>Laissez vide pour reprendre le titre et le résumé.</span></div>
@@ -82,6 +85,7 @@ export function ArticleEditorForm({
           </label>
           {canPublish && <label>Retour à l’auteur <textarea name="editorialNotes" rows={4} defaultValue={article?.editorial_notes ?? ""} placeholder="Commentaires internes ou modifications demandées…" /></label>}
           {canPublish && <label>Date de programmation<input type="datetime-local" name="scheduledFor" defaultValue={article?.scheduled_for?.slice(0, 16)} /></label>}
+          {canPublish && <label>Date de publication <input type="date" name="publicationDate" defaultValue={article?.published_at?.slice(0, 10)} /><span className="field-help">Pour une publication immédiate ou une date historique. Pour plus tard, utilisez la programmation.</span></label>}
           {canPublish && <label className="check-row"><input type="checkbox" name="featured" defaultChecked={article?.featured} /> Mettre à la une</label>}
         </div>
         <div className="editor-box publication-checklist">

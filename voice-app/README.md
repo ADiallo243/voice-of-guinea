@@ -1,36 +1,38 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Voice of Guinea newsroom
 
-## Getting Started
+The production newsroom is a Next.js application with Supabase for editorial
+content, staff access, revisions and newsletter subscriptions. The older static
+HTML files at the repository root are only the previous site; they are not this
+application.
 
-First, run the development server:
+## Run locally
 
 ```bash
+npm install
+cp .env.example .env.local
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Add the Supabase values from `.env.example` to `.env.local`. Follow
+`BACKEND_SETUP.md` to create the database and newsroom accounts. The production
+site intentionally shows no sample articles when the database is unavailable.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Publish to the existing domain
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+In the existing Vercel project:
 
-## Learn More
+1. Open **Settings → General → Root Directory**.
+2. Set it to `voice-app` and save.
+3. In **Settings → Environment Variables**, add every required production value
+   from `.env.example` and `BACKEND_SETUP.md`. Keep secrets server-only; do not
+   add them to GitHub.
+4. Apply the Supabase migrations in order, through
+   `011_article_byline_and_edit_dates.sql`.
+5. Deploy the `main` branch, then attach `www.voiceofguinea.com` to that Vercel
+   project if it is not already connected.
 
-To learn more about Next.js, take a look at the following resources:
+Changing the Root Directory is essential: without it, Vercel deploys the old
+static site at the repository root, which uses `.html` links and cannot expose
+the CMS or the new application routes.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Use `PRE_PUBLISH_CHECKLIST.md` before making the deployment public.

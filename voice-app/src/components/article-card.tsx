@@ -16,7 +16,13 @@ export function ArticleCard({
   return (
     <article className={large ? "article-card article-card-large" : "article-card"}>
       <Link href={`/articles/${article.slug}`} className="card-image">
-        <Image src={article.image} alt={article.imageAlt} fill sizes={large ? "(max-width: 800px) 100vw, 65vw" : "(max-width: 800px) 100vw, 33vw"} />
+        <Image
+          src={article.image}
+          alt={article.imageAlt}
+          fill
+          priority={large}
+          sizes={large ? "(max-width: 800px) 100vw, 65vw" : "(max-width: 800px) 100vw, 33vw"}
+        />
       </Link>
       <div className="card-content">
         <Link href={categoryHref(article.category)} className="eyebrow">
@@ -28,8 +34,9 @@ export function ArticleCard({
         <p>{article.summary}</p>
         {large && <Link href={`/articles/${article.slug}`} className="card-button">Lire l’article</Link>}
         <div className="card-meta">
+          <span className="card-author">Par {article.author}</span>
           <time dateTime={article.publishedAt}>{formatArticleDate(article.publishedAt)}</time>
-          <span>{getReadingTime(article)} min de lecture</span>
+          <span className="card-reading-time">{getReadingTime(article)} min de lecture</span>
         </div>
       </div>
     </article>
