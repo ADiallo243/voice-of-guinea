@@ -284,7 +284,10 @@ export async function deleteBreakingNews(formData: FormData) {
 
 export async function importMigratedArticles() {
   const newsroom = await requireNewsroom(["owner"]);
-  const { data: categories, error: categoriesError } = await newsroom.supabase.from("categories").select("id, name");
+  // This is an owner-only migration. Use the server-only client so the import is
+  // not affected by a browser session or a row-level policy change mid-migration.
+  const database = createSupabaseAdminClient();
+  const { data: categories, error: categoriesError } = await database.from("categories").select("id, name");
   if (categoriesError) throw new Error(categoriesError.message);
   const categoryIds = new Map((categories ?? []).map((category) => [category.name, category.id]));
   const payload = migratedArticles.map((article) => ({
@@ -305,24 +308,39 @@ export async function importMigratedArticles() {
 
   // The database intentionally permits only one featured published article.
   // Clear any old feature first, then restore the designated migrated lead.
-  const { error: clearFeatureError } = await newsroom.supabase
+  const { error: clearFeatureError } = await database
     .from("articles")
     .update({ featured: false })
     .eq("status", "published")
     .eq("featured", true);
   if (clearFeatureError) throw new Error(clearFeatureError.message);
 
-  const { error } = await newsroom.supabase.from("articles").upsert(payload, { onConflict: "slug" });
+  const { data: savedArticles, error } = await database
+    .from("articles")
+    .upsert(payload, { onConflict: "slug" })
+    .select("id, slug");
   if (error) throw new Error(error.message);
+  if (!savedArticles || savedArticles.length !== payload.length) {
+    throw new Error("L’import est incomplet. Aucun message de succès ne sera affiché tant que les cinq articles ne sont pas enregistrés.");
+  }
 
   const featuredArticle = migratedArticles.find((article) => article.featured);
   if (featuredArticle) {
-    const { error: setFeatureError } = await newsroom.supabase
+    const { error: setFeatureError } = await database
       .from("articles")
       .update({ featured: true })
       .eq("slug", featuredArticle.slug)
       .eq("status", "published");
     if (setFeatureError) throw new Error(setFeatureError.message);
+  }
+
+  const { count: importedCount, error: verificationError } = await database
+    .from("articles")
+    .select("id", { count: "exact", head: true })
+    .in("slug", payload.map((article) => article.slug));
+  if (verificationError) throw new Error(verificationError.message);
+  if (importedCount !== payload.length) {
+    throw new Error("La vérification de l’import a échoué. Réessayez après avoir vérifié la configuration Supabase.");
   }
 
   revalidatePath("/admin");

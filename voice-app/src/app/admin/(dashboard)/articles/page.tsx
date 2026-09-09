@@ -24,7 +24,7 @@ export default async function AdminArticlesPage({
     .order("created_at", { ascending: false });
   if (q) query = query.ilike("title", `%${q}%`);
   if (status) query = query.eq("status", status);
-  const { data: articles } = await query;
+  const { data: articles, error } = await query;
   const isOwner = newsroom?.profile?.role === "owner";
 
   return (
@@ -34,6 +34,7 @@ export default async function AdminArticlesPage({
         <Link href="/admin/articles/new" className="admin-primary">+ Nouvel article</Link>
       </header>
       {importState === "success" && <p className="admin-flash success" role="status">Les cinq articles existants ont été importés. Vous pouvez maintenant les revoir et les publier.</p>}
+      {error && <div className="admin-config-warning"><strong>Les articles ne peuvent pas être lus pour le moment.</strong><p>{error.message}</p></div>}
       <section className="admin-panel">
         <form className="admin-toolbar">
           <input name="q" type="search" defaultValue={q} placeholder="Rechercher un article…" />
