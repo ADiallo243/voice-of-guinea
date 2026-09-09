@@ -48,7 +48,7 @@ addresses and e-mail addresses are not stored for this purpose.
 
 ## 2.2 Publish scheduled articles
 
-The deployment contains a Vercel Cron job that checks for due scheduled articles every five minutes. Add a long, random `CRON_SECRET` to the Vercel production environment and to `.env.local`. Vercel sends this secret to the protected cron route automatically. The available cron frequency depends on your Vercel plan; if five-minute scheduling is unavailable, change the schedule in `vercel.json` to the most frequent interval your plan supports.
+The deployment contains a Vercel Cron job that checks for due scheduled articles. On the Hobby plan it runs once daily, around 06:00 UTC; publish time-sensitive stories manually. Add a long, random `CRON_SECRET` to the Vercel production environment and to `.env.local`. Vercel sends this secret to the protected cron route automatically. If you upgrade to a paid plan, you can restore the five-minute schedule in `vercel.json`.
 
 ## 3. Create the owner
 
