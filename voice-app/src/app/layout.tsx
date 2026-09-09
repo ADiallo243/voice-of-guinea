@@ -37,6 +37,17 @@ export const metadata: Metadata = {
   authors: [{ name: siteConfig.publisher, url: siteConfig.url }],
   creator: siteConfig.publisher,
   publisher: siteConfig.publisher,
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+      "max-video-preview": -1,
+    },
+  },
   verification: {
     google: "wcod8hDc5J5eCXLCnjL8R2QKLfdj4mhEX3GLkRQVsqY",
   },
@@ -66,7 +77,7 @@ export default async function RootLayout({
     "@type": "NewsMediaOrganization",
     name: siteConfig.name,
     url: siteConfig.url,
-    logo: `${siteConfig.url}${siteConfig.logo}`,
+    logo: `${siteConfig.url}${siteConfig.structuredLogo}`,
     email: siteConfig.email,
     address: { "@type": "PostalAddress", addressLocality: "Conakry", addressCountry: "GN" },
     sameAs: [siteConfig.instagram],

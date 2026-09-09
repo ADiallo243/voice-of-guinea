@@ -22,7 +22,7 @@ type ArticleRow = {
   slug: string;
   title: string;
   excerpt: string;
-  content: ContentBlock[] | null;
+  content: unknown;
   hero_image_url: string | null;
   hero_image_alt: string | null;
   image_credit: string | null;
@@ -36,6 +36,46 @@ type ArticleRow = {
   seo_description?: string | null;
   categories: { name: string } | { name: string }[] | null;
 };
+
+function safeImageUrl(value: unknown) {
+  if (typeof value !== "string") return null;
+  if (value.startsWith("/images/") || value.startsWith("/brand/")) return value;
+  try {
+    const imageUrl = new URL(value);
+    const supabaseUrl = new URL(getSupabaseConfig().url);
+    if (
+      imageUrl.protocol === "https:"
+      && imageUrl.origin === supabaseUrl.origin
+      && imageUrl.pathname.startsWith("/storage/v1/object/public/article-images/")
+    ) return imageUrl.toString();
+  } catch {
+    return null;
+  }
+  return null;
+}
+
+function safeContent(value: unknown): ContentBlock[] {
+  if (!Array.isArray(value)) return [];
+  return value.flatMap((block): ContentBlock[] => {
+    if (!block || typeof block !== "object") return [];
+    const candidate = block as Record<string, unknown>;
+    if (
+      (candidate.type === "heading" || candidate.type === "paragraph")
+      && typeof candidate.text === "string"
+      && candidate.text.trim()
+    ) return [{ type: candidate.type, text: candidate.text.trim() }];
+    const src = safeImageUrl(candidate.src);
+    if (candidate.type === "image" && src) {
+      return [{
+        type: "image",
+        src,
+        alt: typeof candidate.alt === "string" && candidate.alt.trim() ? candidate.alt.trim() : "Illustration de l’article",
+        credit: typeof candidate.credit === "string" && candidate.credit.trim() ? candidate.credit.trim() : "Voice of Guinea",
+      }];
+    }
+    return [];
+  });
+}
 
 function publicClient() {
   const { url, key } = getSupabaseConfig();
@@ -54,6 +94,7 @@ function categoryName(value: string | undefined): Category {
 
 function mapArticle(row: ArticleRow): PublicArticle {
   const category = Array.isArray(row.categories) ? row.categories[0] : row.categories;
+  const heroImage = safeImageUrl(row.hero_image_url) || "/brand/logo.svg";
   return {
     id: row.id,
     slug: row.slug,
@@ -67,11 +108,11 @@ function mapArticle(row: ArticleRow): PublicArticle {
     seoTitle: row.seo_title || undefined,
     seoDescription: row.seo_description || undefined,
     author: row.byline || "Voice of Guinea",
-    image: row.hero_image_url || "/brand/logo.svg",
+    image: heroImage,
     imageAlt: row.hero_image_alt || row.title,
     imageCredit: row.image_credit || "Voice of Guinea",
     featured: Boolean(row.featured),
-    blocks: Array.isArray(row.content) ? row.content : [],
+    blocks: safeContent(row.content),
   };
 }
 

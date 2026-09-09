@@ -36,6 +36,7 @@ export async function GET(request: NextRequest) {
     if (error) throw error;
 
     const dueArticles = (data ?? []) as ScheduledArticle[];
+    let publishedCount = 0;
     for (const article of dueArticles) {
       if (article.featured) {
         const { error: clearFeaturedError } = await supabase
@@ -47,7 +48,7 @@ export async function GET(request: NextRequest) {
         if (clearFeaturedError) throw clearFeaturedError;
       }
 
-      const { error: publishError } = await supabase
+      const { data: publishedArticle, error: publishError } = await supabase
         .from("articles")
         .update({
           status: "published",
@@ -55,8 +56,12 @@ export async function GET(request: NextRequest) {
           scheduled_for: null,
         })
         .eq("id", article.id)
-        .eq("status", "scheduled");
+        .eq("status", "scheduled")
+        .select("id")
+        .maybeSingle();
       if (publishError) throw publishError;
+      if (!publishedArticle) continue;
+      publishedCount += 1;
 
       try {
         await sendSocialPackEmail({
@@ -75,14 +80,28 @@ export async function GET(request: NextRequest) {
       revalidatePath(`/articles/${article.slug}`);
     }
 
-    if (dueArticles.length) {
+    if (publishedCount) {
       revalidatePath("/", "layout");
       revalidatePath("/actualites");
       revalidatePath("/sitemap.xml");
       revalidatePath("/news-sitemap.xml");
     }
 
-    return NextResponse.json({ published: dueArticles.length });
+    // Remove short-lived anti-abuse records and abandoned unconfirmed signups.
+    // Confirmed and unsubscribed contacts are left untouched for the newsroom's
+    // documented retention process.
+    const rateLimitCutoff = new Date(Date.now() - 48 * 60 * 60 * 1000).toISOString();
+    const pendingCutoff = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
+    const cleanupResults = await Promise.all([
+      supabase.from("login_attempt_limits").delete().lt("updated_at", rateLimitCutoff),
+      supabase.from("newsletter_signup_limits").delete().lt("updated_at", rateLimitCutoff),
+      supabase.from("newsletter_subscribers").delete().eq("status", "pending").lt("confirmation_sent_at", pendingCutoff),
+    ]);
+    cleanupResults.forEach(({ error: cleanupError }) => {
+      if (cleanupError) console.error("Scheduled privacy cleanup failed.", cleanupError);
+    });
+
+    return NextResponse.json({ published: publishedCount });
   } catch (error) {
     console.error("Scheduled publication failed.", error);
     return NextResponse.json({ error: "Unable to publish scheduled articles." }, { status: 500 });

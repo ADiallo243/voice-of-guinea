@@ -13,6 +13,7 @@ const adminLinks = [
   { href: "/admin/newsletter", label: "Newsletter", icon: "✉", editorOnly: true },
   { href: "/admin/statistiques", label: "Pilotage", icon: "↗", ownerOnly: true },
   { href: "/admin/equipe", label: "Équipe", icon: "◎", ownerOnly: true },
+  { href: "/admin/systeme", label: "Système", icon: "⚙", ownerOnly: true },
 ];
 
 export function AdminShell({

@@ -158,6 +158,9 @@ figcaption { color: var(--muted); font-size: .74rem; margin-top: 8px; }
 .newsletter-message.success { color: var(--green) !important; }
 .newsletter-message.error { color: var(--red) !important; }
 .newsletter-honeypot { position: absolute !important; left: -9999px !important; width: 1px !important; height: 1px !important; }
+.newsletter-unavailable { display: grid; gap: 5px; border: 1px solid #cfc6b8; border-radius: 16px; padding: 16px 18px; background: rgba(255,255,255,.62); color: #343630; }
+.newsletter-unavailable strong { font-size: .86rem; }
+.newsletter-unavailable span { color: #77736c; font-size: .75rem; line-height: 1.45; }
 .footer-newsletter p { font-size: .78rem; margin: 11px 0 15px; }
 .footer-newsletter .newsletter-fields { display: grid; }
 .footer-newsletter .newsletter-fields input { min-height: 42px; border-color: #454a44; background: #222622; color: white; }
@@ -468,6 +471,27 @@ button:disabled { opacity: .45; cursor: not-allowed; }
 .category-breakdown > div:last-child { border-bottom: 0; }
 .category-breakdown span { font-size: .83rem; }
 .category-breakdown strong { width: 34px; height: 34px; display: grid; place-items: center; border-radius: 50%; background: #f0ede6; font-family: var(--font-display); }
+.system-summary { display: flex; align-items: center; justify-content: space-between; gap: 30px; margin-bottom: 22px; padding: 24px 28px; }
+.system-summary > div { display: flex; align-items: center; gap: 20px; }
+.system-summary strong { font-size: 2.4rem; letter-spacing: -.045em; }
+.system-summary p { color: #73777f; font-size: .86rem; line-height: 1.5; margin: 0; text-align: right; }
+.system-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 22px; }
+.system-panel { min-width: 0; }
+.system-checks { padding: 5px 24px; }
+.system-check { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 13px; padding: 17px 0; border-bottom: 1px solid #ecece9; }
+.system-check:last-child { border-bottom: 0; }
+.system-indicator { width: 9px; height: 9px; border-radius: 50%; box-shadow: 0 0 0 5px rgba(0,0,0,.035); }
+.system-indicator.ready { background: #268052; }
+.system-indicator.missing { background: #d58a1d; }
+.system-check strong { display: block; font-size: .84rem; }
+.system-check p { color: #858881; font-size: .72rem; line-height: 1.45; margin: 4px 0 0; }
+.system-state { border-radius: 999px; padding: 6px 9px; font-size: .63rem; font-weight: 780; white-space: nowrap; }
+.system-state.ready { background: #e5f3ea; color: #277247; }
+.system-state.missing { background: #fff0dc; color: #945600; }
+.system-guidance { display: grid; gap: 13px; padding: 22px 26px 26px; }
+.system-guidance p { color: #72766f; font-size: .8rem; line-height: 1.55; margin: 0; }
+.system-guidance strong { color: #30332e; }
+.system-guidance code { overflow-wrap: anywhere; }
 .status.pending { background: #fff2ce; color: #816517; }
 .status.unsubscribed { background: #eeeef0; color: #74747a; }
 .subscriber-row { display: grid; grid-template-columns: minmax(220px, 1fr) auto auto auto; gap: 20px; align-items: center; padding: 17px 24px; border-bottom: 1px solid #ecece9; }
@@ -478,6 +502,7 @@ button:disabled { opacity: .45; cursor: not-allowed; }
 .subscriber-row div > span { color: #92968f; font-size: .71rem; margin-top: 4px; }
 .subscriber-actions { display: flex; align-items: center; gap: 10px; }
 .subscriber-actions select { border: 1px solid #d9dcd5; border-radius: 8px; background: white; padding: 8px; font: inherit; font-size: .75rem; }
+.subscriber-locked { color: #8a8e87; font-size: .72rem; }
 
 @media (max-width: 900px) {
   .admin-sidebar { position: static; width: auto; min-height: auto; }
@@ -488,7 +513,7 @@ button:disabled { opacity: .45; cursor: not-allowed; }
   .admin-stats { grid-template-columns: repeat(2, 1fr); }
   .article-editor { grid-template-columns: 1fr; }
   .category-admin-grid, .breaking-grid, .dashboard-columns { grid-template-columns: 1fr; }
-  .team-layout, .analytics-grid { grid-template-columns: 1fr; }
+  .team-layout, .analytics-grid, .system-grid { grid-template-columns: 1fr; }
   .subscriber-row { grid-template-columns: minmax(0, 1fr) auto; }
   .subscriber-actions { grid-column: 1 / -1; }
   .chart-panel { grid-column: auto; }
@@ -512,4 +537,8 @@ button:disabled { opacity: .45; cursor: not-allowed; }
   .newsletter-fields { display: grid; }
   .public-search { display: grid; }
   .public-search button { min-height: 48px; }
+  .system-summary { align-items: flex-start; flex-direction: column; }
+  .system-summary p { text-align: left; }
+  .system-check { grid-template-columns: auto minmax(0, 1fr); }
+  .system-state { grid-column: 2; justify-self: start; }
 }

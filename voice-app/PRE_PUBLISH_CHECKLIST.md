@@ -33,9 +33,10 @@ This checklist supports a responsible launch. It is not a substitute for advice 
 - [ ] Submit `https://www.voiceofguinea.com/sitemap.xml` and `https://www.voiceofguinea.com/news-sitemap.xml`.
 - [ ] Inspect the home page and several published articles in Search Console after deployment.
 - [ ] Add `CRON_SECRET` in Vercel and confirm a scheduled test article is published at the expected time.
-- [ ] Apply every Supabase migration through `011_article_byline_and_edit_dates.sql` in order, then confirm the Storage policies and RLS policies are active.
-- [ ] Configure Resend plus Cloudflare Turnstile and add `NEWSLETTER_FROM_EMAIL`, `TURNSTILE_SECRET_KEY`, and `NEWSLETTER_RATE_LIMIT_SECRET` in Vercel.
+- [ ] Apply every Supabase migration through `012_publication_and_login_guards.sql` in order, then confirm the Storage policies and RLS policies are active.
+- [ ] Configure Resend plus Cloudflare Turnstile and add `NEWSLETTER_FROM_EMAIL`, `NEXT_PUBLIC_TURNSTILE_SITE_KEY`, `TURNSTILE_SECRET_KEY`, and `NEWSLETTER_RATE_LIMIT_SECRET` in Vercel.
 - [ ] Confirm a newsletter address remains pending until the recipient explicitly completes the confirmation page; confirm the unsubscribe and confirmation URLs never appear in Google Analytics.
 - [ ] Enable Supabase Auth MFA and leaked-password protection for the newsroom, disable public sign-ups, and restrict Auth redirect URLs to your production domain.
+- [ ] Add `AUTH_RATE_LIMIT_SECRET` in Vercel and confirm **Système** reports that login throttling is ready.
 - [ ] Apply every Supabase migration, including `006_storage_path_policies.sql`.
 - [ ] Set two-factor authentication for Vercel, Supabase, Google and the GitHub repository; restrict admin roles to the people who need them.

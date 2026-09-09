@@ -2,8 +2,6 @@ import Link from "next/link";
 import { ArticleCard } from "@/components/article-card";
 import { NewsletterForm } from "@/components/newsletter-form";
 import { getPublishedArticles } from "@/lib/content";
-import { serializeJsonLd } from "@/lib/json-ld";
-import { siteConfig } from "@/lib/site";
 
 export const metadata: Metadata = {
   alternates: { canonical: "/" },
@@ -13,19 +11,9 @@ export default async function Home() {
   const articles = await getPublishedArticles();
   const lead = articles.find((article) => article.featured) ?? articles[0];
   const latest = articles.filter((article) => article.slug !== lead?.slug);
-  const organizationSchema = {
-    "@context": "https://schema.org",
-    "@type": "NewsMediaOrganization",
-    name: siteConfig.name,
-    url: siteConfig.url,
-    logo: `${siteConfig.url}${siteConfig.logo}`,
-    email: siteConfig.email,
-    address: { "@type": "PostalAddress", addressLocality: "Conakry", addressCountry: "GN" },
-  };
 
   return (
     <>
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: serializeJsonLd(organizationSchema) }} />
       <section className="shell hero-section">
         <div className="home-lead">
           {lead ? (

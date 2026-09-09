@@ -27,7 +27,7 @@ In the existing Vercel project:
    from `.env.example` and `BACKEND_SETUP.md`. Keep secrets server-only; do not
    add them to GitHub.
 4. Apply the Supabase migrations in order, through
-   `011_article_byline_and_edit_dates.sql`.
+   `012_publication_and_login_guards.sql`.
 5. Deploy the `main` branch, then attach `www.voiceofguinea.com` to that Vercel
    project if it is not already connected.
 
@@ -36,3 +36,6 @@ static site at the repository root, which uses `.html` links and cannot expose
 the CMS or the new application routes.
 
 Use `PRE_PUBLISH_CHECKLIST.md` before making the deployment public.
+Once signed in as the owner, open **Système** in the newsroom to see which
+connections are ready. The page reports only presence and health—it never
+prints secret values.

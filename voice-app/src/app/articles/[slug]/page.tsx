@@ -83,7 +83,7 @@ export default async function ArticlePage({
     publisher: {
       "@type": "NewsMediaOrganization",
       name: siteConfig.publisher,
-      logo: { "@type": "ImageObject", url: `${siteConfig.url}${siteConfig.logo}` },
+      logo: { "@type": "ImageObject", url: `${siteConfig.url}${siteConfig.structuredLogo}`, width: 512, height: 512 },
     },
   };
   const breadcrumbSchema = {

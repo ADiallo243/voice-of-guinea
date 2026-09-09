@@ -175,11 +175,13 @@ export async function confirmNewsletterSubscription(formData: FormData) {
   let confirmed = false;
   try {
     const supabase = createSupabaseAdminClient();
+    const confirmationCutoff = new Date(Date.now() - 48 * 60 * 60 * 1000).toISOString();
     const { data, error } = await supabase
       .from("newsletter_subscribers")
       .update({ status: "active", confirmed_at: new Date().toISOString() })
       .eq("confirmation_token_hash", tokenHash(token))
       .eq("status", "pending")
+      .gte("confirmation_sent_at", confirmationCutoff)
       .select("id")
       .maybeSingle();
     if (error) throw error;

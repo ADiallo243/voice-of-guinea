@@ -11,6 +11,15 @@ export function NewsletterForm({ compact = false }: { compact?: boolean }) {
   const [state, action, pending] = useActionState(subscribeToNewsletter, initialState);
   const turnstileSiteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY;
 
+  if (!turnstileSiteKey && process.env.NODE_ENV === "production") {
+    return (
+      <div className="newsletter-unavailable" role="status">
+        <strong>La newsletter arrive bientôt.</strong>
+        <span>Nous finalisons l’inscription sécurisée avant son ouverture.</span>
+      </div>
+    );
+  }
+
   return (
     <form action={action} className={compact ? "newsletter-form compact" : "newsletter-form"}>
       <div className="newsletter-fields">

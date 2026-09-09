@@ -127,7 +127,9 @@ export async function saveArticle(formData: FormData) {
   const publicationDateValue = publicationDate ? new Date(`${publicationDate}T12:00:00Z`) : null;
   const byline = text(formData, "byline");
   const activityDetail = text(formData, "activityDetail");
+  const slug = slugify(text(formData, "slug") || title);
   if (!title || !excerpt || !rawContent) throw new Error("Titre, résumé et contenu sont obligatoires.");
+  if (!slug || slug.length > 180) throw new Error("L’adresse de l’article est invalide ou trop longue.");
   if (title.length > 200 || excerpt.length > 500 || rawContent.length > 50_000) {
     throw new Error("Le titre, le résumé ou le contenu dépasse la limite autorisée.");
   }
@@ -161,7 +163,7 @@ export async function saveArticle(formData: FormData) {
     : null;
   const payload = {
     title,
-    slug: text(formData, "slug") || slugify(title),
+    slug,
     byline: byline || null,
     excerpt,
     seo_title: text(formData, "seoTitle") || null,
@@ -272,11 +274,16 @@ export async function saveCategory(formData: FormData) {
   const id = text(formData, "id");
   const name = text(formData, "name");
   if (!name) throw new Error("Le nom de la catégorie est obligatoire.");
+  const slug = slugify(text(formData, "slug") || name);
+  const displayOrder = Number(text(formData, "displayOrder") || 0);
+  if (name.length > 80 || !slug || slug.length > 80 || !Number.isInteger(displayOrder)) {
+    throw new Error("Vérifiez le nom, l’adresse et l’ordre de la catégorie.");
+  }
   const payload = {
     name,
-    slug: text(formData, "slug") || slugify(name),
+    slug,
     description: text(formData, "description") || null,
-    display_order: Number(text(formData, "displayOrder") || 0),
+    display_order: displayOrder,
     active: formData.get("active") === "on",
   };
   const result = id
@@ -305,6 +312,7 @@ export async function saveBreakingNews(formData: FormData) {
   if (!headline || (!articleId && !safeExternalUrl)) {
     throw new Error("Le titre et une destination sont obligatoires.");
   }
+  if (headline.length > 240) throw new Error("Le titre de dernière minute est trop long.");
   if (externalUrl && !safeExternalUrl) throw new Error("Le lien externe doit commencer par http:// ou https://.");
   const payload = {
     headline,
@@ -453,15 +461,14 @@ export async function updateNewsletterSubscriber(formData: FormData) {
   const newsroom = await requireNewsroom(["owner", "editor"]);
   const id = text(formData, "id");
   const status = text(formData, "status");
-  if (!["pending", "active", "unsubscribed"].includes(status)) {
-    throw new Error("Statut d’abonnement invalide.");
+  if (status !== "unsubscribed") {
+    throw new Error("Une inscription ne peut devenir active qu’après confirmation par son destinataire.");
   }
   const { error } = await newsroom.supabase
     .from("newsletter_subscribers")
     .update({
-      status,
-      confirmed_at: status === "active" ? new Date().toISOString() : null,
-      unsubscribed_at: status === "unsubscribed" ? new Date().toISOString() : null,
+      status: "unsubscribed",
+      unsubscribed_at: new Date().toISOString(),
     })
     .eq("id", id);
   if (error) throw new Error(error.message);
