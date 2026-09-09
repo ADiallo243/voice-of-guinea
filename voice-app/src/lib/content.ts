@@ -41,6 +41,10 @@ function publicClient() {
   });
 }
 
+function canUseDemoContent() {
+  return process.env.NODE_ENV !== "production" || process.env.VOICE_OF_GUINEA_DEMO_CONTENT === "true";
+}
+
 function categoryName(value: string | undefined): Category {
   return value || "Actualités";
 }
@@ -68,19 +72,19 @@ function mapArticle(row: ArticleRow): PublicArticle {
 }
 
 export async function getPublishedArticles(): Promise<PublicArticle[]> {
-  if (!hasSupabaseConfig()) return fallbackArticles;
+  if (!hasSupabaseConfig()) return canUseDemoContent() ? fallbackArticles : [];
   const { data, error } = await publicClient()
     .from("articles")
     .select("id, slug, title, excerpt, content, hero_image_url, hero_image_alt, image_credit, featured, published_at, updated_at, correction_note, seo_title, seo_description, categories(name)")
     .eq("status", "published")
     .lte("published_at", new Date().toISOString())
     .order("published_at", { ascending: false });
-  if (error || !data?.length) return fallbackArticles;
+  if (error || !data?.length) return canUseDemoContent() ? fallbackArticles : [];
   return data.map(mapArticle);
 }
 
 export async function getPublicArticle(slug: string): Promise<PublicArticle | undefined> {
-  if (!hasSupabaseConfig()) return getFallbackArticle(slug);
+  if (!hasSupabaseConfig()) return canUseDemoContent() ? getFallbackArticle(slug) : undefined;
   const { data, error } = await publicClient()
     .from("articles")
     .select("id, slug, title, excerpt, content, hero_image_url, hero_image_alt, image_credit, featured, published_at, updated_at, correction_note, seo_title, seo_description, categories(name)")
@@ -88,7 +92,7 @@ export async function getPublicArticle(slug: string): Promise<PublicArticle | un
     .eq("status", "published")
     .lte("published_at", new Date().toISOString())
     .maybeSingle();
-  if (error || !data) return getFallbackArticle(slug);
+  if (error || !data) return canUseDemoContent() ? getFallbackArticle(slug) : undefined;
   return mapArticle(data);
 }
 
@@ -101,7 +105,7 @@ export async function getBreakingHeadlines(): Promise<BreakingHeadline[]> {
     text: article.title,
     href: `/articles/${article.slug}`,
   }));
-  if (!hasSupabaseConfig()) return fallback;
+  if (!hasSupabaseConfig()) return canUseDemoContent() ? fallback : [];
   const now = new Date().toISOString();
   const { data, error } = await publicClient()
     .from("breaking_news")
@@ -110,7 +114,7 @@ export async function getBreakingHeadlines(): Promise<BreakingHeadline[]> {
     .lte("starts_at", now)
     .or(`expires_at.is.null,expires_at.gt.${now}`)
     .order("display_order");
-  if (error || !data?.length) return fallback;
+  if (error || !data?.length) return canUseDemoContent() ? fallback : [];
   return data.map((item) => {
     const linked = Array.isArray(item.articles) ? item.articles[0] : item.articles;
     return {

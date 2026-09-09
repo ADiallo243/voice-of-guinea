@@ -12,7 +12,7 @@ type Role = "owner" | "editor" | "author";
 async function requireNewsroom(roles: Role[] = ["owner", "editor", "author"]) {
   const newsroom = await getNewsroomUser();
   const role = newsroom?.profile?.role as Role | null | undefined;
-  if (!newsroom || !role || !roles.includes(role)) redirect("/admin");
+  if (!newsroom || !newsroom.profile?.active || !role || !roles.includes(role)) redirect("/admin");
   return { ...newsroom, role };
 }
 
@@ -47,20 +47,45 @@ function contentBlocks(content: string) {
     );
 }
 
+function imageType(bytes: Uint8Array) {
+  const isJpeg = bytes[0] === 0xff && bytes[1] === 0xd8 && bytes[2] === 0xff;
+  const isPng = bytes.length >= 8
+    && bytes[0] === 0x89 && bytes[1] === 0x50 && bytes[2] === 0x4e && bytes[3] === 0x47
+    && bytes[4] === 0x0d && bytes[5] === 0x0a && bytes[6] === 0x1a && bytes[7] === 0x0a;
+  const isWebp = bytes.length >= 12
+    && String.fromCharCode(...bytes.slice(0, 4)) === "RIFF"
+    && String.fromCharCode(...bytes.slice(8, 12)) === "WEBP";
+  if (isJpeg) return { mime: "image/jpeg", extension: "jpg" };
+  if (isPng) return { mime: "image/png", extension: "png" };
+  if (isWebp) return { mime: "image/webp", extension: "webp" };
+  return null;
+}
+
+function externalHttpUrl(value: string) {
+  if (!value) return null;
+  try {
+    const url = new URL(value);
+    return url.protocol === "https:" || url.protocol === "http:" ? url.toString() : null;
+  } catch {
+    return null;
+  }
+}
+
 async function uploadHeroImage(formData: FormData, userId: string) {
   const file = formData.get("heroImage");
   if (!(file instanceof File) || file.size === 0) return null;
-  if (!["image/jpeg", "image/png", "image/webp"].includes(file.type)) {
-    throw new Error("Format d’image non autorisé.");
-  }
   if (file.size > 10 * 1024 * 1024) throw new Error("L’image dépasse 10 Mo.");
 
   const newsroom = await requireNewsroom();
-  const extension = file.name.split(".").pop()?.toLowerCase() || "jpg";
+  const detectedType = imageType(new Uint8Array(await file.slice(0, 12).arrayBuffer()));
+  if (!detectedType || (file.type && file.type !== detectedType.mime)) {
+    throw new Error("Le fichier doit être une image JPG, PNG ou WebP valide.");
+  }
+  const extension = detectedType.extension;
   const path = `${userId}/${Date.now()}-${slugify(file.name.replace(/\.[^.]+$/, ""))}.${extension}`;
   const { error } = await newsroom.supabase.storage
     .from("article-images")
-    .upload(path, file, { contentType: file.type, upsert: false });
+    .upload(path, file, { contentType: detectedType.mime, upsert: false });
   if (error) throw new Error(error.message);
 
   return newsroom.supabase.storage.from("article-images").getPublicUrl(path).data.publicUrl;
@@ -70,7 +95,7 @@ export async function saveArticle(formData: FormData) {
   const newsroom = await requireNewsroom();
   const id = text(formData, "id");
   const previous = id
-    ? await newsroom.supabase.from("articles").select("status, published_at").eq("id", id).maybeSingle()
+    ? await newsroom.supabase.from("articles").select("status, published_at, editorial_notes").eq("id", id).maybeSingle()
     : null;
   if (previous?.error) throw new Error(previous.error.message);
   const title = text(formData, "title");
@@ -78,14 +103,21 @@ export async function saveArticle(formData: FormData) {
   const rawContent = text(formData, "content");
   const requestedStatus = text(formData, "status");
   const manager = newsroom.role === "owner" || newsroom.role === "editor";
-  const status = manager && ["published", "scheduled", "archived"].includes(requestedStatus)
-    ? requestedStatus
-    : "draft";
+  const managerStatuses = ["draft", "in_review", "needs_changes", "published", "scheduled", "archived"];
+  const status = manager
+    ? managerStatuses.includes(requestedStatus) ? requestedStatus : "draft"
+    : requestedStatus === "in_review" ? "in_review" : "draft";
   const scheduledFor = text(formData, "scheduledFor");
   const scheduledDate = scheduledFor ? new Date(scheduledFor) : null;
   if (!title || !excerpt || !rawContent) throw new Error("Titre, résumé et contenu sont obligatoires.");
+  if (title.length > 200 || excerpt.length > 500 || rawContent.length > 50_000) {
+    throw new Error("Le titre, le résumé ou le contenu dépasse la limite autorisée.");
+  }
   if (status === "scheduled" && (!scheduledDate || Number.isNaN(scheduledDate.getTime()) || scheduledDate <= new Date())) {
     throw new Error("Choisissez une date de programmation valide et future.");
+  }
+  if (status === "needs_changes" && !text(formData, "editorialNotes")) {
+    throw new Error("Expliquez à l’auteur les modifications demandées.");
   }
 
   const uploadedImage = await uploadHeroImage(formData, newsroom.user.id);
@@ -102,6 +134,8 @@ export async function saveArticle(formData: FormData) {
     seo_title: text(formData, "seoTitle") || null,
     seo_description: text(formData, "seoDescription") || null,
     correction_note: text(formData, "correctionNote") || null,
+    source_notes: text(formData, "sourceNotes") || null,
+    editorial_notes: manager ? text(formData, "editorialNotes") || null : previous?.data?.editorial_notes || null,
     content: contentBlocks(rawContent),
     hero_image_url: uploadedImage || existingImage || null,
     hero_image_alt: text(formData, "imageAlt"),
@@ -112,6 +146,8 @@ export async function saveArticle(formData: FormData) {
     featured: manager && formData.get("featured") === "on",
     published_at: publishedAt,
     scheduled_for: status === "scheduled" ? scheduledDate!.toISOString() : null,
+    reviewed_at: manager && ["needs_changes", "scheduled", "published"].includes(status) ? new Date().toISOString() : null,
+    reviewed_by: manager && ["needs_changes", "scheduled", "published"].includes(status) ? newsroom.user.id : null,
   };
   if (
     status === "published"
@@ -201,13 +237,15 @@ export async function saveBreakingNews(formData: FormData) {
   const headline = text(formData, "headline");
   const articleId = text(formData, "articleId");
   const externalUrl = text(formData, "externalUrl");
-  if (!headline || (!articleId && !externalUrl)) {
+  const safeExternalUrl = externalHttpUrl(externalUrl);
+  if (!headline || (!articleId && !safeExternalUrl)) {
     throw new Error("Le titre et une destination sont obligatoires.");
   }
+  if (externalUrl && !safeExternalUrl) throw new Error("Le lien externe doit commencer par http:// ou https://.");
   const payload = {
     headline,
     article_id: articleId || null,
-    external_url: externalUrl || null,
+    external_url: articleId ? null : safeExternalUrl,
     display_order: Number(text(formData, "displayOrder") || 0),
     active: formData.get("active") === "on",
     expires_at: text(formData, "expiresAt") || null,

@@ -6,7 +6,6 @@ import { ArticleCard, categoryHref } from "@/components/article-card";
 import { ShareButtons } from "@/components/share-buttons";
 import { ReadingProgress } from "@/components/reading-progress";
 import { SaveArticle } from "@/components/save-article";
-import { ArticleView } from "@/components/article-view";
 import { formatArticleDate, getReadingTime } from "@/lib/articles";
 import { getPublicArticle, getPublishedArticles } from "@/lib/content";
 import { siteConfig } from "@/lib/site";
@@ -96,7 +95,6 @@ export default async function ArticlePage({
     <article className="shell article-page">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(newsSchema) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }} />
-      <ArticleView articleId={article.id} />
       <ReadingProgress />
       <nav className="breadcrumbs" aria-label="Fil d’Ariane">
         <Link href="/">Accueil</Link><span>›</span><Link href={categoryHref(article.category)}>{article.category}</Link>

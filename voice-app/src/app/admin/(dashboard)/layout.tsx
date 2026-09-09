@@ -32,7 +32,7 @@ export default async function DashboardLayout({
   }
 
   const newsroom = await getNewsroomUser();
-  if (!newsroom?.profile?.role) {
+  if (!newsroom?.profile?.role || !newsroom.profile.active) {
     return (
       <AdminShell name={newsroom?.user.email}>
         <div className="admin-access-denied">

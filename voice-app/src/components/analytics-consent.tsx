@@ -69,7 +69,9 @@ export function AnalyticsConsent({ measurementId }: { measurementId: string }) {
     setSettingsOpen(false);
   }
 
-  if (pathname.startsWith("/admin")) return null;
+  // Confirmation and unsubscribe URLs include one-time secrets. Never send those
+  // URLs to analytics, even where the reader has otherwise accepted analytics.
+  if (pathname.startsWith("/admin") || pathname.startsWith("/newsletter/confirm") || pathname.startsWith("/newsletter/unsubscribe")) return null;
   const showBanner = !consent || settingsOpen;
 
   return (

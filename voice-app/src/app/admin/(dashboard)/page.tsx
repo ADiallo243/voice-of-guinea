@@ -5,22 +5,22 @@ import { importMigratedArticles } from "./actions";
 const statusLabel: Record<string, string> = {
   published: "Publié",
   draft: "Brouillon",
+  in_review: "À relire",
+  needs_changes: "À corriger",
   scheduled: "Programmé",
   archived: "Archivé",
 };
 
 export default async function AdminDashboard() {
   const newsroom = await getNewsroomUser();
-  const [published, drafts, scheduled, breaking, recent, views, activity] = await Promise.all([
+  const [published, drafts, scheduled, breaking, recent, activity] = await Promise.all([
     newsroom!.supabase.from("articles").select("*", { count: "exact", head: true }).eq("status", "published"),
     newsroom!.supabase.from("articles").select("*", { count: "exact", head: true }).eq("status", "draft"),
     newsroom!.supabase.from("articles").select("*", { count: "exact", head: true }).eq("status", "scheduled"),
     newsroom!.supabase.from("breaking_news").select("*", { count: "exact", head: true }).eq("active", true),
     newsroom!.supabase.from("articles").select("id, title, status, created_at, categories(name)").order("created_at", { ascending: false }).limit(6),
-    newsroom!.supabase.from("article_daily_views").select("views"),
     newsroom!.supabase.from("activity_log").select("id, action, entity_type, created_at, profiles(full_name)").order("created_at", { ascending: false }).limit(5),
   ]);
-  const totalViews = (views.data ?? []).reduce((sum, row) => sum + Number(row.views), 0);
 
   return (
     <>
@@ -32,12 +32,11 @@ export default async function AdminDashboard() {
         </div>
         <Link href="/admin/articles/new" className="admin-primary">+ Nouvel article</Link>
       </header>
-      <section className="admin-stats five-stats">
+      <section className="admin-stats">
         <article><span>Articles publiés</span><strong>{published.count ?? 0}</strong><small>Contenus en ligne</small></article>
         <article><span>Brouillons</span><strong>{drafts.count ?? 0}</strong><small>À finaliser</small></article>
         <article><span>Programmés</span><strong>{scheduled.count ?? 0}</strong><small>À venir</small></article>
         <article><span>Dernière minute</span><strong>{breaking.count ?? 0}</strong><small>Éléments actifs</small></article>
-        <article className="views-stat"><span>Lectures enregistrées</span><strong>{totalViews.toLocaleString("fr-FR")}</strong><small>Depuis le suivi</small></article>
       </section>
       <div className="dashboard-columns">
         <section className="admin-panel">

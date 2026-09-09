@@ -5,6 +5,8 @@ import { importMigratedArticles } from "../actions";
 const statusLabel: Record<string, string> = {
   published: "Publié",
   draft: "Brouillon",
+  in_review: "À relire",
+  needs_changes: "À corriger",
   scheduled: "Programmé",
   archived: "Archivé",
 };
@@ -38,6 +40,8 @@ export default async function AdminArticlesPage({
             <option value="">Tous les statuts</option>
             <option value="published">Publié</option>
             <option value="draft">Brouillon</option>
+            <option value="in_review">À relire</option>
+            <option value="needs_changes">À corriger</option>
             <option value="scheduled">Programmé</option>
             <option value="archived">Archivé</option>
           </select>
