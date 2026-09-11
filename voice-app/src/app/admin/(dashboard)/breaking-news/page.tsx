@@ -1,9 +1,11 @@
 import { ConfirmSubmit } from "@/components/confirm-submit";
+import { redirect } from "next/navigation";
 import { getNewsroomUser } from "@/lib/supabase/admin";
 import { deleteBreakingNews, saveBreakingNews } from "../actions";
 
 export default async function BreakingNewsAdminPage() {
   const newsroom = await getNewsroomUser();
+  if (!newsroom?.profile?.role || !["owner", "editor"].includes(newsroom.profile.role)) redirect("/admin");
   const [{ data: headlines }, { data: articles }] = await Promise.all([
     newsroom!.supabase.from("breaking_news").select("*, articles(title)").order("display_order"),
     newsroom!.supabase.from("articles").select("id, title").eq("status", "published").order("published_at", { ascending: false }),

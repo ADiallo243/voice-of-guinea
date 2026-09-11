@@ -1,99 +1,120 @@
 "use client";
 
-import Link from "next/link";
+import Script from "next/script";
 import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
 
-const analyticsId = "G-V707W55KR5";
-const storageKey = "voiceofguinea-analytics-consent-v1";
+type Consent = "accepted" | "refused";
 
-type Consent = "accepted" | "declined" | null;
+const STORAGE_KEY = "voice-of-guinea-analytics-consent";
+const CONSENT_LIFETIME_MS = 180 * 24 * 60 * 60 * 1000;
+const CHANGE_EVENT = "vog:cookie-consent-change";
+
+function readConsent(): Consent | null {
+  try {
+    const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || "null") as { choice?: Consent; savedAt?: number } | null;
+    if (!saved || (saved.choice !== "accepted" && saved.choice !== "refused") || !saved.savedAt) return null;
+    return Date.now() - saved.savedAt < CONSENT_LIFETIME_MS ? saved.choice : null;
+  } catch {
+    return null;
+  }
+}
+
+function removeAnalyticsCookies() {
+  const expires = "expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/; SameSite=Lax";
+  const domains = ["", `; domain=${window.location.hostname}`, `; domain=.${window.location.hostname}`];
+  document.cookie.split(";").forEach((cookie) => {
+    const name = cookie.trim().split("=")[0];
+    if (name === "_ga" || name.startsWith("_ga_")) {
+      domains.forEach((domain) => { document.cookie = `${name}=; ${expires}${domain}`; });
+    }
+  });
+}
+
+function subscribeToConsent(onStoreChange: () => void) {
+  const onStorage = (event: StorageEvent) => {
+    if (event.key === STORAGE_KEY) onStoreChange();
+  };
+  window.addEventListener(CHANGE_EVENT, onStoreChange);
+  window.addEventListener("storage", onStorage);
+  return () => {
+    window.removeEventListener(CHANGE_EVENT, onStoreChange);
+    window.removeEventListener("storage", onStorage);
+  };
+}
+
+export function AnalyticsConsent({ measurementId }: { measurementId: string }) {
+  const pathname = usePathname();
+  const consent = useSyncExternalStore(subscribeToConsent, readConsent, () => null);
+  const [settingsOpen, setSettingsOpen] = useState(false);
+
+  useEffect(() => {
+    const openSettings = () => setSettingsOpen(true);
+    window.addEventListener("vog:open-cookie-settings", openSettings);
+    return () => window.removeEventListener("vog:open-cookie-settings", openSettings);
+  }, []);
+
+  function choose(nextConsent: Consent) {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ choice: nextConsent, savedAt: Date.now() }));
+    window.dispatchEvent(new Event(CHANGE_EVENT));
+    if (nextConsent === "refused") {
+      window.gtag?.("consent", "update", {
+        analytics_storage: "denied",
+        ad_storage: "denied",
+        ad_user_data: "denied",
+        ad_personalization: "denied",
+      });
+      removeAnalyticsCookies();
+    }
+    setSettingsOpen(false);
+  }
+
+  // Confirmation and unsubscribe URLs include one-time secrets. Never send those
+  // URLs to analytics, even where the reader has otherwise accepted analytics.
+  if (pathname.startsWith("/admin") || pathname.startsWith("/newsletter/confirm") || pathname.startsWith("/newsletter/unsubscribe")) return null;
+  const showBanner = !consent || settingsOpen;
+
+  return (
+    <>
+      {consent === "accepted" && (
+        <>
+          <Script id="google-analytics-consent" strategy="afterInteractive">
+            {`
+              window.dataLayer = window.dataLayer || [];
+              function gtag(){dataLayer.push(arguments);}
+              window.gtag = window.gtag || gtag;
+              gtag('consent', 'default', {
+                analytics_storage: 'granted',
+                ad_storage: 'denied',
+                ad_user_data: 'denied',
+                ad_personalization: 'denied'
+              });
+              gtag('js', new Date());
+              gtag('config', '${measurementId}');
+            `}
+          </Script>
+          <Script src={`https://www.googletagmanager.com/gtag/js?id=${measurementId}`} strategy="afterInteractive" />
+        </>
+      )}
+      {showBanner && (
+        <aside className="consent-banner" role="region" aria-label="Préférences de confidentialité">
+          <div>
+            <strong>{settingsOpen ? "Vos préférences de confidentialité" : "Votre vie privée compte."}</strong>
+            <p>Avec votre accord, nous utilisons Google Analytics pour mesurer l’audience de Voice of Guinea. Refuser n’empêche pas de lire le site. Vous pouvez modifier votre choix à tout moment.</p>
+            <p><a href="/cookies">En savoir plus sur les cookies</a> · <a href="/confidentialite">Politique de confidentialité</a></p>
+          </div>
+          <div className="consent-actions">
+            <button className="consent-reject" type="button" onClick={() => choose("refused")}>Tout refuser</button>
+            <button className="consent-accept" type="button" onClick={() => choose("accepted")}>Tout accepter</button>
+          </div>
+        </aside>
+      )}
+    </>
+  );
+}
 
 declare global {
   interface Window {
-    dataLayer?: unknown[];
-    gtag?: (...args: unknown[]) => void;
+    gtag?: (command: string, target: string, parameters?: Record<string, string>) => void;
   }
-}
-
-function loadAnalytics() {
-  if (document.querySelector(`script[data-vog-analytics="${analyticsId}"]`)) return;
-
-  (window as unknown as Record<string, unknown>)[`ga-disable-${analyticsId}`] = false;
-  window.dataLayer = window.dataLayer || [];
-  window.gtag = (...args: unknown[]) => window.dataLayer?.push(args);
-  window.gtag("js", new Date());
-  window.gtag("config", analyticsId, { anonymize_ip: true, send_page_view: false });
-
-  const script = document.createElement("script");
-  script.async = true;
-  script.src = `https://www.googletagmanager.com/gtag/js?id=${analyticsId}`;
-  script.dataset.vogAnalytics = analyticsId;
-  document.head.appendChild(script);
-}
-
-function disableAnalytics() {
-  (window as unknown as Record<string, unknown>)[`ga-disable-${analyticsId}`] = true;
-  window.gtag?.("consent", "update", { analytics_storage: "denied" });
-  document.querySelector(`script[data-vog-analytics="${analyticsId}"]`)?.remove();
-  document.cookie = "_ga=; Max-Age=0; path=/; SameSite=Lax";
-  document.cookie = `_ga_${analyticsId.replace("G-", "")}=; Max-Age=0; path=/; SameSite=Lax`;
-  window.dataLayer = [];
-  window.gtag = undefined;
-}
-
-export function AnalyticsConsent() {
-  const pathname = usePathname();
-  const [consent, setConsent] = useState<Consent>(null);
-  const [isOpen, setIsOpen] = useState(false);
-
-  useEffect(() => {
-    if (pathname.startsWith("/admin")) return;
-
-    const saved = localStorage.getItem(storageKey) as Consent;
-    if (saved === "accepted") {
-      setConsent(saved);
-      loadAnalytics();
-    } else if (saved === "declined") {
-      setConsent(saved);
-    } else {
-      setIsOpen(true);
-    }
-
-    const openPreferences = () => setIsOpen(true);
-    window.addEventListener("vog:open-consent", openPreferences);
-    return () => window.removeEventListener("vog:open-consent", openPreferences);
-  }, [pathname]);
-
-  useEffect(() => {
-    if (!pathname.startsWith("/admin") && consent === "accepted" && window.gtag) {
-      window.gtag("event", "page_view", { page_path: pathname });
-    }
-  }, [consent, pathname]);
-
-  function choose(nextConsent: Exclude<Consent, null>) {
-    localStorage.setItem(storageKey, nextConsent);
-    setConsent(nextConsent);
-    setIsOpen(false);
-    if (nextConsent === "accepted") loadAnalytics();
-    else disableAnalytics();
-  }
-
-  if (!isOpen || pathname.startsWith("/admin")) return null;
-
-  return (
-    <aside className="consent-panel" role="dialog" aria-labelledby="consent-title" aria-describedby="consent-description">
-      <div>
-        <h2 id="consent-title">Votre vie privée, votre choix</h2>
-        <p id="consent-description">
-          Nous utilisons Google Analytics uniquement avec votre accord pour comprendre l’utilisation du site et l’améliorer.
-          Vous pouvez refuser sans perdre aucune fonctionnalité. <Link href="/confidentialite">En savoir plus</Link>.
-        </p>
-      </div>
-      <div className="consent-actions">
-        <button type="button" className="consent-secondary" onClick={() => choose("declined")}>Refuser</button>
-        <button type="button" className="button" onClick={() => choose("accepted")}>Accepter</button>
-      </div>
-    </aside>
-  );
 }

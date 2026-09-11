@@ -1,3 +1,4 @@
+import { redirect } from "next/navigation";
 import { getNewsroomUser } from "@/lib/supabase/admin";
 import { deleteNewsletterSubscriber, updateNewsletterSubscriber } from "../actions";
 
@@ -19,6 +20,7 @@ export default async function NewsletterAdminPage({
   searchParams: Promise<{ q?: string; status?: string }>;
 }) {
   const newsroom = await getNewsroomUser();
+  if (!newsroom?.profile?.role || !["owner", "editor"].includes(newsroom.profile.role)) redirect("/admin");
   const { q = "", status = "" } = await searchParams;
   let query = newsroom!.supabase
     .from("newsletter_subscribers")
@@ -86,15 +88,13 @@ export default async function NewsletterAdminPage({
                   </span>
                 </div>
                 <span className={`status ${subscriber.status}`}>{statusLabel[subscriber.status]}</span>
-                <form action={updateNewsletterSubscriber} className="subscriber-actions">
-                  <input type="hidden" name="id" value={subscriber.id} />
-                  <select name="status" defaultValue={subscriber.status}>
-                    <option value="pending">À confirmer</option>
-                    <option value="active">Actif</option>
-                    <option value="unsubscribed">Désabonné</option>
-                  </select>
-                  <button className="text-button" type="submit">Mettre à jour</button>
-                </form>
+                {subscriber.status !== "unsubscribed" ? (
+                  <form action={updateNewsletterSubscriber} className="subscriber-actions">
+                    <input type="hidden" name="id" value={subscriber.id} />
+                    <input type="hidden" name="status" value="unsubscribed" />
+                    <button className="text-button" type="submit">Désabonner</button>
+                  </form>
+                ) : <span className="subscriber-locked">Choix respecté</span>}
                 {newsroom?.profile?.role === "owner" && (
                   <form action={deleteNewsletterSubscriber}>
                     <input type="hidden" name="id" value={subscriber.id} />

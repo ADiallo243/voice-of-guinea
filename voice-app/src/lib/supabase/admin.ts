@@ -14,7 +14,7 @@ export async function getNewsroomUser() {
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("id, full_name, role")
+    .select("id, full_name, role, active")
     .eq("id", user.id)
     .single();
 

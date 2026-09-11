@@ -1,14 +1,14 @@
 import Image from "next/image";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { signIn } from "../actions";
+import { requestPasswordReset, signIn } from "../actions";
 import { hasSupabaseConfig } from "@/lib/supabase/config";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 export default async function AdminLoginPage({
   searchParams,
 }: {
-  searchParams: Promise<{ error?: string }>;
+  searchParams: Promise<{ error?: string; recovery?: string }>;
 }) {
   const configured = hasSupabaseConfig();
   if (configured) {
@@ -16,7 +16,7 @@ export default async function AdminLoginPage({
     const { data } = await supabase.auth.getUser();
     if (data.user) redirect("/admin");
   }
-  const { error } = await searchParams;
+  const { error, recovery } = await searchParams;
 
   return (
     <div className="admin-login">
@@ -31,6 +31,7 @@ export default async function AdminLoginPage({
             <p>Ajoutez les deux variables du fichier <code>.env.example</code> dans <code>.env.local</code>.</p>
           </div>
         ) : (
+          <>
           <form action={signIn} className="login-form">
             <label>
               Adresse e-mail
@@ -43,6 +44,15 @@ export default async function AdminLoginPage({
             {error && <p className="form-error">{error}</p>}
             <button type="submit">Se connecter</button>
           </form>
+          {recovery === "sent" && <p className="admin-flash success" role="status">Si cette adresse possède un compte, un lien de réinitialisation vient d’être envoyé.</p>}
+          <details className="password-recovery">
+            <summary>Mot de passe oublié ?</summary>
+            <form action={requestPasswordReset} className="login-form compact">
+              <label>Adresse e-mail<input name="email" type="email" required autoComplete="email" /></label>
+              <button type="submit">Envoyer un lien sécurisé</button>
+            </form>
+          </details>
+          </>
         )}
         <Link href="/">← Retour au site</Link>
       </div>

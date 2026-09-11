@@ -6,9 +6,9 @@ import { ArticleCard, categoryHref } from "@/components/article-card";
 import { ShareButtons } from "@/components/share-buttons";
 import { ReadingProgress } from "@/components/reading-progress";
 import { SaveArticle } from "@/components/save-article";
-import { ArticleView } from "@/components/article-view";
 import { formatArticleDate, getReadingTime } from "@/lib/articles";
 import { getPublicArticle, getPublishedArticles } from "@/lib/content";
+import { serializeJsonLd } from "@/lib/json-ld";
 import { siteConfig } from "@/lib/site";
 
 function metadataTitle(title: string) {
@@ -43,7 +43,7 @@ export async function generateMetadata({
       title: article.title,
       description: article.summary,
       publishedTime: article.publishedAt,
-      modifiedTime: article.updatedAt,
+      modifiedTime: article.lastEditedAt || article.publishedAt,
       authors: [article.author],
       section: article.category,
       images: [{ url: article.image, alt: article.imageAlt }],
@@ -78,14 +78,18 @@ export default async function ArticlePage({
     description: article.summary,
     image: [imageUrl],
     datePublished: article.publishedAt,
-    dateModified: article.updatedAt || article.publishedAt,
+    dateModified: article.lastEditedAt || article.publishedAt,
     articleSection: article.category,
     inLanguage: "fr",
-    author: [{ "@type": "Organization", name: article.author, url: siteConfig.url }],
+    author: [{
+      "@type": article.author === siteConfig.publisher ? "Organization" : "Person",
+      name: article.author,
+      ...(article.author === siteConfig.publisher ? { url: siteConfig.url } : {}),
+    }],
     publisher: {
       "@type": "NewsMediaOrganization",
       name: siteConfig.publisher,
-      logo: { "@type": "ImageObject", url: `${siteConfig.url}${siteConfig.logo}` },
+      logo: { "@type": "ImageObject", url: `${siteConfig.url}${siteConfig.structuredLogo}`, width: 512, height: 512 },
     },
   };
   const breadcrumbSchema = {
@@ -100,9 +104,8 @@ export default async function ArticlePage({
 
   return (
     <article className="shell article-page">
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(newsSchema) }} />
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }} />
-      <ArticleView articleId={article.id} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: serializeJsonLd(newsSchema) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: serializeJsonLd(breadcrumbSchema) }} />
       <ReadingProgress />
       <nav className="breadcrumbs" aria-label="Fil d’Ariane">
         <Link href="/">Accueil</Link><span>›</span><Link href={categoryHref(article.category)}>{article.category}</Link>
@@ -112,10 +115,14 @@ export default async function ArticlePage({
         <h1>{article.title}</h1>
         <p className="article-deck">{article.summary}</p>
         <div className="article-byline">
-          <span>Par {article.author}</span>
-          <time dateTime={article.publishedAt}>{formatArticleDate(article.publishedAt)}</time>
-          {article.updatedAt && <span>Mis à jour le {formatArticleDate(article.updatedAt)}</span>}
-          <span>{getReadingTime(article)} min de lecture</span>
+          <div className="byline-person">
+            <span className="byline-avatar" aria-hidden="true">{article.author.slice(0, 1).toUpperCase()}</span>
+            <div><strong>Par {article.author}</strong><time dateTime={article.publishedAt}>Publié le {formatArticleDate(article.publishedAt)}</time></div>
+          </div>
+          <div className="article-timestamps">
+            {article.lastEditedAt && <time dateTime={article.lastEditedAt}>Mis à jour le {formatArticleDate(article.lastEditedAt)}</time>}
+            <span>{getReadingTime(article)} min de lecture</span>
+          </div>
         </div>
         <ShareButtons title={article.title} />
         <SaveArticle slug={article.slug} />

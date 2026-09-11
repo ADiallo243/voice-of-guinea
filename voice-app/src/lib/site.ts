@@ -8,9 +8,9 @@ export const siteConfig = {
   publisher: "Voice of Guinea",
   email: "voiceofguinea@gmail.com",
   location: "Conakry, Guinée",
+  instagram: "https://www.instagram.com/voiceofguinea/",
+  gaMeasurementId: "G-V707W55KR5",
   logo: "/brand/logo.svg",
-  socialImage: "/brand/icon-512.png",
-  socialLinks: {
-    instagram: "https://www.instagram.com/voiceofguinea/",
-  },
+  structuredLogo: "/brand/icon-512.png",
+  socialImage: "/images/news/guinee-acces-facebook-vpn.jpg",
 };

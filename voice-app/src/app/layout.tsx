@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { AnalyticsConsent } from "@/components/analytics-consent";
 import { SiteChrome } from "@/components/site-chrome";
 import { getBreakingHeadlines } from "@/lib/content";
+import { serializeJsonLd } from "@/lib/json-ld";
 import { siteConfig } from "@/lib/site";
 import "./globals.css";
 
@@ -25,6 +26,17 @@ export const metadata: Metadata = {
   authors: [{ name: siteConfig.publisher, url: siteConfig.url }],
   creator: siteConfig.publisher,
   publisher: siteConfig.publisher,
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+      "max-video-preview": -1,
+    },
+  },
   verification: {
     google: "wcod8hDc5J5eCXLCnjL8R2QKLfdj4mhEX3GLkRQVsqY",
   },
@@ -54,14 +66,10 @@ export default async function RootLayout({
     "@type": "NewsMediaOrganization",
     name: siteConfig.name,
     url: siteConfig.url,
-    logo: `${siteConfig.url}${siteConfig.logo}`,
+    logo: `${siteConfig.url}${siteConfig.structuredLogo}`,
     email: siteConfig.email,
-    address: {
-      "@type": "PostalAddress",
-      addressLocality: "Conakry",
-      addressCountry: "GN",
-    },
-    sameAs: Object.values(siteConfig.socialLinks),
+    address: { "@type": "PostalAddress", addressLocality: "Conakry", addressCountry: "GN" },
+    sameAs: [siteConfig.instagram],
     ethicsPolicy: `${siteConfig.url}/normes-editoriales`,
     correctionsPolicy: `${siteConfig.url}/corrections`,
   };
@@ -81,10 +89,10 @@ export default async function RootLayout({
   return (
     <html lang="fr">
       <body>
-        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }} />
-        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteSchema) }} />
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: serializeJsonLd(organizationSchema) }} />
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: serializeJsonLd(websiteSchema) }} />
         <SiteChrome headlines={headlines}>{children}</SiteChrome>
-        <AnalyticsConsent />
+        <AnalyticsConsent measurementId={siteConfig.gaMeasurementId} />
       </body>
     </html>
   );

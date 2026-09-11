@@ -5,6 +5,8 @@ import { importMigratedArticles } from "../actions";
 const statusLabel: Record<string, string> = {
   published: "Publié",
   draft: "Brouillon",
+  in_review: "À relire",
+  needs_changes: "À corriger",
   scheduled: "Programmé",
   archived: "Archivé",
 };
@@ -12,17 +14,17 @@ const statusLabel: Record<string, string> = {
 export default async function AdminArticlesPage({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string; status?: string }>;
+  searchParams: Promise<{ q?: string; status?: string; import?: string; saved?: string; deleted?: string }>;
 }) {
   const newsroom = await getNewsroomUser();
-  const { q = "", status = "" } = await searchParams;
+  const { q = "", status = "", import: importState, saved, deleted } = await searchParams;
   let query = newsroom!.supabase
     .from("articles")
-    .select("id, title, slug, status, featured, created_at, published_at, categories(name), profiles(full_name)")
+    .select("id, title, slug, status, featured, created_at, published_at, categories(name), profiles!articles_author_id_fkey(full_name)")
     .order("created_at", { ascending: false });
   if (q) query = query.ilike("title", `%${q}%`);
   if (status) query = query.eq("status", status);
-  const { data: articles } = await query;
+  const { data: articles, error } = await query;
   const isOwner = newsroom?.profile?.role === "owner";
 
   return (
@@ -31,6 +33,10 @@ export default async function AdminArticlesPage({
         <div><span className="admin-kicker">Contenu</span><h1>Articles</h1><p>Créez, modifiez, programmez et organisez vos publications.</p></div>
         <Link href="/admin/articles/new" className="admin-primary">+ Nouvel article</Link>
       </header>
+      {importState === "success" && <p className="admin-flash success" role="status">Les cinq articles existants ont été importés. Vous pouvez maintenant les revoir et les publier.</p>}
+      {saved && <p className="admin-flash success" role="status">{saved === "created" ? "L’article a été créé avec succès." : "Les modifications ont été enregistrées avec succès."}</p>}
+      {deleted && <p className="admin-flash success" role="status">L’article a été supprimé.</p>}
+      {error && <div className="admin-config-warning"><strong>Les articles ne peuvent pas être lus pour le moment.</strong><p>{error.message}</p></div>}
       <section className="admin-panel">
         <form className="admin-toolbar">
           <input name="q" type="search" defaultValue={q} placeholder="Rechercher un article…" />
@@ -38,6 +44,8 @@ export default async function AdminArticlesPage({
             <option value="">Tous les statuts</option>
             <option value="published">Publié</option>
             <option value="draft">Brouillon</option>
+            <option value="in_review">À relire</option>
+            <option value="needs_changes">À corriger</option>
             <option value="scheduled">Programmé</option>
             <option value="archived">Archivé</option>
           </select>

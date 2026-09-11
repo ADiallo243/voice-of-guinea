@@ -1,9 +1,11 @@
 import { ConfirmSubmit } from "@/components/confirm-submit";
+import { redirect } from "next/navigation";
 import { getNewsroomUser } from "@/lib/supabase/admin";
 import { deleteCategory, saveCategory } from "../actions";
 
 export default async function AdminCategoriesPage() {
   const newsroom = await getNewsroomUser();
+  if (!newsroom?.profile?.role || !["owner", "editor"].includes(newsroom.profile.role)) redirect("/admin");
   const { data: categories } = await newsroom!.supabase
     .from("categories")
     .select("id, name, slug, description, display_order, active, articles(count)")

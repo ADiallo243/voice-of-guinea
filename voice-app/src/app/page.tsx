@@ -11,24 +11,30 @@ export const metadata: Metadata = {
 export default async function Home() {
   const articles = await getPublishedArticles();
   const lead = articles.find((article) => article.featured) ?? articles[0];
-  const latest = articles.filter((article) => article.slug !== lead.slug);
+  const latest = articles.filter((article) => article.slug !== lead?.slug);
 
   return (
     <>
       <section className="shell hero-section">
         <div className="home-lead">
-          <ArticleCard article={lead} large headingLevel={1} />
-          <aside className="trending">
-            <h2>Tendance</h2>
-            <div>
-              {articles.slice(0, 4).map((article, index) => (
-                <Link href={`/articles/${article.slug}`} key={article.slug}>
-                  <span>0{index + 1}</span>
-                  {article.title}
-                </Link>
-              ))}
-            </div>
-          </aside>
+          {lead ? (
+            <>
+              <ArticleCard article={lead} large headingLevel={1} />
+              <aside className="trending">
+                <h2>Tendance</h2>
+                <div>
+                  {articles.slice(0, 4).map((article, index) => (
+                    <Link href={`/articles/${article.slug}`} key={article.slug}>
+                      <span>0{index + 1}</span>
+                      {article.title}
+                    </Link>
+                  ))}
+                </div>
+              </aside>
+            </>
+          ) : (
+            <div className="admin-empty"><strong>La rédaction prépare ses prochaines publications.</strong><p>Revenez bientôt pour suivre l’actualité de la Guinée.</p></div>
+          )}
         </div>
       </section>
 

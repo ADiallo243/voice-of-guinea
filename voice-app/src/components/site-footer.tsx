@@ -1,8 +1,8 @@
 import Image from "next/image";
 import Link from "next/link";
 import { siteConfig } from "@/lib/site";
+import { CookieSettingsButton } from "./cookie-settings-button";
 import { NewsletterForm } from "./newsletter-form";
-import { PrivacyPreferencesButton } from "./privacy-preferences-button";
 
 export function SiteFooter() {
   return (
@@ -25,7 +25,11 @@ export function SiteFooter() {
           <Link href="/corrections">Corrections</Link>
           <Link href="/confidentialite">Confidentialité</Link>
           <Link href="/contact">Contact</Link>
-          <a href={siteConfig.socialLinks.instagram} target="_blank" rel="noreferrer">Instagram ↗</a>
+          <Link href="/cookies">Cookies</Link>
+          <Link href="/accessibilite">Accessibilité</Link>
+          <Link href="/mentions-legales">Mentions légales</Link>
+          <a href={siteConfig.instagram} target="_blank" rel="noreferrer">Instagram ↗</a>
+          <CookieSettingsButton />
         </div>
         <div className="footer-newsletter">
           <h2>Newsletter</h2>
@@ -35,10 +39,7 @@ export function SiteFooter() {
       </div>
       <div className="shell footer-bottom">
         <span>© {new Date().getFullYear()} Voice of Guinea</span>
-        <div>
-          <span>Conakry · Montréal · Le monde</span>
-          <PrivacyPreferencesButton />
-        </div>
+        <span>Conakry · Montréal · Le monde</span>
       </div>
     </footer>
   );

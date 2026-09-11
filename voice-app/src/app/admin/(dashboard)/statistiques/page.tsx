@@ -1,62 +1,41 @@
+import { redirect } from "next/navigation";
 import { getNewsroomUser } from "@/lib/supabase/admin";
 
-function isoDaysAgo(days: number) {
-  const date = new Date();
-  date.setDate(date.getDate() - days);
-  return date.toISOString().slice(0, 10);
-}
+const statusLabel: Record<string, string> = {
+  in_review: "À relire",
+  needs_changes: "À corriger",
+  scheduled: "Programmé",
+};
 
 export default async function AnalyticsPage() {
   const newsroom = await getNewsroomUser();
-  const [views, categories, articles, authors] = await Promise.all([
-    newsroom!.supabase.from("article_daily_views").select("viewed_on, views, article_id, articles(title)").gte("viewed_on", isoDaysAgo(30)).order("viewed_on"),
-    newsroom!.supabase.from("categories").select("id, name, articles(count)").eq("active", true).order("display_order"),
-    newsroom!.supabase.from("articles").select("id, status, published_at").gte("created_at", `${isoDaysAgo(30)}T00:00:00Z`),
-    newsroom!.supabase.from("profiles").select("id, full_name, articles(count)").eq("active", true),
-  ]);
+  if (newsroom?.profile?.role !== "owner") redirect("/admin");
 
-  const daily = new Map<string, number>();
-  const byArticle = new Map<string, { title: string; views: number }>();
-  for (const row of views.data ?? []) {
-    daily.set(row.viewed_on, (daily.get(row.viewed_on) ?? 0) + Number(row.views));
-    const current = byArticle.get(row.article_id) ?? { title: row.articles?.[0]?.title || "Article", views: 0 };
-    current.views += Number(row.views);
-    byArticle.set(row.article_id, current);
-  }
-  const last7 = [...daily.entries()].filter(([date]) => date >= isoDaysAgo(7)).reduce((sum, [, count]) => sum + count, 0);
-  const previous7 = [...daily.entries()].filter(([date]) => date >= isoDaysAgo(14) && date < isoDaysAgo(7)).reduce((sum, [, count]) => sum + count, 0);
-  const trend = previous7 ? Math.round(((last7 - previous7) / previous7) * 100) : 0;
-  const chartDays = Array.from({ length: 14 }, (_, index) => isoDaysAgo(13 - index));
-  const maxViews = Math.max(1, ...chartDays.map((day) => daily.get(day) ?? 0));
-  const topArticles = [...byArticle.values()].sort((a, b) => b.views - a.views).slice(0, 5);
-  const publishedThisMonth = (articles.data ?? []).filter((article) => article.status === "published").length;
+  const [categories, articles, authors, subscribers, activity] = await Promise.all([
+    newsroom.supabase.from("categories").select("id, name, articles(count)").eq("active", true).order("display_order"),
+    newsroom.supabase.from("articles").select("id, title, status, updated_at, categories(name), profiles!articles_author_id_fkey(full_name)"),
+    newsroom.supabase.from("profiles").select("id, full_name, articles(count)").eq("active", true),
+    newsroom.supabase.from("newsletter_subscribers").select("status"),
+    newsroom.supabase.from("activity_log").select("id", { count: "exact", head: true }),
+  ]);
+  const allArticles = articles.data ?? [];
+  const published = allArticles.filter((article) => article.status === "published").length;
+  const reviewQueue = allArticles.filter((article) => ["in_review", "needs_changes", "scheduled"].includes(article.status));
+  const confirmedSubscribers = (subscribers.data ?? []).filter((subscriber) => subscriber.status === "active").length;
 
   return (
     <>
       <header className="admin-header">
-        <div><span className="admin-kicker">Performance</span><h1>Statistiques</h1><p>Comprenez ce qui est publié, lu et produit par la rédaction.</p></div>
-        <span className="period-pill">30 derniers jours</span>
+        <div><span className="admin-kicker">Direction</span><h1>Pilotage</h1><p>Le tableau privé de la rédaction : production, équipe, abonnés et suivi des changements.</p></div>
+        <span className="period-pill">Accès propriétaire</span>
       </header>
       <section className="admin-stats analytics-summary">
-        <article><span>Lectures — 7 jours</span><strong>{last7.toLocaleString("fr-FR")}</strong><small className={trend >= 0 ? "positive" : "negative"}>{trend >= 0 ? "+" : ""}{trend}% vs. semaine précédente</small></article>
-        <article><span>Publications — 30 jours</span><strong>{publishedThisMonth}</strong><small>Articles mis en ligne</small></article>
-        <article><span>En préparation</span><strong>{(articles.data ?? []).filter((article) => article.status === "draft").length}</strong><small>Brouillons actuels</small></article>
-        <article><span>Équipe active</span><strong>{authors.data?.length ?? 0}</strong><small>Propriétaires, éditeurs et auteurs</small></article>
+        <article><span>À décider</span><strong>{allArticles.filter((article) => article.status === "in_review").length}</strong><small>Articles à relire</small></article>
+        <article><span>À corriger</span><strong>{allArticles.filter((article) => article.status === "needs_changes").length}</strong><small>Retours en attente</small></article>
+        <article><span>Abonnés confirmés</span><strong>{confirmedSubscribers}</strong><small>Audience newsletter</small></article>
+        <article><span>Changements suivis</span><strong>{activity.count ?? 0}</strong><small>Journal d’audit</small></article>
       </section>
       <div className="analytics-grid">
-        <section className="admin-panel chart-panel">
-          <div className="admin-panel-heading"><div><span className="admin-kicker">Audience</span><h2>Lectures quotidiennes</h2></div></div>
-          <div className="bar-chart">
-            {chartDays.map((day) => {
-              const count = daily.get(day) ?? 0;
-              return <div key={day} title={`${day}: ${count} lectures`}><span style={{ height: `${Math.max(3, (count / maxViews) * 100)}%` }} /><small>{new Date(`${day}T12:00:00`).toLocaleDateString("fr-FR", { day: "numeric" })}</small></div>;
-            })}
-          </div>
-        </section>
-        <section className="admin-panel">
-          <div className="admin-panel-heading"><div><span className="admin-kicker">Contenu</span><h2>Articles les plus lus</h2></div></div>
-          {topArticles.length ? <ol className="ranking-list">{topArticles.map((article) => <li key={article.title}><span>{article.title}</span><strong>{article.views.toLocaleString("fr-FR")}</strong></li>)}</ol> : <div className="admin-empty compact"><p>Les lectures apparaîtront lorsque le site public utilisera les articles Supabase.</p></div>}
-        </section>
         <section className="admin-panel">
           <div className="admin-panel-heading"><div><span className="admin-kicker">Répartition</span><h2>Articles par catégorie</h2></div></div>
           <div className="category-breakdown">{(categories.data ?? []).map((category) => <div key={category.id}><span>{category.name}</span><strong>{category.articles?.[0]?.count ?? 0}</strong></div>)}</div>
@@ -66,6 +45,10 @@ export default async function AnalyticsPage() {
           <div className="category-breakdown">{(authors.data ?? []).map((author) => <div key={author.id}><span>{author.full_name || "Membre de la rédaction"}</span><strong>{author.articles?.[0]?.count ?? 0}</strong></div>)}</div>
         </section>
       </div>
+      <section className="admin-panel editorial-queue owner-queue">
+        <div className="admin-panel-heading"><div><span className="admin-kicker">Décisions à venir</span><h2>Suivi de publication</h2><p>{published} article{published > 1 ? "s" : ""} déjà publié{published > 1 ? "s" : ""}, et {reviewQueue.length} élément{reviewQueue.length > 1 ? "s" : ""} dans le circuit.</p></div></div>
+        {reviewQueue.length ? <div className="queue-list">{reviewQueue.slice(0, 8).map((article) => <div className="queue-row" key={article.id}><div><strong>{article.title}</strong><span>{article.categories?.[0]?.name ?? "Sans catégorie"} · {article.profiles?.[0]?.full_name ?? "La rédaction"}</span></div><span className={`status ${article.status}`}>{statusLabel[article.status]}</span></div>)}</div> : <div className="admin-empty compact"><p>Aucun article n’attend une décision éditoriale.</p></div>}
+      </section>
     </>
   );
 }

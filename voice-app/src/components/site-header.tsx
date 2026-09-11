@@ -27,7 +27,12 @@ export function SiteHeader({ headlines }: { headlines: BreakingHeadline[] }) {
           <div className="ticker-window">
             <div className="ticker">
               {[...headlines, ...headlines].map((headline, index) => (
-                <Link key={`${headline.text}-${index}`} href={headline.href}>
+                <Link
+                  key={`${headline.text}-${index}`}
+                  href={headline.href}
+                  aria-hidden={index >= headlines.length || undefined}
+                  tabIndex={index >= headlines.length ? -1 : undefined}
+                >
                   {headline.text}
                   <i aria-hidden="true">•</i>
                 </Link>
