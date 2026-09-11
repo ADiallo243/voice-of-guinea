@@ -4,7 +4,7 @@ export const siteConfig = {
   locale: "fr_GN",
   language: "fr",
   description:
-    "Actualités, politique, économie, culture, sport et divertissement en Guinée, racontés avec clarté, contexte et proximité.",
+    "Actualités, culture, talents, économie et société en Guinée, racontés avec clarté, créativité et humanité.",
   publisher: "Voice of Guinea",
   email: "voiceofguinea@gmail.com",
   location: "Conakry, Guinée",

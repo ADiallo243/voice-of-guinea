@@ -37,7 +37,7 @@ export default async function Home() {
           <div className="section-title-row">
             <div>
               <span className="section-kicker">À lire maintenant</span>
-              <h2>Les dernières nouvelles</h2>
+              <h2>L’essentiel de la Guinée</h2>
             </div>
             <Link href="/actualites" className="text-link">Voir toutes les actualités →</Link>
           </div>
@@ -47,13 +47,19 @@ export default async function Home() {
         </div>
       </section>
 
+      <section className="shell statement" aria-labelledby="mission-title">
+        <span>VOICE OF GUINEA</span>
+        <blockquote id="mission-title">La Guinée en images et en voix.</blockquote>
+        <p>Des faits vérifiés, des histoires humaines et les talents qui font avancer le pays.</p>
+      </section>
+
       <section className="shell section-space">
         <div className="section-title-row">
           <div>
-            <span className="section-kicker">Culture & scène</span>
-            <h2>Talents guinéens</h2>
+            <span className="section-kicker">Culture vivante</span>
+            <h2>Talents & voix</h2>
           </div>
-          <Link href="/divertissement" className="text-link">Explorer →</Link>
+          <Link href="/divertissement" className="text-link">Découvrir les talents →</Link>
         </div>
         {articles.find((article) => article.category === "Divertissement") && (
           <ArticleCard article={articles.find((article) => article.category === "Divertissement")!} large />

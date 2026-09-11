@@ -3,7 +3,7 @@ import { CategoryPage } from "@/components/category-page";
 
 export const metadata: Metadata = {
   title: "Actualités de Guinée",
-  description: "Suivez les dernières actualités politiques, économiques, sociales et sportives en Guinée.",
+  description: "Suivez les faits marquants économiques, sociaux, culturels et sportifs en Guinée, vérifiés et expliqués clairement.",
   alternates: { canonical: "/actualites" },
 };
 

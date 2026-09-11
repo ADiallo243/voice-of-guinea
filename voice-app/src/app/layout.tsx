@@ -1,25 +1,14 @@
 import type { Metadata } from "next";
-import { Playfair_Display, Source_Sans_3 } from "next/font/google";
 import { AnalyticsConsent } from "@/components/analytics-consent";
 import { SiteChrome } from "@/components/site-chrome";
 import { getBreakingHeadlines } from "@/lib/content";
 import { siteConfig } from "@/lib/site";
 import "./globals.css";
 
-const display = Playfair_Display({
-  variable: "--font-display",
-  subsets: ["latin"],
-});
-
-const sans = Source_Sans_3({
-  variable: "--font-sans",
-  subsets: ["latin"],
-});
-
 export const metadata: Metadata = {
   metadataBase: new URL(siteConfig.url),
   title: {
-    default: "Voice of Guinea — L’actualité guinéenne, autrement",
+    default: "Voice of Guinea — La Guinée en images et en voix",
     template: "%s | Voice of Guinea",
   },
   description: siteConfig.description,
@@ -44,13 +33,13 @@ export const metadata: Metadata = {
     locale: siteConfig.locale,
     url: siteConfig.url,
     siteName: siteConfig.name,
-    title: "Voice of Guinea — L’actualité guinéenne, autrement",
+    title: "Voice of Guinea — La Guinée en images et en voix",
     description: siteConfig.description,
     images: [{ url: siteConfig.socialImage, alt: siteConfig.name }],
   },
   twitter: {
     card: "summary",
-    title: "Voice of Guinea — L’actualité guinéenne, autrement",
+    title: "Voice of Guinea — La Guinée en images et en voix",
     description: siteConfig.description,
     images: [siteConfig.socialImage],
   },
@@ -91,7 +80,7 @@ export default async function RootLayout({
   };
   return (
     <html lang="fr">
-      <body className={`${display.variable} ${sans.variable}`}>
+      <body>
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }} />
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteSchema) }} />
         <SiteChrome headlines={headlines}>{children}</SiteChrome>

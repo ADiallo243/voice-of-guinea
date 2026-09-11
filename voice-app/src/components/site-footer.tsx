@@ -10,13 +10,13 @@ export function SiteFooter() {
       <div className="shell footer-grid">
         <div>
           <Image src="/brand/logo.svg" alt="Voice of Guinea" width={128} height={66} />
-          <p>Une voix indépendante pour raconter la Guinée, ses talents et ses transformations.</p>
+          <p>Le média qui raconte la Guinée d’aujourd’hui, en images et en voix.</p>
         </div>
         <div>
           <h2>Explorer</h2>
-          <Link href="/actualites">Actualités</Link>
+          <Link href="/actualites">L’essentiel</Link>
+          <Link href="/divertissement">Talents & voix</Link>
           <Link href="/culture">Culture</Link>
-          <Link href="/divertissement">Divertissement</Link>
         </div>
         <div>
           <h2>Voice of Guinea</h2>
@@ -29,7 +29,7 @@ export function SiteFooter() {
         </div>
         <div className="footer-newsletter">
           <h2>Newsletter</h2>
-          <p>Recevez notre sélection d’actualités directement dans votre boîte mail.</p>
+          <p>La Guinée, expliquée clairement, sans bruit inutile.</p>
           <NewsletterForm compact />
         </div>
       </div>

@@ -7,10 +7,9 @@ import { useState } from "react";
 import type { BreakingHeadline } from "@/lib/content";
 
 const links = [
-  { href: "/", label: "Accueil" },
-  { href: "/actualites", label: "Actualités" },
+  { href: "/actualites", label: "L’essentiel" },
+  { href: "/divertissement", label: "Talents & voix" },
   { href: "/culture", label: "Culture" },
-  { href: "/divertissement", label: "Divertissement" },
   { href: "/a-propos", label: "À propos" },
   { href: "/contact", label: "Contact" },
   { href: "/recherche", label: "Recherche" },
@@ -24,7 +23,7 @@ export function SiteHeader({ headlines }: { headlines: BreakingHeadline[] }) {
     <>
       <div className="topline">
         <div className="shell topline-inner">
-          <strong><i /> À LA UNE</strong>
+          <strong><i /> À SUIVRE</strong>
           <div className="ticker-window">
             <div className="ticker">
               {[...headlines, ...headlines].map((headline, index) => (
