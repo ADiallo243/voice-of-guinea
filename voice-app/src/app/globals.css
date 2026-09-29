@@ -371,6 +371,9 @@ figcaption { color: var(--muted); font-size: .74rem; margin-top: 8px; }
 .login-form input, .article-editor input, .article-editor textarea, .article-editor select { width: 100%; border: 1px solid rgba(0,0,0,.12); border-radius: 12px; background: rgba(255,255,255,.92); padding: 12px 13px; font: inherit; color: #232326; box-shadow: 0 1px 1px rgba(0,0,0,.02); transition: border-color .2s, box-shadow .2s; }
 .login-form input:focus, .article-editor input:focus, .article-editor textarea:focus, .article-editor select:focus { outline: none; border-color: rgba(18,104,64,.7); box-shadow: 0 0 0 4px rgba(18,104,64,.11); }
 .login-form button { border: 0; border-radius: 999px; padding: 13px; background: var(--red); color: white; font: inherit; font-weight: 800; cursor: pointer; margin-top: 5px; }
+.login-form button:disabled, .mfa-button:disabled { opacity: .65; cursor: wait; }
+.mfa-qr { display: block; width: min(240px, 100%); height: auto; padding: 12px; margin: 18px 0; background: white; border: 1px solid rgba(0,0,0,.12); border-radius: 12px; }
+.login-panel .mfa-button { border: 1px solid rgba(0,0,0,.12); border-radius: 999px; padding: 11px 14px; background: white; color: #232326; font: inherit; font-weight: 750; cursor: pointer; margin-top: 12px; }
 .password-recovery { margin-top: 22px; color: #666861; font-size: .82rem; }
 .password-recovery summary { cursor: pointer; font-weight: 720; }
 .form-error { color: var(--red); font-size: .8rem; }

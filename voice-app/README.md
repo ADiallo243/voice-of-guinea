@@ -27,7 +27,7 @@ In the existing Vercel project:
    from `.env.example` and `BACKEND_SETUP.md`. Keep secrets server-only; do not
    add them to GitHub.
 4. Apply the Supabase migrations in order, through
-   `012_publication_and_login_guards.sql`.
+   `014_enforce_newsroom_mfa.sql`.
 5. Deploy the `main` branch, then attach `www.voiceofguinea.com` to that Vercel
    project if it is not already connected.
 

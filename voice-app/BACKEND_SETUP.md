@@ -8,7 +8,7 @@ demo content when the database is unavailable or empty.
 
 1. Create a Supabase project.
 2. In **SQL Editor**, run every file in `supabase/migrations/` in numerical
-   order, from `001_initial_newsroom.sql` through `012_publication_and_login_guards.sql`.
+   order, from `001_initial_newsroom.sql` through `014_enforce_newsroom_mfa.sql`.
 3. In **Authentication → Providers → Email**, disable public sign-ups. Newsroom
    accounts should be invited deliberately.
 4. In **Authentication → URL Configuration**, add
@@ -60,7 +60,9 @@ The deployment contains a Vercel Cron job that checks for due scheduled articles
 ## 2.3 Protect newsroom sign-in
 
 Migration 012 adds a persistent login throttle without storing raw IP or e-mail
-addresses. Add a separate random value in Vercel Production:
+addresses. Production login fails closed if its limiter cannot be reached, so
+apply the migrations and configure this separate random value before enabling
+production sign-in:
 
 ```env
 AUTH_RATE_LIMIT_SECRET=a-different-long-random-secret
@@ -69,6 +71,19 @@ AUTH_RATE_LIMIT_SECRET=a-different-long-random-secret
 Do not reuse `CRON_SECRET` or `NEWSLETTER_RATE_LIMIT_SECRET`. After deployment,
 the owner-only **Système** page shows whether the application can reach the
 required database tables and whether each environment variable is present.
+
+## 2.4 Require two-step newsroom sign-in
+
+Migration 014 adds restrictive AAL2 policies to newsroom tables and Storage.
+Public anonymous reads continue through their existing policies; authenticated
+newsroom reads and writes require a verified second factor. The application
+routes password-only sessions to `/admin/mfa`, where each staff member enrolls
+and verifies a TOTP authenticator app. Enable TOTP enrollment and verification
+in Supabase Auth. Apply migration 014 before deploying this version, and test
+one invited account from sign-in through a successful MFA challenge. The
+**Système** page checks for the migration marker but cannot confirm each
+individual user's enrollment. If an owner loses their authenticator, revoke
+that factor in Supabase Auth and have the owner enroll a new one at next login.
 
 ## 3. Create the owner
 
@@ -102,9 +117,9 @@ prevents an accidentally enabled public sign-up from granting newsroom access.
   in Vercel only; never put one in a `NEXT_PUBLIC_` variable. The Turnstile
   site key is the intentional public exception.
 - In Supabase Auth, disable public sign-ups, require strong passwords, enable
-  leaked-password protection and MFA for every owner and editor, and restrict
-  redirect URLs to your production domain.
-- Confirm every migration through `012_publication_and_login_guards.sql`
+  leaked-password protection and TOTP factors, and restrict redirect URLs to
+  your production domain. Each newsroom user must complete MFA enrollment.
+- Confirm every migration through `014_enforce_newsroom_mfa.sql`
   completed before enabling the newsroom. They add newsletter safeguards, the
   featured-story invariant, audit trail, revision history, token protection,
   the author-to-editor workflow, publication validation and login throttling.

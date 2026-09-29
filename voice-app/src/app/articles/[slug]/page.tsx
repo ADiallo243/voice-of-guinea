@@ -17,6 +17,11 @@ function metadataTitle(title: string) {
   return `${shortened}…`;
 }
 
+function formatPhotoCredit(credit: string) {
+  const normalizedCredit = credit.replace(/^(?:photo\s*:\s*)+/i, "").trim();
+  return normalizedCredit ? `Photo : ${normalizedCredit}` : "Photo";
+}
+
 export async function generateStaticParams() {
   return (await getPublishedArticles()).map((article) => ({ slug: article.slug }));
 }
@@ -129,7 +134,7 @@ export default async function ArticlePage({
       </header>
       <figure className="article-hero">
         <Image src={article.image} alt={article.imageAlt} fill priority sizes="(max-width: 900px) 100vw, 1100px" />
-        <figcaption>Photo : {article.imageCredit}</figcaption>
+        <figcaption>{formatPhotoCredit(article.imageCredit)}</figcaption>
       </figure>
       <div className="article-body">
         {article.correctionNote && (
@@ -144,7 +149,7 @@ export default async function ArticlePage({
           return (
             <figure key={index} className="inline-image">
               <Image src={block.src} alt={block.alt} width={900} height={560} />
-              <figcaption>Photo : {block.credit}</figcaption>
+              <figcaption>{formatPhotoCredit(block.credit)}</figcaption>
             </figure>
           );
         })}
