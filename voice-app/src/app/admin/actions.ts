@@ -27,20 +27,24 @@ async function loginQuotaKeys(email: string) {
 
 async function consumeLoginQuota(email: string) {
   const keys = await loginQuotaKeys(email);
-  if (!keys) return { allowed: true, keys: null };
+  if (!keys) return process.env.NODE_ENV === "production"
+    ? { allowed: false, unavailable: true, keys: null }
+    : { allowed: true, unavailable: false, keys: null };
   try {
     const admin = createSupabaseAdminClient();
     for (const attemptKey of keys) {
       const { data, error } = await admin.rpc("consume_login_attempt_quota", { attempt_key: attemptKey });
       if (error) throw error;
-      if (!data) return { allowed: false, keys: null };
+      if (!data) return { allowed: false, unavailable: false, keys: null };
     }
-    return { allowed: true, keys };
+    return { allowed: true, unavailable: false, keys };
   } catch (error) {
-    // Do not lock the owner out while the migration is being deployed. The
-    // server log identifies a missing throttle configuration for follow-up.
+    // Production fails closed so a database outage cannot silently disable
+    // brute-force protection. Local development remains usable without setup.
     console.error("Login rate limit unavailable.", error);
-    return { allowed: true, keys: null };
+    return process.env.NODE_ENV === "production"
+      ? { allowed: false, unavailable: true, keys: null }
+      : { allowed: true, unavailable: false, keys: null };
   }
 }
 
@@ -58,6 +62,7 @@ export async function signIn(formData: FormData) {
   const password = String(formData.get("password") ?? "");
   if (!email || !password) loginError("Entrez votre adresse e-mail et votre mot de passe.");
   const quota = await consumeLoginQuota(email);
+  if (quota.unavailable) loginError("La connexion est temporairement indisponible. Réessayez plus tard.");
   if (!quota.allowed) loginError("Trop de tentatives. Réessayez dans 15 minutes ou réinitialisez votre mot de passe.");
   const supabase = await createSupabaseServerClient();
   const { error } = await supabase.auth.signInWithPassword({ email, password });
