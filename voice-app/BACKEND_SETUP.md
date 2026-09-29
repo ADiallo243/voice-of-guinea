@@ -8,7 +8,7 @@ demo content when the database is unavailable or empty.
 
 1. Create a Supabase project.
 2. In **SQL Editor**, run every file in `supabase/migrations/` in numerical
-   order, from `001_initial_newsroom.sql` through `014_enforce_newsroom_mfa.sql`.
+   order, from `001_initial_newsroom.sql` through `016_index_newsroom_foreign_keys.sql`.
 3. In **Authentication → Providers → Email**, disable public sign-ups. Newsroom
    accounts should be invited deliberately.
 4. In **Authentication → URL Configuration**, add
@@ -119,7 +119,7 @@ prevents an accidentally enabled public sign-up from granting newsroom access.
 - In Supabase Auth, disable public sign-ups, require strong passwords, enable
   leaked-password protection and TOTP factors, and restrict redirect URLs to
   your production domain. Each newsroom user must complete MFA enrollment.
-- Confirm every migration through `014_enforce_newsroom_mfa.sql`
+- Confirm every migration through `016_index_newsroom_foreign_keys.sql`
   completed before enabling the newsroom. They add newsletter safeguards, the
   featured-story invariant, audit trail, revision history, token protection,
   the author-to-editor workflow, publication validation and login throttling.

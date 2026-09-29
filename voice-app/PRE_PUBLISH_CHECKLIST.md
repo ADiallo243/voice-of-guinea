@@ -33,7 +33,7 @@ This checklist supports a responsible launch. It is not a substitute for advice 
 - [ ] Submit `https://www.voiceofguinea.com/sitemap.xml` and `https://www.voiceofguinea.com/news-sitemap.xml`.
 - [ ] Inspect the home page and several published articles in Search Console after deployment.
 - [ ] Add `CRON_SECRET` in Vercel and confirm a scheduled test article is published at the expected time.
-- [ ] Apply every Supabase migration through `014_enforce_newsroom_mfa.sql` in order, then confirm the Storage policies and RLS policies are active.
+- [ ] Apply every Supabase migration through `016_index_newsroom_foreign_keys.sql` in order, then confirm the Storage policies and RLS policies are active.
 - [ ] Configure Resend plus Cloudflare Turnstile and add `NEWSLETTER_FROM_EMAIL`, `NEXT_PUBLIC_TURNSTILE_SITE_KEY`, `TURNSTILE_SECRET_KEY`, and `NEWSLETTER_RATE_LIMIT_SECRET` in Vercel.
 - [ ] Confirm a newsletter address remains pending until the recipient explicitly completes the confirmation page; confirm the unsubscribe and confirmation URLs never appear in Google Analytics.
 - [ ] Enable Supabase Auth TOTP enrollment and leaked-password protection for the newsroom, disable public sign-ups, and restrict Auth redirect URLs to your production domain. Verify MFA works for an invited account.
