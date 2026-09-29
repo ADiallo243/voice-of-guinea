@@ -26,10 +26,13 @@ In the existing Vercel project:
 3. In **Settings → Environment Variables**, add every required production value
    from `.env.example` and `BACKEND_SETUP.md`. Keep secrets server-only; do not
    add them to GitHub.
-4. Apply the Supabase migrations in order, through
-   `016_index_newsroom_foreign_keys.sql`.
-5. Deploy the `main` branch, then attach `www.voiceofguinea.com` to that Vercel
-   project if it is not already connected.
+4. Apply migrations 001–013, then 015 and 016. Hold
+   `014_enforce_newsroom_mfa.sql` until the MFA-enabled application has deployed.
+5. Deploy the `main` branch, then enable TOTP and verify an invited newsroom
+   account can enroll and sign in with MFA.
+6. Apply migration 014 and confirm newsroom access still works with an AAL2
+   session, then attach `www.voiceofguinea.com` to that Vercel project if it is
+   not already connected.
 
 Changing the Root Directory is essential: without it, Vercel deploys the old
 static site at the repository root, which uses `.html` links and cannot expose
