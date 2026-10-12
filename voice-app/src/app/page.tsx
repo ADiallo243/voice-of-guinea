@@ -2,16 +2,20 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ArticleCard } from "@/components/article-card";
 import { NewsletterForm } from "@/components/newsletter-form";
-import { getPublishedArticles } from "@/lib/content";
+import { getPublishedArticles, getTrendingArticles } from "@/lib/content";
 
 export const metadata: Metadata = {
   alternates: { canonical: "/" },
 };
 
 export default async function Home() {
-  const articles = await getPublishedArticles();
+  const [articles, popular] = await Promise.all([getPublishedArticles(), getTrendingArticles(6)]);
   const lead = articles.find((article) => article.featured) ?? articles[0];
   const latest = articles.filter((article) => article.slug !== lead?.slug);
+  const trending = [
+    ...popular.filter((article) => article.slug !== lead?.slug),
+    ...latest,
+  ].filter((article, index, list) => list.findIndex((item) => item.slug === article.slug) === index).slice(0, 4);
 
   return (
     <>
@@ -19,11 +23,11 @@ export default async function Home() {
         <div className="home-lead">
           {lead ? (
             <>
-              <ArticleCard article={lead} large headingLevel={1} />
+              <ArticleCard article={lead} large headingLevel={1} eyebrow="À la une" />
               <aside className="trending">
                 <h2>Tendance</h2>
                 <div>
-                  {articles.slice(0, 4).map((article, index) => (
+                  {trending.map((article, index) => (
                     <Link href={`/articles/${article.slug}`} key={article.slug}>
                       <span>0{index + 1}</span>
                       {article.title}

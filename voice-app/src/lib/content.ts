@@ -145,6 +145,29 @@ export async function getPublishedByCategory(category: Category) {
   return (await getPublishedArticles()).filter((article) => article.category === category);
 }
 
+export async function getTrendingArticles(limit = 4): Promise<PublicArticle[]> {
+  const articles = await getPublishedArticles();
+  if (!hasSupabaseConfig() || !articles.length) return articles.slice(0, limit);
+  const since = new Date();
+  since.setUTCDate(since.getUTCDate() - 7);
+  const { data, error } = await publicClient()
+    .from("article_daily_views")
+    .select("article_id, views")
+    .gte("viewed_on", since.toISOString().slice(0, 10));
+  if (error || !data?.length) return articles.slice(0, limit);
+  const totals = new Map<string, number>();
+  for (const row of data) totals.set(row.article_id, (totals.get(row.article_id) || 0) + Number(row.views || 0));
+  const ranked = articles
+    .filter((article) => article.id && totals.has(article.id))
+    .sort((a, b) => (totals.get(b.id!) || 0) - (totals.get(a.id!) || 0));
+  const selected = [...ranked];
+  for (const article of articles) {
+    if (selected.length >= limit) break;
+    if (!selected.some((item) => item.slug === article.slug)) selected.push(article);
+  }
+  return selected.slice(0, limit);
+}
+
 export async function getBreakingHeadlines(): Promise<BreakingHeadline[]> {
   const fallback = fallbackArticles.slice(0, 4).map((article) => ({
     text: article.title,

@@ -6,10 +6,12 @@ export function ArticleCard({
   article,
   large = false,
   headingLevel = 2,
+  eyebrow,
 }: {
   article: Article;
   large?: boolean;
   headingLevel?: 1 | 2;
+  eyebrow?: string;
 }) {
   const Heading = headingLevel === 1 ? "h1" : "h2";
 
@@ -26,7 +28,7 @@ export function ArticleCard({
       </Link>
       <div className="card-content">
         <Link href={categoryHref(article.category)} className="eyebrow">
-          {article.category}
+          {eyebrow || article.category}
         </Link>
         <Heading>
           <Link href={`/articles/${article.slug}`}>{article.title}</Link>
