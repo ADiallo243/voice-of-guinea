@@ -73,7 +73,7 @@ export default async function SystemPage() {
     environmentCheck("Widget anti-spam", "Clé publique et clé secrète Cloudflare Turnstile.", ["NEXT_PUBLIC_TURNSTILE_SITE_KEY", "TURNSTILE_SECRET_KEY"]),
     { label: "Limitation newsletter", detail: "Secret HMAC et table de limitation persistante.", ready: Boolean(process.env.NEWSLETTER_RATE_LIMIT_SECRET) && database.newsletter },
     { label: "Limitation des connexions", detail: "Secret HMAC et migration 012 actifs.", ready: Boolean(process.env.AUTH_RATE_LIMIT_SECRET) && database.login },
-    environmentCheck("Envoi newsletter", "Adresse d’expédition vérifiée pour le double consentement.", ["NEWSLETTER_FROM_EMAIL"]),
+    environmentCheck("Envoi newsletter", "Adresse d’expédition vérifiée pour les prochaines campagnes.", ["NEWSLETTER_FROM_EMAIL"]),
   ];
   const allChecks = [...core, ...publishing, ...protection];
   const readyCount = allChecks.filter((check) => check.ready).length;

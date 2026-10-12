@@ -11,15 +11,6 @@ export function NewsletterForm({ compact = false }: { compact?: boolean }) {
   const [state, action, pending] = useActionState(subscribeToNewsletter, initialState);
   const turnstileSiteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY;
 
-  if (!turnstileSiteKey && process.env.NODE_ENV === "production") {
-    return (
-      <div className="newsletter-unavailable" role="status">
-        <strong>La newsletter arrive bientôt.</strong>
-        <span>Nous finalisons l’inscription sécurisée avant son ouverture.</span>
-      </div>
-    );
-  }
-
   return (
     <form action={action} className={compact ? "newsletter-form compact" : "newsletter-form"}>
       <div className="newsletter-fields">
@@ -37,7 +28,7 @@ export function NewsletterForm({ compact = false }: { compact?: boolean }) {
         <button type="submit" disabled={pending}>{pending ? "Envoi…" : "S’abonner"}</button>
       </div>
       {state.message && <p className={`newsletter-message ${state.status}`} role="status">{state.message}</p>}
-      <small>Après confirmation de votre e-mail, vous pourrez recevoir nos e-mails. Désabonnement possible à tout moment. Consultez notre <Link href="/confidentialite">politique de confidentialité</Link>.</small>
+      <small>En vous inscrivant, vous acceptez de recevoir la newsletter de Voice of Guinea. Désabonnement possible à tout moment. Consultez notre <Link href="/confidentialite">politique de confidentialité</Link>.</small>
     </form>
   );
 }

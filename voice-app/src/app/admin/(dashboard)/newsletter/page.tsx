@@ -45,7 +45,7 @@ export default async function NewsletterAdminPage({
           <h1>Newsletter</h1>
           <p>Suivez les inscriptions, confirmations et désabonnements de votre audience.</p>
         </div>
-        <span className="period-pill">Double confirmation activée</span>
+        <span className="period-pill">Inscription directe activée</span>
       </header>
 
       {error && (
