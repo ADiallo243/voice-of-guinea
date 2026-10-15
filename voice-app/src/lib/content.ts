@@ -95,6 +95,14 @@ function categoryName(value: string | undefined): Category {
 function mapArticle(row: ArticleRow): PublicArticle {
   const category = Array.isArray(row.categories) ? row.categories[0] : row.categories;
   const heroImage = safeImageUrl(row.hero_image_url) || "/brand/logo.svg";
+  const seoTitle = row.seo_title?.trim();
+  const seoDescription = row.seo_description?.trim();
+  // Older generated SEO fields stopped mid-sentence. Prefer the complete
+  // headline/deck; search engines decide how much to show in results.
+  const completeSeoTitle = seoTitle && !(row.title.startsWith(seoTitle) && seoTitle.length < row.title.length)
+    ? seoTitle : undefined;
+  const completeSeoDescription = seoDescription && !(seoDescription.endsWith("…") && row.excerpt.startsWith(seoDescription.slice(0, -1)))
+    ? seoDescription : undefined;
   // Legacy stock images often depict unrelated countries or events. A story-specific
   // graphic states the actual headline without implying that a photo shows the event.
   const useEditorialGraphic = /\/editorial-(?:unique|commons)\//.test(heroImage)
@@ -114,8 +122,8 @@ function mapArticle(row: ArticleRow): PublicArticle {
     updatedAt: row.updated_at,
     lastEditedAt: row.last_edited_at || undefined,
     correctionNote: row.correction_note || undefined,
-    seoTitle: row.seo_title || undefined,
-    seoDescription: row.seo_description || undefined,
+    seoTitle: completeSeoTitle,
+    seoDescription: completeSeoDescription,
     author: row.byline || "Voice of Guinea",
     image: useEditorialGraphic ? `/editorial-image/${encodeURIComponent(row.slug)}` : heroImage,
     imageAlt: useEditorialGraphic ? `Illustration éditoriale : ${row.title}` : row.hero_image_alt || row.title,

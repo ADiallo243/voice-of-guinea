@@ -30,11 +30,11 @@ export async function GET(
         <span style={{ width: 28, height: 28, borderRadius: 28, background: "#f3c65b" }} />
         {siteConfig.name.toUpperCase()}
       </div>
-      <div style={{ display: "flex", flexDirection: "column", gap: 24, maxWidth: 1020, zIndex: 1 }}>
+      <div style={{ display: "flex", flexDirection: "column", gap: 24, maxWidth: 1020 }}>
         <div style={{ fontSize: 24, fontWeight: 700, letterSpacing: 3, color: "#f3c65b", textTransform: "uppercase" }}>{category}</div>
         <div style={{ fontSize: titleSize, fontWeight: 750, lineHeight: 1.12, letterSpacing: -1.5 }}>{title}</div>
       </div>
-      <div style={{ display: "flex", justifyContent: "space-between", fontSize: 22, color: "#d5e5df", zIndex: 1 }}>
+      <div style={{ display: "flex", justifyContent: "space-between", fontSize: 22, color: "#d5e5df" }}>
         <span>{isHome ? "Actualités · Culture · Talents" : "Illustration éditoriale"}</span>
         <span>voiceofguinea.com</span>
       </div>
