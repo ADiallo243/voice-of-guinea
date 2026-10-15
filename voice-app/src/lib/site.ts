@@ -12,5 +12,5 @@ export const siteConfig = {
   gaMeasurementId: "G-V707W55KR5",
   logo: "/brand/logo.svg",
   structuredLogo: "/brand/icon-512.png",
-  socialImage: "/images/news/guinee-acces-facebook-vpn.jpg",
+  socialImage: "/editorial-image/home",
 };

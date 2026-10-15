@@ -141,6 +141,7 @@ h1, h2, blockquote { font-family: var(--font-display), serif; }
 figcaption { color: var(--muted); font-size: .74rem; margin-top: 8px; }
 .article-body { max-width: 720px; margin: auto; font-family: Georgia, serif; font-size: 1.18rem; line-height: 1.85; }
 .article-body p { margin: 0 0 27px; }
+.article-body a { color: var(--green); text-decoration: underline; text-underline-offset: 3px; overflow-wrap: anywhere; }
 .article-body h2 { font-size: 2.2rem; line-height: 1.2; margin: 55px 0 20px; }
 .inline-image { margin: 45px -90px; }
 .inline-image img { width: 100%; height: auto; border-radius: 16px; }

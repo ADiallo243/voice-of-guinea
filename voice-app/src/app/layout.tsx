@@ -50,7 +50,7 @@ export const metadata: Metadata = {
     images: [{ url: siteConfig.socialImage, alt: siteConfig.name }],
   },
   twitter: {
-    card: "summary",
+    card: "summary_large_image",
     title: "Voice of Guinea — La Guinée en images et en voix",
     description: siteConfig.description,
     images: [siteConfig.socialImage],

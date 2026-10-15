@@ -95,6 +95,15 @@ function categoryName(value: string | undefined): Category {
 function mapArticle(row: ArticleRow): PublicArticle {
   const category = Array.isArray(row.categories) ? row.categories[0] : row.categories;
   const heroImage = safeImageUrl(row.hero_image_url) || "/brand/logo.svg";
+  // Legacy stock images often depict unrelated countries or events. A story-specific
+  // graphic states the actual headline without implying that a photo shows the event.
+  const useEditorialGraphic = /\/editorial-(?:unique|commons)\//.test(heroImage)
+    || row.slug === "electricite-guinee-financement-additionnel-paaeg-2-27-8-millions"
+    || [
+      "/images/news/feguifoot-crise.jpg",
+      "/images/news/projet-minier-guinee.jpg",
+      "/images/news/guinee-u17-feminine-equipe-niger-2026.jpg",
+    ].includes(heroImage);
   return {
     id: row.id,
     slug: row.slug,
@@ -108,11 +117,14 @@ function mapArticle(row: ArticleRow): PublicArticle {
     seoTitle: row.seo_title || undefined,
     seoDescription: row.seo_description || undefined,
     author: row.byline || "Voice of Guinea",
-    image: heroImage,
-    imageAlt: row.hero_image_alt || row.title,
-    imageCredit: row.image_credit || "Voice of Guinea",
+    image: useEditorialGraphic ? `/editorial-image/${encodeURIComponent(row.slug)}` : heroImage,
+    imageAlt: useEditorialGraphic ? `Illustration éditoriale : ${row.title}` : row.hero_image_alt || row.title,
+    imageCredit: useEditorialGraphic ? "Voice of Guinea — illustration éditoriale" : row.image_credit || "Voice of Guinea",
     featured: Boolean(row.featured),
-    blocks: safeContent(row.content),
+    blocks: safeContent(row.content).filter((block) => !(
+      (useEditorialGraphic && block.type === "paragraph" && /^Source de l[’']image\s*:/i.test(block.text))
+      || (row.slug === "guinee-u17-victoire-niger" && block.type === "image")
+    )),
   };
 }
 

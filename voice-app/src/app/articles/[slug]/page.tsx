@@ -11,10 +11,26 @@ import { getPublicArticle, getPublishedArticles } from "@/lib/content";
 import { serializeJsonLd } from "@/lib/json-ld";
 import { siteConfig } from "@/lib/site";
 
-function metadataTitle(title: string) {
-  if (title.length <= 62) return title;
-  const shortened = title.slice(0, 59).replace(/\s+\S*$/, "").trim();
-  return `${shortened}…`;
+function linkedText(text: string) {
+  return text.split(/(https?:\/\/[^\s]+)/g).map((part, index) => {
+    if (!/^https?:\/\//.test(part)) return part;
+    try {
+      const url = new URL(part);
+      if (url.protocol !== "http:" && url.protocol !== "https:") return part;
+      return <a key={index} href={url.href} target="_blank" rel="noopener noreferrer">{part}</a>;
+    } catch {
+      return part;
+    }
+  });
+}
+
+function publishedDateTime(date: string) {
+  const label = formatArticleDate(date);
+  if (!date.includes("T")) return label;
+  const hour = new Intl.DateTimeFormat("fr-FR", {
+    hour: "2-digit", minute: "2-digit", timeZone: "Africa/Conakry",
+  }).format(new Date(date));
+  return `${label} à ${hour} (heure de Conakry)`;
 }
 
 export async function generateStaticParams() {
@@ -31,7 +47,7 @@ export async function generateMetadata({
   if (!article) return {};
 
   return {
-    title: article.seoTitle || metadataTitle(article.title),
+    title: article.seoTitle || article.title,
     description: article.seoDescription || article.summary,
     alternates: { canonical: `/articles/${article.slug}` },
     authors: [{ name: article.author }],
@@ -117,7 +133,7 @@ export default async function ArticlePage({
         <div className="article-byline">
           <div className="byline-person">
             <span className="byline-avatar" aria-hidden="true">{article.author.slice(0, 1).toUpperCase()}</span>
-            <div><strong>Par {article.author}</strong><time dateTime={article.publishedAt}>Publié le {formatArticleDate(article.publishedAt)}</time></div>
+            <div><strong>Par {article.author}</strong><time dateTime={article.publishedAt}>Publié le {publishedDateTime(article.publishedAt)}</time></div>
           </div>
           <div className="article-timestamps">
             {article.lastEditedAt && <time dateTime={article.lastEditedAt}>Mis à jour le {formatArticleDate(article.lastEditedAt)}</time>}
@@ -129,7 +145,7 @@ export default async function ArticlePage({
       </header>
       <figure className="article-hero">
         <Image src={article.image} alt={article.imageAlt} fill priority sizes="(max-width: 900px) 100vw, 1100px" />
-        <figcaption>Photo : {article.imageCredit}</figcaption>
+        <figcaption>{article.imageCredit.includes("illustration éditoriale") ? "Image : " : "Photo : "}{article.imageCredit}</figcaption>
       </figure>
       <div className="article-body">
         {article.correctionNote && (
@@ -140,7 +156,7 @@ export default async function ArticlePage({
         )}
         {article.blocks.map((block, index) => {
           if (block.type === "heading") return <h2 key={index}>{block.text}</h2>;
-          if (block.type === "paragraph") return <p key={index}>{block.text}</p>;
+          if (block.type === "paragraph") return <p key={index}>{linkedText(block.text)}</p>;
           return (
             <figure key={index} className="inline-image">
               <Image src={block.src} alt={block.alt} width={900} height={560} />
