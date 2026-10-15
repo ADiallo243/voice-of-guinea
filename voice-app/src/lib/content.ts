@@ -7,6 +7,7 @@ import {
   getArticle as getFallbackArticle,
 } from "./articles";
 import { getSupabaseConfig, hasSupabaseConfig } from "./supabase/config";
+import { getLicensedEditorialPhoto, restoredOriginalPhotoSlugs } from "./editorial-photos";
 
 export type PublicArticle = Article & {
   id?: string;
@@ -15,6 +16,7 @@ export type PublicArticle = Article & {
   correctionNote?: string;
   seoTitle?: string;
   seoDescription?: string;
+  imageSourceUrl?: string;
 };
 export type BreakingHeadline = { text: string; href: string };
 type ArticleRow = {
@@ -103,15 +105,16 @@ function mapArticle(row: ArticleRow): PublicArticle {
     ? seoTitle : undefined;
   const completeSeoDescription = seoDescription && !(seoDescription.endsWith("…") && row.excerpt.startsWith(seoDescription.slice(0, -1)))
     ? seoDescription : undefined;
+  const licensedPhoto = getLicensedEditorialPhoto(row.slug);
   // Legacy stock images often depict unrelated countries or events. A story-specific
   // graphic states the actual headline without implying that a photo shows the event.
-  const useEditorialGraphic = /\/editorial-(?:unique|commons)\//.test(heroImage)
+  const useEditorialGraphic = !licensedPhoto && !restoredOriginalPhotoSlugs.has(row.slug) && (/\/editorial-(?:unique|commons)\//.test(heroImage)
     || row.slug === "electricite-guinee-financement-additionnel-paaeg-2-27-8-millions"
     || [
       "/images/news/feguifoot-crise.jpg",
       "/images/news/projet-minier-guinee.jpg",
       "/images/news/guinee-u17-feminine-equipe-niger-2026.jpg",
-    ].includes(heroImage);
+    ].includes(heroImage));
   return {
     id: row.id,
     slug: row.slug,
@@ -125,12 +128,13 @@ function mapArticle(row: ArticleRow): PublicArticle {
     seoTitle: completeSeoTitle,
     seoDescription: completeSeoDescription,
     author: row.byline || "Voice of Guinea",
-    image: useEditorialGraphic ? `/editorial-image/${encodeURIComponent(row.slug)}` : heroImage,
-    imageAlt: useEditorialGraphic ? `Illustration éditoriale : ${row.title}` : row.hero_image_alt || row.title,
-    imageCredit: useEditorialGraphic ? "Voice of Guinea — illustration éditoriale" : row.image_credit || "Voice of Guinea",
+    image: licensedPhoto?.path || (useEditorialGraphic ? `/editorial-image/${encodeURIComponent(row.slug)}` : heroImage),
+    imageAlt: licensedPhoto?.alt || (useEditorialGraphic ? `Illustration éditoriale : ${row.title}` : row.hero_image_alt || row.title),
+    imageCredit: licensedPhoto ? `${licensedPhoto.alt}. ${licensedPhoto.credit} — format WebP adapté` : useEditorialGraphic ? "Voice of Guinea — illustration éditoriale" : row.image_credit || "Voice of Guinea",
+    imageSourceUrl: licensedPhoto?.source,
     featured: Boolean(row.featured),
     blocks: safeContent(row.content).filter((block) => !(
-      (useEditorialGraphic && block.type === "paragraph" && /^Source de l[’']image\s*:/i.test(block.text))
+      ((useEditorialGraphic || licensedPhoto) && block.type === "paragraph" && /^Source de l[’']image\s*:/i.test(block.text))
       || (row.slug === "guinee-u17-victoire-niger" && block.type === "image")
     )),
   };
