@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 
 export default async function Home() {
   const [articles, popular] = await Promise.all([getPublishedArticles(), getTrendingArticles(6)]);
-  const lead = articles.find((article) => article.featured) ?? articles[0];
+  const lead = articles[0];
   const latest = articles.filter((article) => article.slug !== lead?.slug);
   const trending = [
     ...popular.filter((article) => article.slug !== lead?.slug),
