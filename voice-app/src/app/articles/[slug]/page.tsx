@@ -59,7 +59,7 @@ export async function generateMetadata({
       title: article.title,
       description: article.summary,
       publishedTime: article.publishedAt,
-      modifiedTime: article.lastEditedAt || article.publishedAt,
+      modifiedTime: article.lastEditedAt || article.updatedAt || article.publishedAt,
       authors: [article.author],
       section: article.category,
       images: [{ url: article.image, alt: article.imageAlt }],
@@ -94,7 +94,7 @@ export default async function ArticlePage({
     description: article.summary,
     image: [imageUrl],
     datePublished: article.publishedAt,
-    dateModified: article.lastEditedAt || article.publishedAt,
+    dateModified: article.lastEditedAt || article.updatedAt || article.publishedAt,
     articleSection: article.category,
     inLanguage: "fr",
     author: [{

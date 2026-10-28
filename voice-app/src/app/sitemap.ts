@@ -38,7 +38,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...extraCategories,
     ...articles.map((article) => ({
       url: `${siteConfig.url}/articles/${article.slug}`,
-      lastModified: new Date(article.updatedAt || article.publishedAt),
+      lastModified: new Date(article.lastEditedAt || article.updatedAt || article.publishedAt),
       changeFrequency: "weekly" as const,
       priority: 0.9,
       images: [article.image.startsWith("http") ? article.image : `${siteConfig.url}${article.image}`],
