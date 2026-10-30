@@ -4,6 +4,10 @@ import { ArticleCard } from "@/components/article-card";
 import { NewsletterForm } from "@/components/newsletter-form";
 import { getPublishedArticles, getTrendingArticles } from "@/lib/content";
 
+// Keep the homepage lead synchronized with the latest published article even
+// when content is inserted outside the interactive admin publishing action.
+export const revalidate = 60;
+
 export const metadata: Metadata = {
   alternates: { canonical: "/" },
 };
