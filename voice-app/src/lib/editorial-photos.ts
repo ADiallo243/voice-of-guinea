@@ -376,7 +376,8 @@ const photoKeyBySlug: Record<string, string> = {
   "fana-soumah-fonctions-priorites-ministere-numerique": "media",
   "beyla-simandou-pepiniere-especes-vegetales-locales": "pepiniere-guinee",
   "culture-communication-budgets-2026-controle-parlementaire": "palais",
-  "talents-voix-sonfonia-salimatou-sylla-mohamed-lamine-kaba": "mma-cage"
+  "talents-voix-sonfonia-salimatou-sylla-mohamed-lamine-kaba": "mma-cage",
+  "guinee-emprunt-obligataire-2026-4579-milliards-souscriptions": "bank"
 };
 
 export function getLicensedEditorialPhoto(slug: string): LicensedEditorialPhoto | undefined {
