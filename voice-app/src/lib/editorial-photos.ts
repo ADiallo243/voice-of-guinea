@@ -289,6 +289,30 @@ const photos: Record<string, LicensedEditorialPhoto> = {
     "source": "https://commons.wikimedia.org/wiki/File%3ATrois_%C3%A9l%C3%A8ves_de_la_Guin%C3%A9e_remporte_trois_prix_%C3%A0_l'international_06.jpg",
     "license": "CC BY-SA 4.0",
     "title": "File:Trois élèves de la Guinée remporte trois prix à l'international 06.jpg"
+  },
+  "arpt-guinee": {
+    "path": "/images/editorial-licensed/arpt-guinee.jpg",
+    "alt": "Bâtiment de l’ARPT à Conakry photographié en 2022 (archive, hors réunion Fratel)",
+    "credit": "Aboubacarkhoraa · CC BY-SA 4.0 · photo redimensionnée",
+    "source": "https://commons.wikimedia.org/wiki/File:B%C3%A2timent_principal_de_l%27ARPT_Guin%C3%A9e.jpg",
+    "license": "CC BY-SA 4.0",
+    "title": "File:Bâtiment principal de l'ARPT Guinée.jpg"
+  },
+  "pepiniere-guinee": {
+    "path": "/images/editorial-licensed/pepiniere-guinee.jpg",
+    "alt": "Jeune fille parmi des plants dans une pépinière forestière en Guinée en 2025 (archive, hors site de Simandou)",
+    "credit": "Thie Abdoul · CC0 · photo redimensionnée",
+    "source": "https://commons.wikimedia.org/wiki/File:Jeune_fille_dans_une_p%C3%A9pini%C3%A8re_foresti%C3%A8re_en_Guin%C3%A9e.jpg",
+    "license": "CC0",
+    "title": "File:Jeune fille dans une pépinière forestière en Guinée.jpg"
+  },
+  "mma-cage": {
+    "path": "/images/editorial-licensed/mma-cage.jpg",
+    "alt": "Cage de compétition de MMA photographiée en 2010 (archive, sans lien avec les lauréats de Sonfonia)",
+    "credit": "Fjchrisk · CC BY-SA 3.0 · photo extraite de CWC Validation.jpg",
+    "source": "https://commons.wikimedia.org/wiki/File:Circular_MMA_cage.jpg",
+    "license": "CC BY-SA 3.0",
+    "title": "File:Circular MMA cage.jpg"
   }
 };
 
@@ -347,7 +371,12 @@ const photoKeyBySlug: Record<string, string> = {
   "djembe-conakry-prepare-un-festival-international-du-8-au-13-decembre-2026": "djembe",
   "patrimoine-la-guinee-engage-une-demarche-pour-recuperer-des-manuscrits-conserves-en-france": "museum",
   "projet-minier-guinee-investissement": "bauxite",
-  "feguifoot-crise-assemblee": "stadium"
+  "feguifoot-crise-assemblee": "stadium",
+  "conakry-reunion-annuelle-fratel-2026-regulateurs-telecoms": "arpt-guinee",
+  "fana-soumah-fonctions-priorites-ministere-numerique": "media",
+  "beyla-simandou-pepiniere-especes-vegetales-locales": "pepiniere-guinee",
+  "culture-communication-budgets-2026-controle-parlementaire": "palais",
+  "talents-voix-sonfonia-salimatou-sylla-mohamed-lamine-kaba": "mma-cage"
 };
 
 export function getLicensedEditorialPhoto(slug: string): LicensedEditorialPhoto | undefined {
