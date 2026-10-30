@@ -130,7 +130,7 @@ function mapArticle(row: ArticleRow): PublicArticle {
     author: row.byline || "Voice of Guinea",
     image: licensedPhoto?.path || (useEditorialGraphic ? `/editorial-image/${encodeURIComponent(row.slug)}` : heroImage),
     imageAlt: licensedPhoto?.alt || (useEditorialGraphic ? `Illustration éditoriale : ${row.title}` : row.hero_image_alt || row.title),
-    imageCredit: licensedPhoto ? `${licensedPhoto.alt}. ${licensedPhoto.credit} — format WebP adapté` : useEditorialGraphic ? "Voice of Guinea — illustration éditoriale" : row.image_credit || "Voice of Guinea",
+    imageCredit: licensedPhoto ? `${licensedPhoto.alt}. ${licensedPhoto.credit}` : useEditorialGraphic ? "Voice of Guinea — illustration éditoriale" : row.image_credit || "Voice of Guinea",
     imageSourceUrl: licensedPhoto?.source,
     featured: Boolean(row.featured),
     blocks: safeContent(row.content).filter((block) => !(
