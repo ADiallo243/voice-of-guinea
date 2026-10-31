@@ -10,6 +10,14 @@ export type LicensedEditorialPhoto = {
 // Every image was checked against its source page and visual subject.
 // Archive/illustration wording prevents an older photo from being read as the reported event.
 const photos: Record<string, LicensedEditorialPhoto> = {
+  "kaloum-conakry": {
+    "path": "/images/editorial-licensed/kaloum-conakry.jpg",
+    "alt": "Vue aérienne de Kaloum à Conakry en 2021 (archive, hors site du projet hôtelier)",
+    "credit": "Boubacar Bila Diao Balde · CC BY-SA 4.0 · photo redimensionnée",
+    "source": "https://commons.wikimedia.org/wiki/File:Ville_de_Conaky.jpg",
+    "license": "CC BY-SA 4.0",
+    "title": "File:Ville de Conaky.jpg"
+  },
   "power": {
     "path": "/images/editorial-licensed/power.webp",
     "alt": "Lignes de transport d’électricité (photo d’illustration)",
@@ -317,6 +325,7 @@ const photos: Record<string, LicensedEditorialPhoto> = {
 };
 
 const photoKeyBySlug: Record<string, string> = {
+  "doubletree-hilton-conakry-kaloum-2029": "kaloum-conakry",
   "electricite-guinee-financement-additionnel-paaeg-2-27-8-millions": "power",
   "election-feguifoot-quatre-listes-provisoires-27-octobre-2026": "football",
   "recensement-entreprises-guinee-forecariah-rge-1": "madina",
