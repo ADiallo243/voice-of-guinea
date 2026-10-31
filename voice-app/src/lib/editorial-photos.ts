@@ -10,6 +10,14 @@ export type LicensedEditorialPhoto = {
 // Every image was checked against its source page and visual subject.
 // Archive/illustration wording prevents an older photo from being read as the reported event.
 const photos: Record<string, LicensedEditorialPhoto> = {
+  "syli-national-archive": {
+    "path": "/images/editorial-licensed/syli-national-archive.jpg",
+    "alt": "Des joueurs guinéens lors d’un ancien match face à la Côte d’Ivoire (archive, hors décision de la CAF)",
+    "credit": "Jean-Marc Liotier · CC BY-SA 2.0 · photo redimensionnée",
+    "source": "https://commons.wikimedia.org/wiki/File:Syli_National_de_Guin%C3%A9e_vs._C%C3%B4te_d%27Ivoire.jpg",
+    "license": "CC BY-SA 2.0",
+    "title": "File:Syli National de Guinée vs. Côte d'Ivoire.jpg"
+  },
   "kaloum-conakry": {
     "path": "/images/editorial-licensed/kaloum-conakry.jpg",
     "alt": "Vue aérienne de Kaloum à Conakry en 2021 (archive, hors site du projet hôtelier)",
@@ -325,7 +333,7 @@ const photos: Record<string, LicensedEditorialPhoto> = {
 };
 
 const photoKeyBySlug: Record<string, string> = {
-  "caf-can-retour-deux-ans-decision-octobre-2026": "football",
+  "caf-can-retour-deux-ans-decision-octobre-2026": "syli-national-archive",
   "plfr-2026-pleniere-recettes-31-octobre-guinee": "palais",
   "doubletree-hilton-conakry-kaloum-2029": "kaloum-conakry",
   "electricite-guinee-financement-additionnel-paaeg-2-27-8-millions": "power",
