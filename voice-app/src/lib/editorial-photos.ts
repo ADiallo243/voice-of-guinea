@@ -325,6 +325,8 @@ const photos: Record<string, LicensedEditorialPhoto> = {
 };
 
 const photoKeyBySlug: Record<string, string> = {
+  "caf-can-retour-deux-ans-decision-octobre-2026": "football",
+  "plfr-2026-pleniere-recettes-31-octobre-guinee": "palais",
   "doubletree-hilton-conakry-kaloum-2029": "kaloum-conakry",
   "electricite-guinee-financement-additionnel-paaeg-2-27-8-millions": "power",
   "election-feguifoot-quatre-listes-provisoires-27-octobre-2026": "football",
