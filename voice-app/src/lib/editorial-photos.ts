@@ -10,6 +10,14 @@ export type LicensedEditorialPhoto = {
 // Every image was checked against its source page and visual subject.
 // Archive/illustration wording prevents an older photo from being read as the reported event.
 const photos: Record<string, LicensedEditorialPhoto> = {
+  "siao-2023-archive": {
+    "path": "/images/editorial-licensed/siao-2023-archive.jpg",
+    "alt": "Stand d’artisanat au SIAO de Ouagadougou en 2023 (archive, sans lien avec l’exposante guinéenne citée)",
+    "credit": "KONATEYaya226 · CC BY-SA 4.0 · photo redimensionnée",
+    "source": "https://commons.wikimedia.org/wiki/File:Un_vendeur_d%27articles_lors_du_Salon_International_de_l%27Artisanat_de_Ouagadougou_(SIAO_2023).jpg",
+    "license": "CC BY-SA 4.0",
+    "title": "File:Un vendeur d'articles lors du Salon International de l'Artisanat de Ouagadougou (SIAO 2023).jpg"
+  },
   "syli-national-archive": {
     "path": "/images/editorial-licensed/syli-national-archive.jpg",
     "alt": "Des joueurs guinéens lors d’un ancien match face à la Côte d’Ivoire (archive, hors décision de la CAF)",
@@ -333,6 +341,7 @@ const photos: Record<string, LicensedEditorialPhoto> = {
 };
 
 const photoKeyBySlug: Record<string, string> = {
+  "siao-2026-nafina-keita-fonio-guinee-ouagadougou": "siao-2023-archive",
   "caf-can-retour-deux-ans-decision-octobre-2026": "syli-national-archive",
   "plfr-2026-pleniere-recettes-31-octobre-guinee": "palais",
   "doubletree-hilton-conakry-kaloum-2029": "kaloum-conakry",
