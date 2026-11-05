@@ -10,6 +10,22 @@ export type LicensedEditorialPhoto = {
 // Every image was checked against its source page and visual subject.
 // Archive/illustration wording prevents an older photo from being read as the reported event.
 const photos: Record<string, LicensedEditorialPhoto> = {
+  "coyah-edg-explique-coupures-electricite-novembre-2026": {
+    path: "/images/editorial-licensed/kaleta-dam-2020.jpg",
+    alt: "Barrage hydroélectrique de Kaléta photographié en 2020 (archive, sans lien établi avec les coupures de Coyah)",
+    credit: "Flucco · CC BY-SA 4.0 · photo redimensionnée",
+    source: "https://commons.wikimedia.org/wiki/File:Kaleta-Staudamm.jpg",
+    license: "CC BY-SA 4.0",
+    title: "Barrage de Kaléta en 2020"
+  },
+  "sanita-tractopelles-bacs-dechets-communes-guinee-2026": {
+    path: "/images/editorial-licensed/conakry-waste-transport-2019.jpg",
+    alt: "Collecte et transport de déchets à Conakry en 2019 (archive, hors remise des équipements SANITA)",
+    credit: "Aboubacarkhoraa · CC BY-SA 4.0 · photo redimensionnée",
+    source: "https://commons.wikimedia.org/wiki/File:Transport_de_poubelle.jpg",
+    license: "CC BY-SA 4.0",
+    title: "Transport de poubelle à Conakry"
+  },
   "guimun-2026-244-jeunes-diplomatie-conakry": {
     path: "/images/editorial-licensed/guimun-venue-2019.jpg",
     alt: "Façade de l’Université Gamal Abdel Nasser de Conakry en 2019 (archive, hors cérémonie GUIMUN 2026)",
