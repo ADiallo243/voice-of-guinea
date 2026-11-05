@@ -10,6 +10,14 @@ export type LicensedEditorialPhoto = {
 // Every image was checked against its source page and visual subject.
 // Archive/illustration wording prevents an older photo from being read as the reported event.
 const photos: Record<string, LicensedEditorialPhoto> = {
+  "guimun-2026-244-jeunes-diplomatie-conakry": {
+    path: "/images/editorial-licensed/guimun-venue-2019.jpg",
+    alt: "Façade de l’Université Gamal Abdel Nasser de Conakry en 2019 (archive, hors cérémonie GUIMUN 2026)",
+    credit: "Ourysow92 · CC BY-SA 4.0 · photo redimensionnée",
+    source: "https://commons.wikimedia.org/wiki/File:Fa%C3%A7ade_de_l%27Universit%C3%A9_Gamal_Abdel_Nasser_de_Conakry.jpg",
+    license: "CC BY-SA 4.0",
+    title: "Façade de l’Université Gamal Abdel Nasser de Conakry"
+  },
   "siao-2023-archive": {
     "path": "/images/editorial-licensed/siao-2023-archive.jpg",
     "alt": "Stand d’artisanat au SIAO de Ouagadougou en 2023 (archive, sans lien avec l’exposante guinéenne citée)",
