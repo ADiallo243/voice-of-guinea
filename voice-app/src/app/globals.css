@@ -143,6 +143,11 @@ figcaption { color: var(--muted); font-size: .74rem; margin-top: 8px; }
 .article-body p { margin: 0 0 27px; }
 .article-body a { color: var(--green); text-decoration: underline; text-underline-offset: 3px; overflow-wrap: anywhere; }
 .article-body h2 { font-size: 2.2rem; line-height: 1.2; margin: 55px 0 20px; }
+.article-sources { margin-top: 48px; padding: 23px 25px; border: 1px solid #ddd3c5; border-radius: 9px; background: #f4eee5; color: #6d665d; font-family: var(--font-sans); font-size: .84rem; line-height: 1.55; }
+.article-sources strong { display: block; margin-bottom: 9px; color: #8b8175; font-size: .66rem; letter-spacing: .22em; text-transform: uppercase; }
+.article-sources p { margin: 0; }
+.article-sources a { color: #d84b20; font-weight: 800; text-decoration: none; }
+.article-sources a:hover { text-decoration: underline; text-underline-offset: 3px; }
 .inline-image { margin: 45px -90px; }
 .inline-image img { width: 100%; height: auto; border-radius: 16px; }
 .related-section { margin-top: 95px; padding-top: 55px; border-top: 1px solid var(--line); }

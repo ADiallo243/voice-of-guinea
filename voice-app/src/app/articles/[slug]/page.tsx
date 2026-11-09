@@ -6,7 +6,7 @@ import { ArticleCard, categoryHref } from "@/components/article-card";
 import { ShareButtons } from "@/components/share-buttons";
 import { ReadingProgress } from "@/components/reading-progress";
 import { SaveArticle } from "@/components/save-article";
-import { formatArticleDate, getReadingTime } from "@/lib/articles";
+import { formatArticleDate, getReadingTime, type ContentBlock } from "@/lib/articles";
 import { getPublicArticle, getPublishedArticles } from "@/lib/content";
 import { serializeJsonLd } from "@/lib/json-ld";
 import { siteConfig } from "@/lib/site";
@@ -21,6 +21,32 @@ function linkedText(text: string) {
     } catch {
       return part;
     }
+  });
+}
+
+type SourceLink = { label: string; url: string };
+
+function sourceLabel(text: string, url: string) {
+  const beforeUrl = text.slice(0, text.indexOf(url)).trim();
+  return beforeUrl
+    .replace(/[\s:;,.\-–—]+$/u, "")
+    .split(/\s+[\-–—]\s+|\s*:\s*/u)[0]
+    .trim() || new URL(url).hostname.replace(/^www\./, "");
+}
+
+function articleSources(blocks: ContentBlock[]): SourceLink[] {
+  const sourceHeading = blocks.findIndex((block) => (
+    block.type === "heading" && /^sources?$/i.test(block.text.trim())
+  ));
+  if (sourceHeading < 0) return [];
+
+  const seen = new Set<string>();
+  return blocks.slice(sourceHeading + 1).flatMap((block) => {
+    if (block.type !== "paragraph" || /^(?:photo|cr[ée]dit|source de l[’']image)\b/i.test(block.text.trim())) return [];
+    const url = block.text.match(/https?:\/\/[^\s;]+/u)?.[0]?.replace(/[),.]+$/u, "");
+    if (!url || seen.has(url)) return [];
+    seen.add(url);
+    return [{ label: sourceLabel(block.text, url), url }];
   });
 }
 
@@ -84,6 +110,11 @@ export default async function ArticlePage({
   const related = (await getPublishedArticles())
     .filter((item) => item.slug !== article.slug && item.category === article.category)
     .slice(0, 3);
+  const sourceHeading = article.blocks.findIndex((block) => (
+    block.type === "heading" && /^sources?$/i.test(block.text.trim())
+  ));
+  const bodyBlocks = sourceHeading < 0 ? article.blocks : article.blocks.slice(0, sourceHeading);
+  const sources = articleSources(article.blocks);
   const articleUrl = `${siteConfig.url}/articles/${article.slug}`;
   const imageUrl = article.image.startsWith("http") ? article.image : `${siteConfig.url}${article.image}`;
   const newsSchema = {
@@ -154,7 +185,7 @@ export default async function ArticlePage({
             <p>{article.correctionNote}</p>
           </aside>
         )}
-        {article.blocks.map((block, index) => {
+        {bodyBlocks.map((block, index) => {
           if (block.type === "heading") return <h2 key={index}>{block.text}</h2>;
           if (block.type === "paragraph") return <p key={index}>{linkedText(block.text)}</p>;
           return (
@@ -164,6 +195,20 @@ export default async function ArticlePage({
             </figure>
           );
         })}
+        {sources.length > 0 && (
+          <aside className="article-sources" aria-label="Sources de l’article">
+            <strong>Source{sources.length > 1 ? "s" : ""}</strong>
+            <p>
+              Cet article a été rédigé à partir des informations publiées par{" "}
+              {sources.map((source, index) => (
+                <span key={source.url}>
+                  {index > 0 && (index === sources.length - 1 ? " et " : ", ")}
+                  <a href={source.url} target="_blank" rel="noopener noreferrer">{source.label}</a>
+                </span>
+              ))}.
+            </p>
+          </aside>
+        )}
       </div>
       {related.length > 0 && (
         <aside className="related-section" aria-labelledby="related-title">
