@@ -373,6 +373,7 @@ const photos: Record<string, LicensedEditorialPhoto> = {
 };
 
 const photoKeyBySlug: Record<string, string> = {
+  "fonasem-2026-sous-traitance-pme-mines-conakry": "bauxite",
   "simandou-mining-summit-2026-bilan-conferences-conakry-entreprises-locales": "simandou-mining-summit-2026-bilan-conferences-conakry-entreprises-locales",
   "siao-2026-nafina-keita-fonio-guinee-ouagadougou": "siao-2023-archive",
   "caf-can-retour-deux-ans-decision-octobre-2026": "syli-national-archive",
