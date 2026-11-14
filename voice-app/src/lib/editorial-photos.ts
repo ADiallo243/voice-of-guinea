@@ -10,6 +10,14 @@ export type LicensedEditorialPhoto = {
 // Every image was checked against its source page and visual subject.
 // Archive/illustration wording prevents an older photo from being read as the reported event.
 const photos: Record<string, LicensedEditorialPhoto> = {
+  "simandou-mining-summit-2026-bilan-conferences-conakry-entreprises-locales": {
+    path: "/images/editorial-licensed/radisson-blu-conakry-archive-2018.jpg",
+    alt: "Bâtiment du Radisson Blu de Conakry photographié en 2018, alors sous l’enseigne Sheraton (archive, hors sommet de novembre 2026)",
+    credit: "Aboubacarkhoraa · Wikimedia Commons · CC BY-SA 4.0 · fichier original, archive 2018",
+    source: "https://commons.wikimedia.org/wiki/File:Sheraton_Grand_Conakry.jpg",
+    license: "CC BY-SA 4.0",
+    title: "Ancien Sheraton Grand Conakry, aujourd’hui Radisson Blu",
+  },
   "coyah-edg-explique-coupures-electricite-novembre-2026": {
     path: "/images/editorial-licensed/kaleta-dam-2020.jpg",
     alt: "Barrage hydroélectrique de Kaléta photographié en 2020 (archive, sans lien établi avec les coupures de Coyah)",
