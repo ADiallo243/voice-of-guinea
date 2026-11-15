@@ -39,3 +39,7 @@ Use `PRE_PUBLISH_CHECKLIST.md` before making the deployment public.
 Once signed in as the owner, open **Système** in the newsroom to see which
 connections are ready. The page reports only presence and health—it never
 prints secret values.
+
+## Voice of Guinea 2.0
+
+See `UPGRADE_ROLLOUT.md` for feature flags, migration order, editorial review, privacy, analytics, validation and rollback. New AI and invitation features are off until configured and verified.

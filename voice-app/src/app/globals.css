@@ -173,7 +173,7 @@ figcaption { color: var(--muted); font-size: .74rem; margin-top: 8px; }
 .newsletter-fields label { flex: 1; }
 .newsletter-fields input { width: 100%; min-height: 50px; border: 1px solid #cfc6b8; border-radius: 999px; padding: 0 18px; background: white; font: inherit; }
 .newsletter-fields button { border: 0; border-radius: 999px; padding: 0 21px; background: var(--red); color: white; font: inherit; font-weight: 800; cursor: pointer; }
-.newsletter-form small { color: #7b776f; font-size: .67rem; line-height: 1.4; }
+.newsletter-form small { color: #68645e; font-size: .67rem; line-height: 1.4; }
 .newsletter-message { margin: 0 !important; font-size: .78rem; font-weight: 750; }
 .newsletter-message.success { color: var(--green) !important; }
 .newsletter-message.error { color: var(--red) !important; }
@@ -185,7 +185,7 @@ figcaption { color: var(--muted); font-size: .74rem; margin-top: 8px; }
 .footer-newsletter .newsletter-fields { display: grid; }
 .footer-newsletter .newsletter-fields input { min-height: 42px; border-color: #454a44; background: #222622; color: white; }
 .footer-newsletter .newsletter-fields button { min-height: 40px; }
-.footer-newsletter .newsletter-form small { color: #777b75; }
+.footer-newsletter .newsletter-form small { color: #aaa8a2; }
 .newsletter-form small a { text-decoration: underline; text-underline-offset: 2px; }
 .newsletter-result { min-height: 58vh; max-width: 800px; padding-top: 100px; padding-bottom: 110px; }
 .newsletter-result h1 { font-size: clamp(3rem, 7vw, 6rem); line-height: 1; letter-spacing: -.045em; margin: 13px 0 22px; }
@@ -574,3 +574,33 @@ button:disabled { opacity: .45; cursor: not-allowed; }
   .system-check { grid-template-columns: auto minmax(0, 1fr); }
   .system-state { grid-column: 2; justify-self: start; }
 }
+
+/* Compact reading assistance and editorial newsletter invitation. */
+.naya { border: 1px solid #d8d2cd; border-left: 3px solid #722f3e; background: #faf9f7; margin: 1.5rem 0; padding: 0; border-radius: 3px; }
+.naya-toggle { display:flex; justify-content:space-between; align-items:center; gap:1rem; width:100%; padding:1rem; background:transparent; color:inherit; text-align:left; border:0; cursor:pointer; font:inherit; font-weight:600; }
+.naya-content { padding:0 1rem 1rem; }
+.naya-content h2 { font-size:1.3rem; margin-top:1rem; }
+.naya-content small { display:block; font-size:.78rem; line-height:1.6; margin:1rem 0 0; }
+.naya-chat h3 { font-size:1.1rem; margin-top:1.3rem; }
+.naya-suggestions { display:flex; flex-wrap:wrap; gap:.5rem; margin:.8rem 0; }
+.naya button:not(.naya-toggle) { border:1px solid #c9c0ba; background:#fff; color:#562330; padding:.6rem .8rem; border-radius:3px; cursor:pointer; min-height:44px; }
+.naya label { display:block; font-size:.9rem; }
+.naya input, .naya textarea { width:100%; min-width:0; padding:.7rem; background:#fff; border:1px solid #b8aeaa; color:#222; font:inherit; }
+.naya-input { display:flex; gap:.5rem; }
+.naya-message { border-bottom:1px solid #e4ded9; padding:.8rem 0; white-space:pre-wrap; overflow-wrap:anywhere; }
+.naya-message.user { padding-left:.8rem; border-left:2px solid #b7ada4; }
+.naya-message p { margin:.3rem 0; }
+.naya-message a { font-size:.8rem; }
+.naya-conversation { max-height:28rem; overflow:auto; }
+.naya button:disabled { opacity:.55; cursor:default; }
+.newsletter-popup { width:min(560px, calc(100% - 2rem)); max-height:calc(100dvh - 2rem); margin:auto; overflow:auto; background:var(--paper, #faf8f4); color:inherit; border:1px solid #d6ccc4; border-top:3px solid #722f3e; padding:2.5rem 2rem 1.5rem; }
+.newsletter-popup::backdrop { background:rgb(0 0 0 / .35); }
+.newsletter-popup h2 { font-size:clamp(1.7rem,5vw,2.4rem); line-height:1.15; margin:.8rem 0 1rem; }
+.newsletter-popup p { line-height:1.6; }
+.newsletter-popup .newsletter-fields { display:flex; flex-direction:column; gap:.7rem; }
+.newsletter-popup .newsletter-fields input { width:100%; }
+.newsletter-popup .newsletter-fields button { background:#722f3e; color:#fff; min-height:44px; }
+.newsletter-close { position:absolute; top:.5rem; right:.7rem; width:44px; height:44px; background:transparent; border:0; cursor:pointer; font-size:1.8rem; }
+.newsletter-later { display:block; margin:1rem auto 0; padding:.7rem; background:transparent; border:0; text-decoration:underline; cursor:pointer; }
+:where(.naya,.newsletter-popup) :focus-visible { outline:3px solid #722f3e; outline-offset:3px; }
+@media(max-width:480px) { .newsletter-popup { padding:2.8rem 1rem 1rem; } .naya-input { flex-direction:column; } }

@@ -1,3 +1,4 @@
+import { NayaReview } from "@/components/naya-review";
 import { notFound } from "next/navigation";
 import { ArticleEditorForm } from "@/components/article-editor-form";
 import { getNewsroomUser } from "@/lib/supabase/admin";
@@ -18,6 +19,7 @@ export default async function EditArticlePage({ params }: { params: Promise<{ id
       <header className="admin-header editor-header">
         <div><span className="admin-kicker">Modification</span><h1>Modifier l’article</h1><p>Les changements seront enregistrés dans Supabase.</p></div>
       </header>
+      {canPublish && <NayaReview article={article} />}
       <ArticleEditorForm article={article} categories={categories ?? []} canPublish={canPublish} revisions={revisions ?? []} />
     </>
   );

@@ -1,3 +1,5 @@
+import { Naya } from "@/components/naya";
+import { publicNaya } from "@/lib/naya/service";
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
@@ -107,6 +109,7 @@ export default async function ArticlePage({
   const { slug } = await params;
   const article = await getPublicArticle(slug);
   if (!article) notFound();
+  const naya = await publicNaya(article);
   const related = (await getPublishedArticles())
     .filter((item) => item.slug !== article.slug && item.category === article.category)
     .slice(0, 3);
@@ -179,6 +182,7 @@ export default async function ArticlePage({
         <figcaption>{article.imageCredit.includes("illustration éditoriale") ? "Image : " : "Photo : "}{article.imageCredit}{article.imageSourceUrl && <> · <a href={article.imageSourceUrl} target="_blank" rel="noopener noreferrer">Source et licence</a></>}</figcaption>
       </figure>
       <div className="article-body">
+        {naya && <Naya slug={article.slug} {...naya} />}
         {article.correctionNote && (
           <aside className="correction-note">
             <strong>Note de la rédaction</strong>

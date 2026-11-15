@@ -1,5 +1,7 @@
 "use server";
 
+import { after } from "next/server";
+import { generateSummary } from "@/lib/naya/service";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { articles as migratedArticles } from "@/lib/articles";
@@ -237,6 +239,7 @@ export async function saveArticle(formData: FormData) {
     }
   }
 
+  if (status === "published") after(() => generateSummary(result.data.id));
   revalidatePath("/admin");
   revalidatePath("/admin/articles");
   refreshPublicSite();

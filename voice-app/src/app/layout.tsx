@@ -1,3 +1,4 @@
+import { NewsletterPopup } from "@/components/newsletter-popup";
 import type { Metadata } from "next";
 import { AnalyticsConsent } from "@/components/analytics-consent";
 import { SiteChrome } from "@/components/site-chrome";
@@ -68,7 +69,6 @@ export default async function RootLayout({
     url: siteConfig.url,
     logo: `${siteConfig.url}${siteConfig.structuredLogo}`,
     email: siteConfig.email,
-    address: { "@type": "PostalAddress", addressLocality: "Conakry", addressCountry: "GN" },
     sameAs: [siteConfig.instagram],
     ethicsPolicy: `${siteConfig.url}/normes-editoriales`,
     correctionsPolicy: `${siteConfig.url}/corrections`,
@@ -92,6 +92,7 @@ export default async function RootLayout({
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: serializeJsonLd(organizationSchema) }} />
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: serializeJsonLd(websiteSchema) }} />
         <SiteChrome headlines={headlines}>{children}</SiteChrome>
+        {process.env.NEWSLETTER_POPUP_ENABLED === "true" && <NewsletterPopup />}
         <AnalyticsConsent measurementId={siteConfig.gaMeasurementId} />
       </body>
     </html>
