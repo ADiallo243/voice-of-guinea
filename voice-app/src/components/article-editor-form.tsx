@@ -1,3 +1,4 @@
+import { readingContent } from "@/lib/reading";
 import { ConfirmSubmit } from "./confirm-submit";
 import { deleteArticle, saveArticle } from "@/app/admin/(dashboard)/actions";
 
@@ -49,22 +50,24 @@ export function ArticleEditorForm({
   canPublish: boolean;
   revisions?: ArticleRevision[];
 }) {
+  const reading = readingContent(article?.content ?? []);
   return (
     <>
     <form action={saveArticle} className="article-editor">
       {article && <input type="hidden" name="id" value={article.id} />}
       <input type="hidden" name="existingImage" value={article?.hero_image_url ?? ""} />
       <section className="editor-main">
-        <label className="editor-title">Titre de l’article<input name="title" required defaultValue={article?.title} placeholder="Écrivez un titre clair et précis…" /></label>
+        <label className="editor-title">Titre de l’article<input name="title" required defaultValue={article?.title} placeholder="Écrivez un titre clair et précis…" /><span className="field-help">Placez le fait ou la question utile au début. Gardez les réserves : une annonce n’est pas une réalisation.</span></label>
         <label>Nom de l’auteur <input name="byline" maxLength={120} defaultValue={article?.byline ?? ""} placeholder="Ex. Aminata Diallo" /><span className="field-help">Visible sur le site. Laissez vide pour afficher Voice of Guinea.</span></label>
         <label>Adresse de l’article<input name="slug" defaultValue={article?.slug} placeholder="Créée automatiquement si elle reste vide" /></label>
         <label>Résumé<textarea name="excerpt" required rows={3} defaultValue={article?.excerpt} placeholder="Le résumé visible sur les cartes et dans les résultats de recherche…" /></label>
         <div className="editor-section-label"><strong>Référencement</strong><span>Laissez vide pour reprendre le titre et le résumé.</span></div>
         <label>Titre SEO<input name="seoTitle" maxLength={70} defaultValue={article?.seo_title ?? ""} placeholder="60 caractères environ" /></label>
         <label>Description SEO<textarea name="seoDescription" maxLength={170} rows={3} defaultValue={article?.seo_description ?? ""} placeholder="Description claire pour Google" /></label>
+        <fieldset className="editor-key-points"><legend>L’essentiel en 3 points</legend><p>Trois phrases factuelles tirées de l’article. Aucun ajout automatique. Laissez les trois champs vides pour masquer cet encadré.</p>{[0, 1, 2].map(i => <label key={i}>Point {i + 1}<input name={`keyPoint${i + 1}`} maxLength={280} defaultValue={reading.points[i] || ""} /></label>)}</fieldset>
         <label>
           Contenu
-          <textarea name="content" required rows={20} defaultValue={contentToText(article?.content ?? null)} placeholder={"Commencez à écrire…\n\nUtilisez ## devant un intertitre."} />
+          <textarea name="content" required rows={20} defaultValue={contentToText(reading.blocks)} placeholder={"Commencez à écrire…\n\nUtilisez ## devant un intertitre."} />
           <small>Séparez les paragraphes par une ligne vide. Utilisez <code>##</code> pour un intertitre.</small>
         </label>
         <label>Notes de sources <span className="field-help">Interne à la rédaction — liens, contacts, documents et éléments à vérifier.</span><textarea name="sourceNotes" rows={4} defaultValue={article?.source_notes ?? ""} placeholder="Sources, liens, contacts ou éléments à vérifier avant publication…" /></label>

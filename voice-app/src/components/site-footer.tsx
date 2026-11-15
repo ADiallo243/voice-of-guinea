@@ -17,6 +17,7 @@ export function SiteFooter() {
           <Link href="/actualites">L’essentiel</Link>
           <Link href="/divertissement">Talents & voix</Link>
           <Link href="/culture">Culture</Link>
+          <Link href="/rendez-vous/la-semaine-en-guinee">Nos rendez-vous</Link>
         </div>
         <div>
           <h2>Voice of Guinea</h2>
@@ -33,8 +34,9 @@ export function SiteFooter() {
         </div>
         <div className="footer-newsletter">
           <h2>Newsletter</h2>
-          <p>La Guinée, expliquée clairement, sans bruit inutile.</p>
-          <NewsletterForm compact />
+          <p>Les faits à retenir et les talents à découvrir.</p>
+          <NewsletterForm compact source="footer" />
+          <Link href="/newsletter#apercu">Découvrir un aperçu →</Link>
         </div>
       </div>
       <div className="shell footer-bottom">

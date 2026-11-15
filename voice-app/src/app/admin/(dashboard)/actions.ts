@@ -1,5 +1,6 @@
 "use server";
 
+import { editorialPoints, readingContent } from "@/lib/reading";
 import { after } from "next/server";
 import { generateSummary } from "@/lib/naya/service";
 import { revalidatePath } from "next/cache";
@@ -163,6 +164,10 @@ export async function saveArticle(formData: FormData) {
       ? previous.data.published_at
       : new Date().toISOString()
     : null;
+  const parsedContent = contentBlocks(rawContent);
+  const content = formData.has("keyPoint1")
+    ? [...editorialPoints([1, 2, 3].map(i => text(formData, `keyPoint${i}`))), ...readingContent(parsedContent).blocks]
+    : parsedContent;
   const payload = {
     title,
     slug,
@@ -173,7 +178,7 @@ export async function saveArticle(formData: FormData) {
     correction_note: text(formData, "correctionNote") || null,
     source_notes: text(formData, "sourceNotes") || null,
     editorial_notes: manager ? text(formData, "editorialNotes") || null : previous?.data?.editorial_notes || null,
-    content: contentBlocks(rawContent),
+    content,
     hero_image_url: heroImageUrl,
     hero_image_alt: text(formData, "imageAlt"),
     image_credit: text(formData, "imageCredit") || null,

@@ -1,3 +1,4 @@
+import { ReadingFormats } from "@/components/reading-formats";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ArticleCard } from "@/components/article-card";
@@ -80,14 +81,16 @@ export default async function Home() {
         )}
       </section>
 
+      <ReadingFormats />
+
       <section className="newsletter-band">
         <div className="shell newsletter-band-inner">
           <div>
             <span className="section-kicker">Newsletter</span>
-            <h2>L’essentiel de la Guinée, directement dans votre boîte mail.</h2>
-            <p>Une sélection éditoriale claire, sans bruit inutile.</p>
+            <h2>La Guinée mérite votre attention.</h2>
+            <p>Les faits à retenir, les talents à découvrir et les repères pour comprendre.</p>
           </div>
-          <NewsletterForm />
+          <div><NewsletterForm source="homepage" /><p className="newsletter-reassurance">Gratuit. Désabonnement en un clic.</p><Link href="/newsletter#apercu" className="text-link">Voir un aperçu de la newsletter →</Link></div>
         </div>
       </section>
     </>
