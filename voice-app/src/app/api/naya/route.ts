@@ -22,7 +22,7 @@ const reply = (body: object, status = 200) =>
 export async function POST(request: Request) {
   if (
     process.env.NAYA_CHAT_ENABLED !== "true" ||
-    !process.env.OPENAI_API_KEY ||
+    !process.env.GROQ_API_KEY ||
     !process.env.NAYA_RATE_LIMIT_SECRET
   )
     return reply({ error: "Naya est momentanément indisponible." }, 503);
@@ -93,8 +93,8 @@ export async function POST(request: Request) {
       );
     const result = await aiClient().responses.create({
       model: nayaModel(),
-      store: false,
-      max_output_tokens: 650,
+      max_output_tokens: 1400,
+      reasoning: { effort: "low" },
       instructions: nayaInstructions,
       input: JSON.stringify({
         article: text,
@@ -120,7 +120,14 @@ export async function POST(request: Request) {
     if (typeof answer !== "string" || !answer.trim() || answer.length > 2500)
       throw new Error("invalid");
     return reply({ answer, source: `/articles/${article.slug}` });
-  } catch {
+  } catch (error) {
+    // Log only provider status, never credentials, article text or questions.
+    const status = error && typeof error === "object" && "status" in error
+      ? Number(error.status)
+      : undefined;
+    console.error("Naya provider request failed", { status });
+    if (status === 429)
+      return reply({ error: "Naya a atteint sa limite gratuite. Réessaie un peu plus tard." }, 429);
     return reply(
       {
         error:

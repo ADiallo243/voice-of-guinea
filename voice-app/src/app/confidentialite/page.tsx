@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 export default function PrivacyPage() {
   return (
     <article className="shell legal-page">
-      <header className="legal-header"><span className="section-kicker">Confiance</span><h1>Politique de confidentialité</h1><p>Dernière mise à jour : 14 novembre 2026</p></header>
+      <header className="legal-header"><span className="section-kicker">Confiance</span><h1>Politique de confidentialité</h1><p>Dernière mise à jour : 15 novembre 2026</p></header>
       <div className="legal-copy">
         <p className="lead">Voice of Guinea respecte la vie privée de ses lecteurs. Cette page explique quelles données sont utilisées, pourquoi, et comment exercer vos choix.</p>
         <h2>Qui est responsable ?</h2>
@@ -26,7 +26,7 @@ export default function PrivacyPage() {
         <h2>Vos choix et vos droits</h2>
         <p>Vous pouvez demander l’accès, la correction ou la suppression de vos données, vous opposer à certains traitements, retirer votre consentement aux cookies et vous désabonner de la newsletter à tout moment. Contactez-nous à l’adresse indiquée ci-dessus. Nous répondrons dans un délai raisonnable et pourrons demander une information minimale afin de vérifier votre identité.</p>
         <h2>Naya, assistance par intelligence artificielle</h2>
-        <p>Lorsque Naya est activée, vos questions, un historique limité et le texte de l’article publié sont transmis à OpenAI pour produire une réponse. N’indiquez pas de données personnelles ou sensibles. L’application garde la conversation uniquement en mémoire dans la page ; elle n’enregistre pas de transcription dans sa base. Les requêtes demandent à OpenAI de ne pas conserver les réponses via son option de stockage ; cela ne garantit pas l’absence de journaux techniques ou de conservation par le prestataire. Les conditions de conservation du fournisseur et la configuration du compte doivent être prises en compte. Des traitements internationaux peuvent intervenir.</p>
+        <p>Lorsque Naya est activée, vos questions, un historique limité et le texte de l’article publié sont transmis à Groq pour produire une réponse. N’indiquez pas de données personnelles ou sensibles. L’application garde la conversation uniquement en mémoire dans la page ; elle n’enregistre pas de transcription dans sa base. Groq indique ne pas conserver par défaut les contenus des requêtes d’inférence, mais peut conserver temporairement les entrées et sorties pour la fiabilité du service ou la prévention des abus, jusqu’à 30 jours sauf obligation légale. Les métadonnées d’usage sont conservées. Les paramètres de conservation du compte fournisseur s’appliquent. Des traitements internationaux peuvent intervenir.</p>
         <p>La protection contre les abus utilise des empreintes cryptographiques temporaires, sans enregistrer les adresses IP brutes dans la table de quotas. Les résumés sont conservés avec leur version et leur validation éditoriale. Les évaluations « Utile » et « À améliorer » sont envoyées à Google Analytics uniquement après votre accord, sans le texte de vos questions. Vous pouvez demander des informations ou exercer vos droits auprès de l’éditeur à l’adresse ci-dessus.</p>
         <p>Une préférence locale empêche de répéter l’invitation à la newsletter pendant environ 30 jours après sa fermeture. Une inscription en attente ou confirmée supprime également l’invitation sur ce navigateur.</p>
         <h2>Cookies et modifications</h2>

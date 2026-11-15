@@ -8,10 +8,11 @@ import {
   type ReadingSource,
 } from "./core";
 
-export const nayaModel = () => process.env.NAYA_MODEL || "gpt-4o-mini";
+export const nayaModel = () => "openai/gpt-oss-120b";
 export const aiClient = () =>
   new OpenAI({
-    apiKey: process.env.OPENAI_API_KEY,
+    apiKey: process.env.GROQ_API_KEY,
+    baseURL: "https://api.groq.com/openai/v1",
     timeout: 20_000,
     maxRetries: 0,
   });
@@ -21,7 +22,7 @@ export const nayaInstructions = `Tu es Naya, l'assistante IA de Voice of Guinea,
 export async function generateSummary(id: string, regenerate = false) {
   if (
     process.env.NAYA_SUMMARIES_ENABLED !== "true" ||
-    !process.env.OPENAI_API_KEY
+    !process.env.GROQ_API_KEY
   )
     return;
   const db = createSupabaseAdminClient();
@@ -78,8 +79,8 @@ export async function generateSummary(id: string, regenerate = false) {
   try {
     const response = await aiClient().responses.create({
       model: nayaModel(),
-      store: false,
-      max_output_tokens: 700,
+      max_output_tokens: 1400,
+      reasoning: { effort: "low" },
       instructions: `${nayaInstructions} Produis exactement trois points de résumé, une phrase par point, sans ajout ni conclusion éditoriale.`,
       input: JSON.stringify({ article: sourceText(article) }),
       text: {
@@ -132,7 +133,7 @@ export async function publicNaya(
 ) {
   const chat =
     process.env.NAYA_CHAT_ENABLED === "true" &&
-    Boolean(process.env.OPENAI_API_KEY && process.env.NAYA_RATE_LIMIT_SECRET);
+    Boolean(process.env.GROQ_API_KEY && process.env.NAYA_RATE_LIMIT_SECRET);
   if (!article.id || (!chat && process.env.NAYA_SUMMARIES_ENABLED !== "true"))
     return null;
   try {
