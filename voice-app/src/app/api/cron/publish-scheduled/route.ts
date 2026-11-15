@@ -1,4 +1,5 @@
-import { NextRequest, NextResponse } from "next/server";
+import { generateSummary } from "@/lib/naya/service";
+import { after, NextRequest, NextResponse } from "next/server";
 import { revalidatePath } from "next/cache";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin-client";
 import { sendSocialPackEmail } from "@/lib/social-pack-email";
@@ -62,6 +63,7 @@ export async function GET(request: NextRequest) {
       if (publishError) throw publishError;
       if (!publishedArticle) continue;
       publishedCount += 1;
+      after(() => generateSummary(article.id));
 
       try {
         await sendSocialPackEmail({
@@ -93,6 +95,7 @@ export async function GET(request: NextRequest) {
     const rateLimitCutoff = new Date(Date.now() - 48 * 60 * 60 * 1000).toISOString();
     const pendingCutoff = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
     const cleanupResults = await Promise.all([
+      ...(process.env.NAYA_CHAT_ENABLED === "true" ? [supabase.from("naya_usage").delete().lt("updated_at", rateLimitCutoff)] : []),
       supabase.from("login_attempt_limits").delete().lt("updated_at", rateLimitCutoff),
       supabase.from("newsletter_signup_limits").delete().lt("updated_at", rateLimitCutoff),
       supabase.from("newsletter_subscribers").delete().eq("status", "pending").lt("confirmation_sent_at", pendingCutoff),

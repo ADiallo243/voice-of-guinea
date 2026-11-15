@@ -1,0 +1,8 @@
+import "../../../src/app/globals.css";
+export default function Layout({ children }: { children: React.ReactNode }) {
+  return (
+    <html lang="fr">
+      <body>{children}</body>
+    </html>
+  );
+}

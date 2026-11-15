@@ -40,3 +40,11 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+/playwright-report/
+/test-results/
+
+/supabase/.temp/
+/tests/fixture/.next/
+/tests/fixture/node_modules/
+/tests/fixture/next-env.d.ts

@@ -1,3 +1,5 @@
+import { cache } from "react";
+import { contentHash } from "./naya/core";
 import { createClient } from "@supabase/supabase-js";
 import {
   Article,
@@ -11,6 +13,7 @@ import { getLicensedEditorialPhoto, restoredOriginalPhotoSlugs } from "./editori
 
 export type PublicArticle = Article & {
   id?: string;
+  nayaHash?: string;
   updatedAt?: string;
   lastEditedAt?: string;
   correctionNote?: string;
@@ -117,6 +120,7 @@ function mapArticle(row: ArticleRow): PublicArticle {
     ].includes(heroImage));
   return {
     id: row.id,
+    nayaHash: contentHash({ title: row.title, summary: row.excerpt, blocks: safeContent(row.content) }),
     slug: row.slug,
     title: row.title,
     summary: row.excerpt,
@@ -140,7 +144,7 @@ function mapArticle(row: ArticleRow): PublicArticle {
   };
 }
 
-export async function getPublishedArticles(): Promise<PublicArticle[]> {
+export const getPublishedArticles = cache(async (): Promise<PublicArticle[]> => {
   if (!hasSupabaseConfig()) return canUseDemoContent() ? fallbackArticles : [];
   const { data, error } = await publicClient()
     .from("articles")
@@ -150,9 +154,9 @@ export async function getPublishedArticles(): Promise<PublicArticle[]> {
     .order("published_at", { ascending: false });
   if (error || !data?.length) return canUseDemoContent() ? fallbackArticles : [];
   return data.map(mapArticle);
-}
+});
 
-export async function getPublicArticle(slug: string): Promise<PublicArticle | undefined> {
+export const getPublicArticle = cache(async (slug: string): Promise<PublicArticle | undefined> => {
   if (!hasSupabaseConfig()) return canUseDemoContent() ? getFallbackArticle(slug) : undefined;
   const { data, error } = await publicClient()
     .from("articles")
@@ -163,7 +167,7 @@ export async function getPublicArticle(slug: string): Promise<PublicArticle | un
     .maybeSingle();
   if (error || !data) return canUseDemoContent() ? getFallbackArticle(slug) : undefined;
   return mapArticle(data);
-}
+});
 
 export async function getPublishedByCategory(category: Category) {
   return (await getPublishedArticles()).filter((article) => article.category === category);

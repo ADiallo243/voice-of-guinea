@@ -1,31 +1,38 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useEffect, useRef } from "react";
 import Link from "next/link";
-import Script from "next/script";
+import { NewsletterChallenge } from "./newsletter-challenge";
 import { subscribeToNewsletter, type NewsletterState } from "@/app/newsletter/actions";
+
+import { track } from "@/lib/engagement";
 
 const initialState: NewsletterState = { status: "idle", message: "" };
 
-export function NewsletterForm({ compact = false }: { compact?: boolean }) {
+export function NewsletterForm({ compact = false, popup = false }: { compact?: boolean; popup?: boolean }) {
   const [state, action, pending] = useActionState(subscribeToNewsletter, initialState);
+  const announced = useRef(state);
+  useEffect(() => {
+    if (announced.current === state) return;
+    announced.current = state;
+    if (state.status === "idle") return;
+    track(state.status === "success" ? "newsletter_confirmation_requested" : "newsletter_subscription_error");
+    if (state.status === "success") {
+      try { localStorage.setItem("vog:newsletter", JSON.stringify({ pending: true })); } catch {}
+    }
+  }, [state]);
   const turnstileSiteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY;
 
   return (
-    <form action={action} className={compact ? "newsletter-form compact" : "newsletter-form"}>
+    <form action={action} onSubmit={() => track("newsletter_form_submitted")} className={compact ? "newsletter-form compact" : "newsletter-form"}>
       <div className="newsletter-fields">
         <label>
           <span className="sr-only">Adresse e-mail</span>
-          <input name="email" type="email" required autoComplete="email" placeholder="votre@email.com" />
+          <input name="email" type="email" required autoComplete="email" placeholder="Votre adresse e-mail" />
         </label>
         <input className="newsletter-honeypot" name="website" tabIndex={-1} autoComplete="off" aria-hidden="true" />
-        {turnstileSiteKey && (
-          <>
-            <Script src="https://challenges.cloudflare.com/turnstile/v0/api.js" strategy="afterInteractive" />
-            <div className="cf-turnstile" data-sitekey={turnstileSiteKey} data-size="flexible" />
-          </>
-        )}
-        <button type="submit" disabled={pending}>{pending ? "Envoi…" : "S’abonner"}</button>
+        {turnstileSiteKey && <NewsletterChallenge siteKey={turnstileSiteKey} resetKey={state} />}
+        <button type="submit" disabled={pending}>{pending ? "Envoi…" : popup ? "Recevoir l’essentiel" : "S’abonner"}</button>
       </div>
       {state.message && <p className={`newsletter-message ${state.status}`} role="status">{state.message}</p>}
       <small>En vous inscrivant, vous acceptez de recevoir la newsletter de Voice of Guinea. Désabonnement possible à tout moment. Consultez notre <Link href="/confidentialite">politique de confidentialité</Link>.</small>

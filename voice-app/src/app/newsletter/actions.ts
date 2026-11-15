@@ -11,7 +11,7 @@ export type NewsletterState = {
 };
 
 const initialState: NewsletterState = { status: "idle", message: "" };
-const subscriptionMessage = "Merci, votre inscription à la newsletter est active.";
+const subscriptionMessage = "Si nécessaire, un e-mail de confirmation vous sera envoyé. Vérifiez votre boîte mail.";
 
 function isUuid(value: string) {
   return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value);
@@ -33,6 +33,7 @@ async function verifyTurnstile(token: string) {
     headers: { "Content-Type": "application/x-www-form-urlencoded" },
     body: new URLSearchParams({ secret, response: token }),
     cache: "no-store",
+    signal: AbortSignal.timeout(8000),
   });
   const result = await response.json() as { success?: boolean };
   return response.ok && result.success === true;
@@ -85,6 +86,9 @@ export async function subscribeToNewsletter(
       .maybeSingle();
     if (lookupError) throw lookupError;
 
+    // Never rotate an active subscriber’s unsubscribe token on anonymous resubmission.
+    if (existing?.status === "active") return { status: "success", message: subscriptionMessage };
+    if (!process.env.RESEND_API_KEY || !process.env.NEWSLETTER_FROM_EMAIL) throw new Error("Newsletter delivery is not configured.");
     const now = new Date().toISOString();
     const confirmationToken = randomUUID();
     const unsubscribeToken = randomUUID();
@@ -92,12 +96,12 @@ export async function subscribeToNewsletter(
       const { error } = await supabase
         .from("newsletter_subscribers")
         .update({
-          status: "active",
+          status: "pending",
           consent_at: now,
           confirmation_token_hash: tokenHash(confirmationToken),
           unsubscribe_token_hash: tokenHash(unsubscribeToken),
-          confirmed_at: now,
-          confirmation_sent_at: null,
+          confirmed_at: null,
+          confirmation_sent_at: now,
           unsubscribed_at: null,
         })
         .eq("id", existing.id);
@@ -105,20 +109,30 @@ export async function subscribeToNewsletter(
     } else {
       const { error } = await supabase.from("newsletter_subscribers").insert({
         email,
-        status: "active",
+        status: "pending",
         source: "website",
         consent_at: now,
         confirmation_token_hash: tokenHash(confirmationToken),
         unsubscribe_token_hash: tokenHash(unsubscribeToken),
-        confirmation_sent_at: null,
-        confirmed_at: now,
+        confirmation_sent_at: now,
+        confirmed_at: null,
       });
       if (error) throw error;
     }
 
+    const base = "https://www.voiceofguinea.com";
+    const confirmationUrl = `${base}/newsletter/confirm?token=${confirmationToken}`;
+    const unsubscribeUrl = `${base}/newsletter/unsubscribe?token=${unsubscribeToken}`;
+    const delivery = await fetch("https://api.resend.com/emails", {
+      method: "POST", signal: AbortSignal.timeout(10000),
+      headers: { Authorization: `Bearer ${process.env.RESEND_API_KEY}`, "Content-Type": "application/json", "Idempotency-Key": `newsletter-${confirmationToken}` },
+      body: JSON.stringify({ from: process.env.NEWSLETTER_FROM_EMAIL, to: [email], subject: "Confirmez votre inscription à Voice of Guinea", text: `Vous avez demandé la newsletter de Voice of Guinea. Confirmez sous 48 heures : ${confirmationUrl}\n\nSi vous n’êtes pas à l’origine de cette demande, ignorez ce message.\nDésabonnement : ${unsubscribeUrl}` }),
+    });
+    if (!delivery.ok) throw new Error("Newsletter confirmation delivery failed.");
     return { status: "success", message: subscriptionMessage };
   } catch (error) {
-    console.error("Newsletter subscription failed.", error);
+    void error;
+    console.error("Newsletter subscription failed.");
     return {
       status: "error",
       message: "L’inscription est momentanément indisponible. Réessayez plus tard.",
