@@ -28,7 +28,7 @@ export function EngagementEvents() {
     }
     const click = (event: MouseEvent) => {
       const target = (event.target as Element).closest?.(
-        '.related-section a[href^="/articles/"], .contextual-reading a[href^="/articles/"]',
+        '.related-section a[href^="/articles/"]',
       );
       if (target) track("related_article_clicked", { article_path: path, destination: target.getAttribute("href") || "" });
       const card = (event.target as Element).closest?.('[data-article-card] a[href^="/articles/"]');
