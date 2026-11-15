@@ -18,12 +18,12 @@ export function SiteChrome({
   if (pathname.startsWith("/admin")) return <>{children}</>;
 
   return (
-    <>
+    <div className="public-site">
       <a className="skip-link" href="#contenu-principal">Aller au contenu principal</a>
       <EngagementEvents />
       <SiteHeader headlines={headlines} />
       <main id="contenu-principal" tabIndex={-1}>{children}</main>
       <SiteFooter />
-    </>
+    </div>
   );
 }

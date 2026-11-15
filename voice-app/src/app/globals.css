@@ -670,3 +670,72 @@ button:disabled { opacity: .45; cursor: not-allowed; }
 }
 .newsletter-fields label { min-width: 0; }
 .newsletter-fields button { min-height: 48px; }
+
+/* Softer public-facing theme; newsroom keeps its existing visual controls. */
+.public-site { --ink: #29372f; --muted: #657168; --paper: #fbfaf7; --cream: #f0f3ed; --line: #e1e7de; --green: #426b56; --red: #426b56; --shadow: 0 10px 32px rgba(41, 63, 48, .055); background: var(--paper); color: var(--ink); }
+.public-site .topline { background: #2d4538; }
+.public-site .site-header { background: rgba(251,250,247,.94); border-bottom-color: rgba(66,107,86,.1); }
+.public-site .nav { font-size: .88rem; font-weight: 600; text-transform: none; letter-spacing: 0; gap: 27px; }
+.public-site .nav a { padding-block: 22px; }
+.public-site .section-kicker, .public-site .eyebrow { letter-spacing: .07em; font-size: .72rem; font-weight: 650; }
+.public-site .section-title-row { border-bottom: 0; padding-bottom: 0; align-items: center; }
+.public-site .section-title-row h2 { font-family: var(--font-sans); font-size: clamp(1.6rem, 2.8vw, 2.2rem); font-weight: 600; letter-spacing: -.035em; line-height: 1.22; margin-top: 10px; }
+.public-site .section-muted { background: #f1f4ee; }
+.public-site .article-card { background: #fff; border: 1px solid rgba(66,107,86,.1); border-radius: 24px; overflow: hidden; box-shadow: var(--shadow); transition: box-shadow .25s ease, transform .25s ease; }
+.public-site .article-card:hover { box-shadow: 0 16px 38px rgba(41,63,48,.09); transform: translateY(-3px); }
+.public-site .card-image { border-radius: 0; }
+.public-site .card-image img { transition: transform .6s ease; }
+.public-site .article-card:hover .card-image img { transform: scale(1.025); }
+.public-site .card-content { padding: 24px; }
+.public-site .card-content .eyebrow { display: inline-flex; background: #edf3ed; border-radius: 999px; padding: 6px 10px; letter-spacing: .025em; text-transform: none; font-size: .72rem; }
+.public-site .card-content h2 { font-family: var(--font-sans); font-size: 1.35rem; line-height: 1.32; letter-spacing: -.025em; font-weight: 600; margin-block: 15px 12px; }
+.public-site .card-content p { font-size: .94rem; line-height: 1.7; }
+.public-site .card-meta { font-size: .72rem; gap: 7px; }
+.public-site .card-meta > * + *::before { color: #b3bfb3; margin-right: 7px; }
+.public-site .article-card-large { grid-template-columns: 1.1fr 1fr; }
+.public-site .article-card-large .card-image { border-radius: 0; aspect-ratio: auto; min-height: 400px; }
+.public-site .article-card-large .card-content { padding: 32px; }
+.public-site .article-card-large .card-content :is(h1,h2) { font-family: var(--font-sans); font-size: clamp(1.8rem, 2.7vw, 2.75rem); font-weight: 600; line-height: 1.15; letter-spacing: -.035em; margin-block: 19px 17px; }
+.public-site .card-button, .public-site .button { display: inline-flex; align-items: center; justify-content: center; border-radius: 999px; background: var(--green); font-weight: 600; padding: 13px 21px; }
+.public-site .card-button:hover, .public-site .button:hover { background: #335743; }
+.public-site .trending h2 { font-size: 1.15rem; font-weight: 600; margin-top: 0; }
+.public-site .trending > div { border-radius: 22px; border-color: var(--line); background: #f3f5f0; padding: 9px 22px; }
+.public-site .trending a { font-size: .92rem; line-height: 1.55; font-weight: 550; border-color: var(--line); }
+.public-site .trending a span { color: #69816c; }
+.public-site .home-lead { gap: 30px; }
+.public-site .reading-format { border: 1px solid rgba(66,107,86,.12); border-radius: 24px; background: #f0f4ec; padding: 30px; box-shadow: 0 5px 22px rgba(41,63,48,.025); }
+.public-site .reading-format:nth-child(2) { background: #f5f0e9; }
+.public-site .reading-format:nth-child(3) { background: #edf2f3; }
+.public-site .reading-format:hover { border-color: #b7c9b7; background: #e8efe3; }
+.public-site .reading-format h3 { font-family: var(--font-sans); font-size: 1.5rem; line-height: 1.3; font-weight: 600; letter-spacing: -.035em; }
+.public-site .reading-format .section-kicker { text-transform: none; letter-spacing: .015em; }
+.public-site .reading-format strong { font-weight: 600; }
+.public-site .newsletter-band { background: #edf2e8; border-top: 0; }
+.public-site .newsletter-band h2 { font-size: clamp(2rem, 3.6vw, 3.5rem); font-weight: 500; line-height: 1.12; }
+.public-site .newsletter-fields button { background: var(--green); font-weight: 600; }
+.public-site .newsletter-fields input { border-color: #d8e2d4; }
+.public-site .newsletter-preview, .public-site .next-reading { border: 1px solid var(--line); border-radius: 24px; background: #f0f4ec; }
+.public-site .collection-tabs a { border-radius: 999px; background: white; }
+.public-site .collection-tabs a[aria-current="page"] { background: var(--green); }
+.public-site .article-takeaways { border: 1px solid #dce6d6; border-radius: 22px; background: #f0f4ec; }
+.public-site .contextual-reading { border: 1px solid var(--line); border-radius: 18px; background: #f6f7f2; }
+.public-site .share-row :is(a,button) { border-radius: 999px; }
+.public-site .article-header h1 { font-weight: 500; line-height: 1.1; font-size: clamp(2.4rem, 5.1vw, 4.6rem); }
+.public-site .newsletter-pitch h1, .public-site .collection-header h1 { font-weight: 500; line-height: 1.12; }
+.public-site .site-footer { background: #293f34; color: #e3e9df; border-radius: 32px 32px 0 0; }
+.public-site .newsletter-popup { border-radius: 24px; border: 1px solid var(--line); box-shadow: 0 24px 80px rgba(25,40,30,.18); }
+@media (max-width: 800px) {
+  .public-site .article-card-large { grid-template-columns: 1fr; }
+  .public-site .article-card-large .card-image { aspect-ratio: 16 / 10; min-height: 0; }
+  .public-site .article-card-large .card-content { padding: 25px; }
+  .public-site .nav { gap: 0; }
+  .public-site .nav a { padding: 14px; }
+  .public-site .card-grid { gap: 25px; }
+  .public-site .section-title-row { align-items: flex-start; }
+  .public-site .article-card { border-radius: 20px; }
+  .public-site .reading-format { padding: 26px; border-radius: 20px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .public-site .article-card, .public-site .card-image img { transition: none; }
+  .public-site .article-card:hover, .public-site .article-card:hover .card-image img { transform: none; }
+}

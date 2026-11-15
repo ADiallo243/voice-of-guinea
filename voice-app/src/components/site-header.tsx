@@ -10,8 +10,7 @@ const links = [
   { href: "/actualites", label: "L’essentiel" },
   { href: "/divertissement", label: "Talents & voix" },
   { href: "/culture", label: "Culture" },
-  { href: "/rendez-vous/la-semaine-en-guinee", label: "Nos rendez-vous" },
-  { href: "/newsletter", label: "Newsletter" },
+  { href: "/rendez-vous/la-semaine-en-guinee", label: "À découvrir" },
   { href: "/contact", label: "Contact" },
   { href: "/recherche", label: "Recherche" },
 ];
