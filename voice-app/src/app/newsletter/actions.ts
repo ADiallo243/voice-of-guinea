@@ -128,7 +128,14 @@ export async function subscribeToNewsletter(
       headers: { Authorization: `Bearer ${process.env.RESEND_API_KEY}`, "Content-Type": "application/json", "Idempotency-Key": `newsletter-${confirmationToken}` },
       body: JSON.stringify({ from: process.env.NEWSLETTER_FROM_EMAIL, to: [email], subject: "Confirmez votre inscription à Voice of Guinea", text: `Vous avez demandé la newsletter de Voice of Guinea. Confirmez sous 48 heures : ${confirmationUrl}\n\nSi vous n’êtes pas à l’origine de cette demande, ignorez ce message.\nDésabonnement : ${unsubscribeUrl}` }),
     });
-    if (!delivery.ok) throw new Error("Newsletter confirmation delivery failed.");
+    if (!delivery.ok) {
+      const failure = await delivery.json().catch(() => null) as { name?: unknown } | null;
+      console.error("Newsletter confirmation provider rejected request.", {
+        status: delivery.status,
+        code: typeof failure?.name === "string" ? failure.name.slice(0, 80) : "unknown",
+      });
+      throw new Error("Newsletter confirmation delivery failed.");
+    }
     return { status: "success", message: subscriptionMessage };
   } catch (error) {
     void error;

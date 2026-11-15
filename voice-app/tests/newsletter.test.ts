@@ -80,7 +80,7 @@ function actionHarness(
     URLSearchParams,
     fetch: async (_url: string, options: { body: string }) => {
       emails.push(JSON.parse(options.body));
-      return { ok: providerOk };
+      return { ok: providerOk, status: providerOk ? 200 : 403, json: async () => ({ name: "validation_error" }) };
     },
     Date,
     AbortSignal,
