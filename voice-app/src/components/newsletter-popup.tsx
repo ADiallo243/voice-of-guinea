@@ -86,8 +86,7 @@ export function NewsletterPopup() {
       <span className="section-kicker">RESTEZ INFORMÉ</span>
       <h2 id="newsletter-popup-title">La Guinée, dans votre boîte mail.</h2>
       <p>
-        Recevez l’essentiel de l’actualité guinéenne, nos décryptages et les
-        histoires à ne pas manquer.
+        L’essentiel de la Guinée, directement par e-mail.
       </p>
       <NewsletterForm popup />
       <button
@@ -95,7 +94,7 @@ export function NewsletterPopup() {
         type="button"
         onClick={() => dialog.current?.close()}
       >
-        Pas maintenant
+        Non merci
       </button>
     </dialog>
   );
