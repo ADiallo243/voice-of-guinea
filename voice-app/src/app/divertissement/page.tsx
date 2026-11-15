@@ -1,12 +1,30 @@
 import type { Metadata } from "next";
 import { CategoryPage } from "@/components/category-page";
 
-export const metadata: Metadata = {
+const baseMetadata: Metadata = {
   title: "Divertissement en Guinée",
-  description: "Musique, cinéma, tendances et talents à suivre sur la scène guinéenne.",
+  description:
+    "Musique, cinéma, tendances et talents à suivre sur la scène guinéenne.",
   alternates: { canonical: "/divertissement" },
 };
 
-export default function DivertissementPage() {
-  return <CategoryPage category="Divertissement" intro="Musique, cinéma, tendances et talents à suivre sur la scène guinéenne." />;
+export async function generateMetadata({
+  searchParams,
+}: {
+  searchParams: Promise<{ page?: string }>;
+}): Promise<Metadata> {
+  const { page } = await searchParams;
+  const n = Math.max(1, Number(page) || 1);
+  return {
+    ...baseMetadata,
+    alternates: { canonical: "/divertissement" + (n > 1 ? `?page=${n}` : "") },
+  };
+}
+export default async function Page({
+  searchParams,
+}: {
+  searchParams: Promise<{ page?: string }>;
+}) {
+  const { page } = await searchParams;
+  return <CategoryPage slug="divertissement" page={page} />;
 }

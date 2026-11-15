@@ -1,36 +1,40 @@
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
+import { notFound, permanentRedirect } from "next/navigation";
 import { CategoryPage } from "@/components/category-page";
-import { categoryHref } from "@/components/article-card";
-import { getPublishedArticles } from "@/lib/content";
-
-async function findCategory(slug: string) {
-  const categories = [...new Set((await getPublishedArticles()).map((article) => article.category))];
-  return categories.find((category) => categoryHref(category) === `/categories/${slug}`);
+import { categoryPath } from "@/lib/newsroom";
+import { getPublicCategories } from "@/lib/content";
+async function find(slug: string) {
+  return (await getPublicCategories()).find((c) => c.slug === slug);
 }
-
 export async function generateMetadata({
   params,
+  searchParams,
 }: {
   params: Promise<{ slug: string }>;
+  searchParams: Promise<{ page?: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const category = await findCategory(slug);
+  const category = await find(slug);
   if (!category) return {};
+  const { page } = await searchParams;
+  const n = Math.max(1, Number(page) || 1);
   return {
-    title: category,
-    description: `Les dernières actualités et publications de la rubrique ${category} sur Voice of Guinea.`,
-    alternates: { canonical: `/categories/${slug}` },
+    title: category.name,
+    description:
+      category.description || `Les publications de ${category.name}.`,
+    alternates: { canonical: categoryPath(slug) + (n > 1 ? `?page=${n}` : "") },
   };
 }
-
-export default async function DynamicCategoryPage({
+export default async function Page({
   params,
+  searchParams,
 }: {
   params: Promise<{ slug: string }>;
+  searchParams: Promise<{ page?: string }>;
 }) {
   const { slug } = await params;
-  const category = await findCategory(slug);
-  if (!category) notFound();
-  return <CategoryPage category={category} intro={category === "Diaspora" ? "Les parcours, les initiatives et les actualités des Guinéens à travers le monde." : `Toutes les publications de la rubrique ${category}.`} />;
+  if (!(await find(slug))) notFound();
+  if (["actualites", "culture", "divertissement"].includes(slug))
+    permanentRedirect(categoryPath(slug));
+  return <CategoryPage slug={slug} page={(await searchParams).page} />;
 }

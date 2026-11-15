@@ -2,7 +2,7 @@ import { NewsletterPopup } from "@/components/newsletter-popup";
 import type { Metadata } from "next";
 import { AnalyticsConsent } from "@/components/analytics-consent";
 import { SiteChrome } from "@/components/site-chrome";
-import { getBreakingHeadlines } from "@/lib/content";
+import { getBreakingHeadlines, getPublicCategories } from "@/lib/content";
 import { serializeJsonLd } from "@/lib/json-ld";
 import { siteConfig } from "@/lib/site";
 import "./globals.css";
@@ -61,7 +61,10 @@ export const metadata: Metadata = {
 export default async function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
-  const headlines = await getBreakingHeadlines();
+  const [headlines, categories] = await Promise.all([
+    getBreakingHeadlines(),
+    getPublicCategories(),
+  ]);
   const organizationSchema = {
     "@context": "https://schema.org",
     "@type": "NewsMediaOrganization",
@@ -89,9 +92,19 @@ export default async function RootLayout({
   return (
     <html lang="fr">
       <body>
-        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: serializeJsonLd(organizationSchema) }} />
-        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: serializeJsonLd(websiteSchema) }} />
-        <SiteChrome headlines={headlines}>{children}</SiteChrome>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: serializeJsonLd(organizationSchema),
+          }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: serializeJsonLd(websiteSchema) }}
+        />
+        <SiteChrome headlines={headlines} categories={categories}>
+          {children}
+        </SiteChrome>
         {process.env.NEWSLETTER_POPUP_ENABLED === "true" && <NewsletterPopup />}
         <AnalyticsConsent measurementId={siteConfig.gaMeasurementId} />
       </body>

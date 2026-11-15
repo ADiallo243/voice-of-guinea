@@ -8,7 +8,7 @@ export async function reviewNaya(form: FormData) {
   const newsroom = await getNewsroomUser();
   if (
     !newsroom?.profile?.active ||
-    !["owner", "editor"].includes(newsroom.profile.role)
+    !["owner", "editor"].includes(newsroom.profile.role || "")
   )
     throw new Error("Accès refusé.");
   const id = String(form.get("id") || "");

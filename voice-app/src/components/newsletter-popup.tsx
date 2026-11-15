@@ -68,6 +68,7 @@ export function NewsletterPopup() {
       previousFocus?.focus();
     };
   }, [pathname]);
+  if (!pathname.startsWith("/articles/")) return null;
   return (
     <dialog
       ref={dialog}
@@ -85,9 +86,7 @@ export function NewsletterPopup() {
       </button>
       <span className="section-kicker">RESTEZ INFORMÉ</span>
       <h2 id="newsletter-popup-title">La Guinée, dans votre boîte mail.</h2>
-      <p>
-        L’essentiel de la Guinée, directement par e-mail.
-      </p>
+      <p>L’essentiel de la Guinée, directement par e-mail.</p>
       <NewsletterForm popup />
       <button
         className="newsletter-later"

@@ -19,7 +19,7 @@ export async function NayaReview({
   const newsroom = await getNewsroomUser();
   if (
     !newsroom?.profile?.active ||
-    !["owner", "editor"].includes(newsroom.profile.role)
+    !["owner", "editor"].includes(newsroom.profile.role || "")
   )
     return null;
   const hash = contentHash({

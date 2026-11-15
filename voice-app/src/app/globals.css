@@ -781,3 +781,8 @@ button:disabled { opacity: .45; cursor: not-allowed; }
 .public-site .article-opening.text-first { display: block; max-width: 740px; }
 .public-site .article-card-large.text-first { grid-template-columns: 1fr; }
 .public-site .article-card-large.text-first .card-content { padding-left: 0; }
+
+.pagination { display:flex; flex-wrap:wrap; justify-content:center; gap:24px; margin:36px 0; }
+.effective-image { display:grid; gap:8px; margin-block:16px; }
+.editor-box .check-row { align-items:flex-start; }
+.article-saved-notice { padding:12px; background:#f6f4eb; }

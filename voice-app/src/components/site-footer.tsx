@@ -1,22 +1,41 @@
+import type { PublicCategory } from "@/lib/content";
+import { categoryPath } from "@/lib/newsroom";
 import Image from "next/image";
 import Link from "next/link";
 import { siteConfig } from "@/lib/site";
 import { CookieSettingsButton } from "./cookie-settings-button";
 import { NewsletterForm } from "./newsletter-form";
 
-export function SiteFooter() {
+export function SiteFooter({
+  categories = [],
+}: {
+  categories?: PublicCategory[];
+}) {
   return (
     <footer className="site-footer">
       <div className="shell footer-grid">
         <div>
-          <Image src="/brand/logo.svg" alt="Voice of Guinea" width={128} height={66} />
-          <p>Le média qui raconte la Guinée d’aujourd’hui, en images et en voix.</p>
+          <Image
+            src="/brand/logo.svg"
+            alt="Voice of Guinea"
+            width={128}
+            height={66}
+          />
+          <p>
+            Le média qui raconte la Guinée d’aujourd’hui, en images et en voix.
+          </p>
         </div>
         <div>
           <h2>Explorer</h2>
-          <Link href="/actualites">L’essentiel</Link>
-          <Link href="/divertissement">Talents & voix</Link>
-          <Link href="/culture">Culture</Link>
+          {categories.map((c) => (
+            <Link href={categoryPath(c.slug)} key={c.id}>
+              {c.name === "Actualités"
+                ? "L’essentiel"
+                : c.name === "Divertissement"
+                  ? "Talents & voix"
+                  : c.name}
+            </Link>
+          ))}
           <Link href="/rendez-vous/la-semaine-en-guinee">À découvrir</Link>
         </div>
         <div>
@@ -29,7 +48,9 @@ export function SiteFooter() {
           <Link href="/cookies">Cookies</Link>
           <Link href="/accessibilite">Accessibilité</Link>
           <Link href="/mentions-legales">Mentions légales</Link>
-          <a href={siteConfig.instagram} target="_blank" rel="noreferrer">Instagram ↗</a>
+          <a href={siteConfig.instagram} target="_blank" rel="noreferrer">
+            Instagram ↗
+          </a>
           <CookieSettingsButton />
         </div>
         <div className="footer-newsletter">

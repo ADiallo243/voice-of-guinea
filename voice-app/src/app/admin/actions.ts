@@ -4,7 +4,10 @@ import { redirect } from "next/navigation";
 import { createHmac } from "crypto";
 import { headers } from "next/headers";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
-import { createSupabaseAdminClient, hasSupabaseSecret } from "@/lib/supabase/admin-client";
+import {
+  createSupabaseAdminClient,
+  hasSupabaseSecret,
+} from "@/lib/supabase/admin-client";
 
 function loginError(message: string) {
   redirect(`/admin/login?error=${encodeURIComponent(message)}`);
@@ -18,47 +21,67 @@ async function loginQuotaKeys(email: string) {
   const secret = process.env.AUTH_RATE_LIMIT_SECRET;
   if (!secret || !hasSupabaseSecret()) return null;
   const requestHeaders = await headers();
-  const ip = requestHeaders.get("x-forwarded-for")?.split(",")[0]?.trim()
-    || requestHeaders.get("x-real-ip")
-    || "unknown";
-  const fingerprint = (value: string) => createHmac("sha256", secret).update(value).digest("hex");
-  return [fingerprint(`login:ip:${ip}`), fingerprint(`login:email:${email.toLowerCase()}`)];
+  const ip =
+    requestHeaders.get("x-forwarded-for")?.split(",")[0]?.trim() ||
+    requestHeaders.get("x-real-ip") ||
+    "unknown";
+  const fingerprint = (value: string) =>
+    createHmac("sha256", secret).update(value).digest("hex");
+  return [
+    fingerprint(`login:ip:${ip}`),
+    fingerprint(`login:email:${email.toLowerCase()}`),
+  ];
 }
 
 async function consumeLoginQuota(email: string) {
   const keys = await loginQuotaKeys(email);
-  if (!keys) return { allowed: true, keys: null };
+  if (!keys) return { allowed: false, keys: null, unavailable: true };
   try {
     const admin = createSupabaseAdminClient();
     for (const attemptKey of keys) {
-      const { data, error } = await admin.rpc("consume_login_attempt_quota", { attempt_key: attemptKey });
+      const { data, error } = await admin.rpc("consume_login_attempt_quota", {
+        attempt_key: attemptKey,
+      });
       if (error) throw error;
       if (!data) return { allowed: false, keys: null };
     }
     return { allowed: true, keys };
   } catch (error) {
-    // Do not lock the owner out while the migration is being deployed. The
-    // server log identifies a missing throttle configuration for follow-up.
+    // A failed anti-abuse service must not silently disable login protection.
     console.error("Login rate limit unavailable.", error);
-    return { allowed: true, keys: null };
+    return { allowed: false, keys: null, unavailable: true };
   }
 }
 
 async function clearLoginQuota(keys: string[] | null) {
   if (!keys) return;
   try {
-    await createSupabaseAdminClient().from("login_attempt_limits").delete().in("attempt_key", keys);
+    await createSupabaseAdminClient()
+      .from("login_attempt_limits")
+      .delete()
+      .in("attempt_key", keys);
   } catch (error) {
-    console.error("Could not clear the login rate limit after successful sign-in.", error);
+    console.error(
+      "Could not clear the login rate limit after successful sign-in.",
+      error,
+    );
   }
 }
 
 export async function signIn(formData: FormData) {
   const email = String(formData.get("email") ?? "").trim();
   const password = String(formData.get("password") ?? "");
-  if (!email || !password) loginError("Entrez votre adresse e-mail et votre mot de passe.");
+  if (!email || !password)
+    loginError("Entrez votre adresse e-mail et votre mot de passe.");
   const quota = await consumeLoginQuota(email);
-  if (!quota.allowed) loginError("Trop de tentatives. Réessayez dans 15 minutes ou réinitialisez votre mot de passe.");
+  if ("unavailable" in quota && quota.unavailable)
+    loginError(
+      "La protection de connexion est momentanément indisponible. Réessayez dans quelques instants.",
+    );
+  if (!quota.allowed)
+    loginError(
+      "Trop de tentatives. Réessayez dans 15 minutes ou réinitialisez votre mot de passe.",
+    );
   const supabase = await createSupabaseServerClient();
   const { error } = await supabase.auth.signInWithPassword({ email, password });
 
@@ -74,7 +97,9 @@ export async function requestPasswordReset(formData: FormData) {
       const supabase = await createSupabaseServerClient();
       const callback = new URL("/auth/callback", siteUrl());
       callback.searchParams.set("next", "/admin/reset-password");
-      const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo: callback.toString() });
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: callback.toString(),
+      });
       if (error) console.error("Password reset request failed.", error);
     } catch (error) {
       console.error("Password reset request failed.", error);
@@ -87,15 +112,27 @@ export async function requestPasswordReset(formData: FormData) {
 export async function setPassword(formData: FormData) {
   const password = String(formData.get("password") ?? "");
   const confirmation = String(formData.get("confirmation") ?? "");
-  const returnPath = formData.get("flow") === "reset" ? "/admin/reset-password" : "/admin/setup-password";
-  const passwordError = (message: string) => redirect(`${returnPath}?error=${encodeURIComponent(message)}`);
-  if (password.length < 12) passwordError("Utilisez un mot de passe d’au moins 12 caractères.");
-  if (password !== confirmation) passwordError("Les mots de passe ne correspondent pas.");
+  const returnPath =
+    formData.get("flow") === "reset"
+      ? "/admin/reset-password"
+      : "/admin/setup-password";
+  const passwordError = (message: string) =>
+    redirect(`${returnPath}?error=${encodeURIComponent(message)}`);
+  if (password.length < 12)
+    passwordError("Utilisez un mot de passe d’au moins 12 caractères.");
+  if (password !== confirmation)
+    passwordError("Les mots de passe ne correspondent pas.");
   const supabase = await createSupabaseServerClient();
   const { data } = await supabase.auth.getUser();
-  if (!data.user) loginError("Votre lien a expiré. Demandez un nouveau lien de réinitialisation.");
+  if (!data.user)
+    loginError(
+      "Votre lien a expiré. Demandez un nouveau lien de réinitialisation.",
+    );
   const { error } = await supabase.auth.updateUser({ password });
-  if (error) passwordError("Impossible de mettre à jour le mot de passe. Demandez un nouveau lien.");
+  if (error)
+    passwordError(
+      "Impossible de mettre à jour le mot de passe. Demandez un nouveau lien.",
+    );
   redirect("/admin");
 }
 

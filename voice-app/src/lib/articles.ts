@@ -10,6 +10,8 @@ export type Article = {
   title: string;
   summary: string;
   category: Category;
+  categorySlug?: string;
+  categoryActive?: boolean;
   publishedAt: string;
   author: string;
   image: string;

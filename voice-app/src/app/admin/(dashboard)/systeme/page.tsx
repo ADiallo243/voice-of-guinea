@@ -1,106 +1,183 @@
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getNewsroomUser } from "@/lib/supabase/admin";
-import { createSupabaseAdminClient, hasSupabaseSecret } from "@/lib/supabase/admin-client";
-import { hasSupabaseConfig } from "@/lib/supabase/config";
-
-type Check = {
-  label: string;
-  detail: string;
-  ready: boolean;
-};
-
-function environmentCheck(label: string, detail: string, names: string[]): Check {
-  return { label, detail, ready: names.every((name) => Boolean(process.env[name])) };
-}
-
-async function databaseReadiness() {
-  if (!hasSupabaseSecret()) return { editorial: false, newsletter: false, login: false };
-
-  try {
-    const admin = createSupabaseAdminClient();
-    const [editorial, newsletter, login] = await Promise.all([
-      admin.from("article_revisions").select("id", { count: "exact", head: true }),
-      admin.from("newsletter_signup_limits").select("attempt_key", { count: "exact", head: true }),
-      admin.from("login_attempt_limits").select("attempt_key", { count: "exact", head: true }),
-    ]);
-    return {
-      editorial: !editorial.error,
-      newsletter: !newsletter.error,
-      login: !login.error,
-    };
-  } catch {
-    return { editorial: false, newsletter: false, login: false };
-  }
-}
-
-function CheckGroup({ title, eyebrow, checks }: { title: string; eyebrow: string; checks: Check[] }) {
-  return (
-    <section className="admin-panel system-panel">
-      <div className="admin-panel-heading">
-        <div><span className="admin-kicker">{eyebrow}</span><h2>{title}</h2></div>
-      </div>
-      <div className="system-checks">
-        {checks.map((check) => (
-          <article key={check.label} className="system-check">
-            <span className={`system-indicator ${check.ready ? "ready" : "missing"}`} aria-hidden="true" />
-            <div><strong>{check.label}</strong><p>{check.detail}</p></div>
-            <span className={`system-state ${check.ready ? "ready" : "missing"}`}>{check.ready ? "Prêt" : "À terminer"}</span>
-          </article>
-        ))}
-      </div>
-    </section>
-  );
-}
-
+import { hasSupabaseSecret } from "@/lib/supabase/admin-client";
+import { checkDuePublications } from "../actions";
+import { newsroomDate } from "@/lib/newsroom";
 export default async function SystemPage() {
-  const newsroom = await getNewsroomUser();
-  if (newsroom?.profile?.role !== "owner") redirect("/admin");
-
-  const database = await databaseReadiness();
-  const core: Check[] = [
-    { label: "Connexion publique Supabase", detail: "Lecture sécurisée du contenu public et authentification.", ready: hasSupabaseConfig() },
-    { label: "Clé serveur Supabase", detail: "Invitations, newsletter et tâches internes côté serveur.", ready: hasSupabaseSecret() },
-    { label: "Workflow éditorial", detail: "Historique des versions et journal de la rédaction installés.", ready: database.editorial },
-    { label: "Protection de publication", detail: "Migration 012 : contrôle des articles et limitation des connexions.", ready: database.login },
+  const room = await getNewsroomUser();
+  if (room?.profile?.role !== "owner") redirect("/admin");
+  const [
+    { data: health, error: healthError },
+    { data: runs, error: runError },
+    { data: overdue },
+  ] = await Promise.all([
+    room.supabase.rpc("newsroom_health"),
+    room.supabase
+      .from("publication_runs")
+      .select("id,started_at,finished_at,status,published_count,error_note")
+      .order("started_at", { ascending: false })
+      .limit(10),
+    room.supabase
+      .from("articles")
+      .select("id,title,scheduled_for")
+      .eq("status", "scheduled")
+      .lt("scheduled_for", new Date().toISOString()),
+  ]);
+  const checks = [
+    {
+      name: "Notes éditoriales privées",
+      ok: health?.private_notes,
+      detail:
+        "Permissions anonymes et authentifiées vérifiées dans PostgreSQL.",
+    },
+    {
+      name: "Garde de publication",
+      ok: health?.publication_trigger,
+      detail: "Présence du trigger de validation vérifiée dans PostgreSQL.",
+    },
+    {
+      name: "Double authentification de votre compte",
+      ok: health?.mfa_enabled,
+      detail:
+        "Facteur vérifié dans Supabase Auth ; activation à effectuer personnellement.",
+    },
   ];
-  const publishing: Check[] = [
-    environmentCheck("Adresse officielle du site", "URL utilisée dans les liens sécurisés et les e-mails.", ["NEXT_PUBLIC_SITE_URL"]),
-    environmentCheck("Publication programmée", "Secret protégeant la tâche quotidienne Vercel.", ["CRON_SECRET"]),
-    environmentCheck("Service e-mail", "Compte Resend utilisé pour les messages transactionnels.", ["RESEND_API_KEY"]),
-    environmentCheck("Pack réseaux sociaux", "Adresses d’expédition et de réception configurées.", ["SOCIAL_PACK_FROM_EMAIL", "SOCIAL_PACK_TO_EMAIL"]),
-  ];
-  const protection: Check[] = [
-    environmentCheck("Widget anti-spam", "Clé publique et clé secrète Cloudflare Turnstile.", ["NEXT_PUBLIC_TURNSTILE_SITE_KEY", "TURNSTILE_SECRET_KEY"]),
-    { label: "Limitation newsletter", detail: "Secret HMAC et table de limitation persistante.", ready: Boolean(process.env.NEWSLETTER_RATE_LIMIT_SECRET) && database.newsletter },
-    { label: "Limitation des connexions", detail: "Secret HMAC et migration 012 actifs.", ready: Boolean(process.env.AUTH_RATE_LIMIT_SECRET) && database.login },
-    environmentCheck("Envoi newsletter", "Adresse d’expédition vérifiée pour les prochaines campagnes.", ["NEWSLETTER_FROM_EMAIL"]),
-  ];
-  const allChecks = [...core, ...publishing, ...protection];
-  const readyCount = allChecks.filter((check) => check.ready).length;
-
+  const config = [
+    ["Clé serveur Supabase", hasSupabaseSecret()],
+    ["Secret du cron", Boolean(process.env.CRON_SECRET)],
+    ["Service e-mail Resend", Boolean(process.env.RESEND_API_KEY)],
+    ["Expéditeur newsletter", Boolean(process.env.NEWSLETTER_FROM_EMAIL)],
+    ["Limitation des connexions", Boolean(process.env.AUTH_RATE_LIMIT_SECRET)],
+    [
+      "Limitation newsletter",
+      Boolean(process.env.NEWSLETTER_RATE_LIMIT_SECRET),
+    ],
+    [
+      "Widget Turnstile",
+      Boolean(
+        process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY &&
+        process.env.TURNSTILE_SECRET_KEY,
+      ),
+    ],
+  ] as const;
   return (
     <>
       <header className="admin-header">
-        <div><span className="admin-kicker">Exploitation</span><h1>Système</h1><p>La santé des connexions essentielles, sans jamais afficher vos clés secrètes.</p></div>
-        <span className="period-pill">Accès propriétaire</span>
+        <div>
+          <span className="admin-kicker">Exploitation</span>
+          <h1>Système</h1>
+          <p>
+            Les preuves de fonctionnement sont distinguées de la simple présence
+            de configuration.
+          </p>
+        </div>
+        <Link href="/admin/securite" className="admin-secondary">
+          Sécuriser mon compte
+        </Link>
       </header>
-      <section className="system-summary admin-panel">
-        <div><span className="admin-kicker">État de préparation</span><strong>{readyCount}/{allChecks.length}</strong></div>
-        <p>{readyCount === allChecks.length ? "Tous les services vérifiables sont prêts." : "Terminez les éléments orange dans Vercel ou Supabase, puis redéployez."}</p>
+      {healthError && (
+        <p role="alert">
+          Les contrôles de sécurité ne répondent pas : état inconnu, pas validé.
+        </p>
+      )}
+      <section className="admin-panel">
+        <h2>Contrôles vérifiés</h2>
+        {checks.map((c) => (
+          <article className="system-check" key={c.name}>
+            <div>
+              <strong>{c.name}</strong>
+              <p>{c.detail}</p>
+            </div>
+            <span className={`status ${c.ok ? "active" : "needs_changes"}`}>
+              {c.ok ? "Vérifié" : "À traiter"}
+            </span>
+          </article>
+        ))}
       </section>
-      <div className="system-grid">
-        <CheckGroup eyebrow="Socle" title="Base de données" checks={core} />
-        <CheckGroup eyebrow="Diffusion" title="Publication & e-mail" checks={publishing} />
-        <CheckGroup eyebrow="Défense" title="Anti-abus" checks={protection} />
-        <section className="admin-panel system-panel">
-          <div className="admin-panel-heading"><div><span className="admin-kicker">Vérification manuelle</span><h2>Comptes & accès</h2></div></div>
-          <div className="system-guidance">
-            <p><strong>Supabase Auth :</strong> ajoutez <code>https://www.voiceofguinea.com/auth/callback</code> aux URL de redirection et désactivez les inscriptions publiques.</p>
-            <p><strong>Équipe :</strong> activez la MFA pour chaque propriétaire et éditeur, et désactivez immédiatement tout compte qui quitte la rédaction.</p>
-            <p><strong>Plateformes :</strong> activez la double authentification sur GitHub, Vercel, Supabase, Google et Resend.</p>
-          </div>
-        </section>
-      </div>
+      <section className="admin-panel">
+        <h2>Publication programmée</h2>
+        <p>
+          Un seul cron existant : chaque jour à 06 h UTC. En novembre : 01 h
+          America/Toronto. L’heure réelle de publication peut différer de
+          l’échéance ; elle est enregistrée au passage.
+        </p>
+        {Boolean(overdue?.length) && (
+          <p role="alert">
+            {overdue!.length} article(s) ont atteint leur échéance et attendent
+            un passage.
+          </p>
+        )}
+        <form action={checkDuePublications}>
+          <button className="admin-secondary" type="submit">
+            Contrôler et publier les échéances atteintes maintenant
+          </button>
+        </form>
+        <p>
+          Cette commande utilise exactement le même contrôle d’échéance que le
+          cron. Elle ne publie pas les articles futurs.
+        </p>
+        {runError ? (
+          <p role="alert">Journal des passages indisponible.</p>
+        ) : runs?.length ? (
+          <table className="publication-run-table">
+            <thead>
+              <tr>
+                <th>Passage Toronto</th>
+                <th>Résultat</th>
+                <th>Articles publiés</th>
+              </tr>
+            </thead>
+            <tbody>
+              {runs.map((r) => (
+                <tr key={r.id}>
+                  <td>{newsroomDate(r.started_at)}</td>
+                  <td>
+                    {r.status === "success"
+                      ? "Réussi"
+                      : r.status === "failed"
+                        ? "Échec"
+                        : "En cours"}{" "}
+                    {r.error_note}
+                  </td>
+                  <td>{r.published_count}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        ) : (
+          <p>
+            Aucun passage enregistré depuis l’installation du journal. Le secret
+            du cron seul ne prouve pas son exécution.
+          </p>
+        )}
+      </section>
+      <section className="admin-panel">
+        <h2>Configuration présente — fonctionnement à confirmer</h2>
+        {config.map(([name, exists]) => (
+          <p key={name}>
+            <strong>{name} :</strong> {exists ? "Configuré" : "Non configuré"}
+          </p>
+        ))}
+        <p>
+          La présence d’une clé ne prouve pas la livraison d’un e-mail ni le
+          fonctionnement du widget. Les limites persistantes protègent les
+          formulaires même si Turnstile n’est pas configuré.
+        </p>
+      </section>
+      <section className="admin-panel">
+        <h2>Reprise et comptes</h2>
+        <p>
+          Activez la protection des mots de passe compromis dans Supabase Auth
+          si votre offre la propose. Ne désactivez jamais la RLS pour résoudre
+          un problème d’édition.
+        </p>
+        <p>
+          Avant une restauration, vérifiez une sauvegarde et testez sa
+          récupération dans un environnement séparé. Le journal de versions des
+          articles permet de comparer et de restaurer un contenu en brouillon.
+        </p>
+      </section>
     </>
   );
 }

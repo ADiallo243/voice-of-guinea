@@ -1,4 +1,6 @@
 "use client";
+import type { PublicCategory } from "@/lib/content";
+import { categoryPath } from "@/lib/newsroom";
 
 import Image from "next/image";
 import Link from "next/link";
@@ -15,7 +17,28 @@ const links = [
   { href: "/recherche", label: "Recherche" },
 ];
 
-export function SiteHeader({ headlines }: { headlines: BreakingHeadline[] }) {
+export function SiteHeader({
+  headlines,
+  categories,
+}: {
+  headlines: BreakingHeadline[];
+  categories: PublicCategory[];
+}) {
+  const categoryLinks = categories.map((c) => ({
+    href: categoryPath(c.slug),
+    label:
+      c.name === "Actualités"
+        ? "L’essentiel"
+        : c.name === "Divertissement"
+          ? "Talents & voix"
+          : c.name,
+  }));
+  const navigation = [
+    ...categoryLinks,
+    ...links.filter(
+      (l) => !["/actualites", "/culture", "/divertissement"].includes(l.href),
+    ),
+  ];
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
 
@@ -23,7 +46,9 @@ export function SiteHeader({ headlines }: { headlines: BreakingHeadline[] }) {
     <>
       <div className="topline">
         <div className="shell topline-inner">
-          <strong><i /> À SUIVRE</strong>
+          <strong>
+            <i /> À SUIVRE
+          </strong>
           <div className="ticker-window">
             <div className="ticker">
               {[...headlines, ...headlines].map((headline, index) => (
@@ -43,8 +68,18 @@ export function SiteHeader({ headlines }: { headlines: BreakingHeadline[] }) {
       </div>
       <header className="site-header">
         <div className="shell header-inner">
-          <Link href="/" className="brand" aria-label="Voice of Guinea, accueil">
-            <Image src="/brand/logo.svg" alt="Voice of Guinea" width={150} height={76} priority />
+          <Link
+            href="/"
+            className="brand"
+            aria-label="Voice of Guinea, accueil"
+          >
+            <Image
+              src="/brand/logo.svg"
+              alt="Voice of Guinea"
+              width={150}
+              height={76}
+              priority
+            />
           </Link>
           <button
             className="menu-button"
@@ -58,13 +93,19 @@ export function SiteHeader({ headlines }: { headlines: BreakingHeadline[] }) {
             <span />
             <span />
           </button>
-          <nav id="navigation-principale" className={open ? "nav open" : "nav"} aria-label="Navigation principale">
-            {links.map((link) => (
+          <nav
+            id="navigation-principale"
+            className={open ? "nav open" : "nav"}
+            aria-label="Navigation principale"
+          >
+            {navigation.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
                 className={`${pathname === link.href ? "active" : ""}${link.href === "/recherche" ? " nav-search" : ""}`}
-                aria-label={link.href === "/recherche" ? "Rechercher" : undefined}
+                aria-label={
+                  link.href === "/recherche" ? "Rechercher" : undefined
+                }
                 onClick={() => setOpen(false)}
               >
                 {link.href === "/recherche" ? (
@@ -75,7 +116,9 @@ export function SiteHeader({ headlines }: { headlines: BreakingHeadline[] }) {
                     </svg>
                     <span className="sr-only">Recherche</span>
                   </>
-                ) : link.label}
+                ) : (
+                  link.label
+                )}
               </Link>
             ))}
           </nav>

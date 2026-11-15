@@ -9,9 +9,11 @@ import type { BreakingHeadline } from "@/lib/content";
 export function SiteChrome({
   children,
   headlines,
+  categories,
 }: {
   children: React.ReactNode;
   headlines: BreakingHeadline[];
+  categories: import("@/lib/content").PublicCategory[];
 }) {
   const pathname = usePathname();
 
@@ -19,11 +21,15 @@ export function SiteChrome({
 
   return (
     <div className="public-site">
-      <a className="skip-link" href="#contenu-principal">Aller au contenu principal</a>
+      <a className="skip-link" href="#contenu-principal">
+        Aller au contenu principal
+      </a>
       <EngagementEvents />
-      <SiteHeader headlines={headlines} />
-      <main id="contenu-principal" tabIndex={-1}>{children}</main>
-      <SiteFooter />
+      <SiteHeader headlines={headlines} categories={categories} />
+      <main id="contenu-principal" tabIndex={-1}>
+        {children}
+      </main>
+      <SiteFooter categories={categories} />
     </div>
   );
 }

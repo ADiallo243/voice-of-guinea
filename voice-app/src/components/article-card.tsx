@@ -18,36 +18,68 @@ export function ArticleCard({
   const Heading = headingLevel === 1 ? "h1" : "h2";
 
   return (
-    <article data-article-card={article.slug} className={`${large ? "article-card article-card-large" : "article-card"}${textFirst ? " text-first" : ""}`}>
-      {!textFirst && <Link href={`/articles/${article.slug}`} className="card-image">
-        <Image
-          src={article.image}
-          alt={article.imageAlt}
-          fill
-          priority={large}
-          sizes={large ? "(max-width: 800px) 100vw, 65vw" : "(max-width: 800px) 100vw, 33vw"}
-        />
-      </Link>}
+    <article
+      data-article-card={article.slug}
+      className={`${large ? "article-card article-card-large" : "article-card"}${textFirst ? " text-first" : ""}`}
+    >
+      {!textFirst && (
+        <Link href={`/articles/${article.slug}`} className="card-image">
+          <Image
+            src={article.image}
+            alt={article.imageAlt}
+            fill
+            style={
+              article.imageAlt.startsWith("Affiche")
+                ? { objectFit: "contain" }
+                : undefined
+            }
+            priority={large}
+            sizes={
+              large
+                ? "(max-width: 800px) 100vw, 65vw"
+                : "(max-width: 800px) 100vw, 33vw"
+            }
+          />
+        </Link>
+      )}
       <div className="card-content">
-        <Link href={categoryHref(article.category)} className="eyebrow">
+        <Link
+          href={categoryHref(article.category, article.categorySlug)}
+          className="eyebrow"
+        >
           {eyebrow || article.category}
         </Link>
         <Heading>
           <Link href={`/articles/${article.slug}`}>{article.title}</Link>
         </Heading>
         <p>{article.summary}</p>
-        {large && <Link href={`/articles/${article.slug}`} className="card-button">Lire l’article</Link>}
+        {large && (
+          <Link href={`/articles/${article.slug}`} className="card-button">
+            Lire l’article
+          </Link>
+        )}
         <div className="card-meta">
           <span className="card-author">Par {article.author}</span>
-          <time dateTime={article.publishedAt}>{formatArticleDate(article.publishedAt)}</time>
-          <span className="card-reading-time">{getReadingTime(article)} min de lecture</span>
+          <time dateTime={article.publishedAt}>
+            {formatArticleDate(article.publishedAt)}
+          </time>
+          <span className="card-reading-time">
+            {getReadingTime(article)} min de lecture
+          </span>
         </div>
       </div>
     </article>
   );
 }
 
-export function categoryHref(category: Article["category"]) {
+export function categoryHref(
+  category: Article["category"],
+  storedSlug?: string,
+) {
+  if (storedSlug)
+    return ["actualites", "culture", "divertissement"].includes(storedSlug)
+      ? `/${storedSlug}`
+      : `/categories/${storedSlug}`;
   if (category === "Actualités") return "/actualites";
   if (category === "Divertissement") return "/divertissement";
   if (category === "Culture") return "/culture";
