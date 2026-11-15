@@ -1,5 +1,4 @@
-import { Naya } from "@/components/naya";
-import { publicNaya } from "@/lib/naya/service";
+import { relatedArticles, readingContent, readingParagraphs } from "@/lib/reading";
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
@@ -109,14 +108,12 @@ export default async function ArticlePage({
   const { slug } = await params;
   const article = await getPublicArticle(slug);
   if (!article) notFound();
-  const naya = await publicNaya(article);
-  const related = (await getPublishedArticles())
-    .filter((item) => item.slug !== article.slug && item.category === article.category)
-    .slice(0, 3);
-  const sourceHeading = article.blocks.findIndex((block) => (
+  const related = relatedArticles(article, await getPublishedArticles());
+  const reading = readingContent(article.blocks);
+  const sourceHeading = reading.blocks.findIndex((block) => (
     block.type === "heading" && /^sources?$/i.test(block.text.trim())
   ));
-  const bodyBlocks = sourceHeading < 0 ? article.blocks : article.blocks.slice(0, sourceHeading);
+  const bodyBlocks = sourceHeading < 0 ? reading.blocks : reading.blocks.slice(0, sourceHeading);
   const sources = articleSources(article.blocks);
   const articleUrl = `${siteConfig.url}/articles/${article.slug}`;
   const imageUrl = article.image.startsWith("http") ? article.image : `${siteConfig.url}${article.image}`;
@@ -182,7 +179,8 @@ export default async function ArticlePage({
         <figcaption>{article.imageCredit.includes("illustration éditoriale") ? "Image : " : "Photo : "}{article.imageCredit}{article.imageSourceUrl && <> · <a href={article.imageSourceUrl} target="_blank" rel="noopener noreferrer">Source et licence</a></>}</figcaption>
       </figure>
       <div className="article-body">
-        {naya && <Naya slug={article.slug} {...naya} />}
+        {reading.points.length === 3 && <aside className="article-takeaways" aria-labelledby="takeaways-title"><span className="section-kicker">Pour comprendre vite</span><h2 id="takeaways-title">L’essentiel en 3 points</h2><ul>{reading.points.map(point => <li key={point}>{point}</li>)}</ul></aside>}
+        {bodyBlocks.filter(b => b.type === "heading").length > 1 && <nav className="article-outline" aria-label="Dans cet article"><strong>Dans cet article</strong>{bodyBlocks.map((b, i) => b.type === "heading" ? <a href={`#section-${i}`} key={i}>{b.text}</a> : null)}</nav>}
         {article.correctionNote && (
           <aside className="correction-note">
             <strong>Note de la rédaction</strong>
@@ -190,8 +188,8 @@ export default async function ArticlePage({
           </aside>
         )}
         {bodyBlocks.map((block, index) => {
-          if (block.type === "heading") return <h2 key={index}>{block.text}</h2>;
-          if (block.type === "paragraph") return <p key={index}>{linkedText(block.text)}</p>;
+          if (block.type === "heading") return <h2 key={index} id={`section-${index}`}>{block.text}</h2>;
+          if (block.type === "paragraph") return <div key={index}>{readingParagraphs(block.text).map((paragraph, i) => <p key={i}>{linkedText(paragraph)}</p>)}{index === 2 && related[0] && <aside className="contextual-reading"><span>Pour aller plus loin</span><Link href={`/articles/${related[0].slug}`}>{related[0].title} →</Link></aside>}</div>;
           return (
             <figure key={index} className="inline-image">
               <Image src={block.src} alt={block.alt} width={900} height={560} />
@@ -219,9 +217,8 @@ export default async function ArticlePage({
           <div className="section-title-row">
             <div><span className="section-kicker">À lire aussi</span><h2 id="related-title">Sur le même sujet</h2></div>
           </div>
-          <div className="card-grid">
-            {related.map((item) => <ArticleCard article={item} key={item.slug} />)}
-          </div>
+          <div className="next-reading"><span className="section-kicker">À lire ensuite</span><Link href={`/articles/${related[0].slug}`}><h3>{related[0].title}</h3><p>{related[0].summary}</p><strong>Continuer la lecture →</strong></Link></div>
+          {related.length > 1 && <div className="card-grid">{related.slice(1).map(item => <ArticleCard article={item} key={item.slug} />)}</div>}
         </aside>
       )}
     </article>

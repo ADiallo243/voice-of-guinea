@@ -1,3 +1,4 @@
+import { readingFormats } from "@/lib/reading";
 import type { MetadataRoute } from "next";
 import { categoryHref } from "@/components/article-card";
 import { getPublishedArticles } from "@/lib/content";
@@ -35,6 +36,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: page.frequency,
       priority: page.priority,
     })),
+    { url: `${siteConfig.url}/newsletter`, changeFrequency: "monthly", priority: 0.7 },
+    ...readingFormats.map(f => ({ url: `${siteConfig.url}/rendez-vous/${f.slug}`, changeFrequency: "daily" as const, priority: 0.7 })),
     ...extraCategories,
     ...articles.map((article) => ({
       url: `${siteConfig.url}/articles/${article.slug}`,

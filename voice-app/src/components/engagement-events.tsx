@@ -28,9 +28,13 @@ export function EngagementEvents() {
     }
     const click = (event: MouseEvent) => {
       const target = (event.target as Element).closest?.(
-        '.related-section a[href^="/articles/"]',
+        '.related-section a[href^="/articles/"], .contextual-reading a[href^="/articles/"]',
       );
-      if (target) track("related_article_clicked");
+      if (target) track("related_article_clicked", { article_path: path, destination: target.getAttribute("href") || "" });
+      const card = (event.target as Element).closest?.('[data-article-card] a[href^="/articles/"]');
+      if (card) track("article_card_clicked", { placement: path, destination: card.getAttribute("href") || "" });
+      const format = (event.target as Element).closest?.("[data-reading-format]");
+      if (format) track("reading_format_clicked", { format: format.getAttribute("data-reading-format") || "" });
     };
     const submit = (event: SubmitEvent) => {
       if ((event.target as Element).matches(".public-search"))

@@ -16,7 +16,7 @@ export function ArticleCard({
   const Heading = headingLevel === 1 ? "h1" : "h2";
 
   return (
-    <article className={large ? "article-card article-card-large" : "article-card"}>
+    <article data-article-card={article.slug} className={large ? "article-card article-card-large" : "article-card"}>
       <Link href={`/articles/${article.slug}`} className="card-image">
         <Image
           src={article.image}
