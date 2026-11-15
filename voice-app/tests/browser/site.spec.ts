@@ -64,3 +64,13 @@ test("newsletter does not open immediately and admin endpoints remain protected"
   expect(response.headers()["cache-control"]).toBe("no-store");
   expect((await request.get("/api/cron/publish-scheduled")).status()).toBe(401);
 });
+
+test("every scrolling headline opens a real article", async ({page, request}) => {
+  await page.goto('/');
+  const destinations = await page.locator('.ticker a:not([aria-hidden="true"])').evaluateAll(links => links.map(link => link.getAttribute('href')));
+  expect(destinations.length).toBeGreaterThan(0);
+  for (const href of destinations) {
+    expect(href).not.toContain('undefined');
+    expect((await request.get(href!)).status()).toBe(200);
+  }
+});

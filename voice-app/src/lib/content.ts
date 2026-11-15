@@ -1,4 +1,5 @@
 import { cache } from "react";
+import { publishedHeadlines, type TickerRow } from "./breaking-headlines";
 import { contentHash } from "./naya/core";
 import { createClient } from "@supabase/supabase-js";
 import {
@@ -205,17 +206,18 @@ export async function getBreakingHeadlines(): Promise<BreakingHeadline[]> {
   const now = new Date().toISOString();
   const { data, error } = await publicClient()
     .from("breaking_news")
-    .select("headline, external_url, articles(slug)")
+    .select("headline, external_url, articles(slug,status,published_at)")
     .eq("active", true)
     .lte("starts_at", now)
     .or(`expires_at.is.null,expires_at.gt.${now}`)
     .order("display_order");
   if (error || !data?.length) return canUseDemoContent() ? fallback : [];
-  return data.map((item) => {
-    const linked = Array.isArray(item.articles) ? item.articles[0] : item.articles;
-    return {
-      text: item.headline,
-      href: item.external_url || `/articles/${linked?.slug}`,
-    };
-  });
+  const headlines = publishedHeadlines(data as TickerRow[]);
+  if (headlines.length) return headlines;
+  // If every curated item targets unpublished content, keep the ticker useful
+  // with real published headlines, without exposing the withdrawn stories.
+  return (await getPublishedArticles()).slice(0, 4).map(article => ({
+    text: article.title,
+    href: `/articles/${article.slug}`,
+  }));
 }
