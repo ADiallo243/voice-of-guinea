@@ -1,0 +1,2 @@
+create index if not exists article_redirects_article_id_idx on public.article_redirects(article_id);
+alter policy "Staff can update permitted articles" on public.articles using ((select public.is_newsroom_manager()) or ((select public.is_newsroom_staff()) and author_id=(select auth.uid()) and status::text in ('draft','in_review','needs_changes'))) with check ((select public.is_newsroom_manager()) or ((select public.is_newsroom_staff()) and author_id=(select auth.uid()) and status::text in ('draft','in_review') and not featured));

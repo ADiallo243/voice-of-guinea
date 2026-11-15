@@ -346,13 +346,15 @@ export function ArticleView({
             </figure>
           );
         })}
-        <div
-          className="article-actions"
-          aria-label="Partager ou enregistrer cet article"
-        >
-          <ShareButtons title={article.title} />
-          <SaveArticle slug={article.slug} />
-        </div>
+        {!preview && (
+          <div
+            className="article-actions"
+            aria-label="Partager ou enregistrer cet article"
+          >
+            <ShareButtons title={article.title} />
+            <SaveArticle slug={article.slug} />
+          </div>
+        )}
         {sources.length > 0 && (
           <aside className="article-sources" aria-label="Sources de l’article">
             <strong>Source{sources.length > 1 ? "s" : ""}</strong>

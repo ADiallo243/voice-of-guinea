@@ -29,8 +29,18 @@ export default async function Preview({
   return (
     <>
       <p className="admin-flash">
-        Aperçu privé de la version enregistrée — statut : {row.status}.{" "}
-        <Link href={`/admin/articles/${id}/edit`}>Retour à l’éditeur</Link>.
+        Aperçu privé de la version enregistrée — statut :{" "}
+        {(
+          {
+            draft: "Brouillon",
+            in_review: "À relire",
+            needs_changes: "À corriger",
+            published: "Publié",
+            scheduled: "Programmé",
+            archived: "Archivé",
+          } as Record<string, string>
+        )[row.status] || row.status}
+        . <Link href={`/admin/articles/${id}/edit`}>Retour à l’éditeur</Link>.
         Aucun contenu n’est publié par cet aperçu.
       </p>
       <div className="public-site">
