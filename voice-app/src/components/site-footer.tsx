@@ -17,7 +17,7 @@ export function SiteFooter() {
           <Link href="/actualites">L’essentiel</Link>
           <Link href="/divertissement">Talents & voix</Link>
           <Link href="/culture">Culture</Link>
-          <Link href="/rendez-vous/la-semaine-en-guinee">Nos rendez-vous</Link>
+          <Link href="/rendez-vous/la-semaine-en-guinee">À découvrir</Link>
         </div>
         <div>
           <h2>Voice of Guinea</h2>
