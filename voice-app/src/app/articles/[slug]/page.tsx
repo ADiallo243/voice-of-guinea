@@ -114,6 +114,8 @@ export default async function ArticlePage({
     block.type === "heading" && /^sources?$/i.test(block.text.trim())
   ));
   const bodyBlocks = sourceHeading < 0 ? reading.blocks : reading.blocks.slice(0, sourceHeading);
+  const opening = bodyBlocks[0]?.type === "paragraph" ? bodyBlocks[0] : null;
+  const remainingBlocks = opening ? bodyBlocks.slice(1) : bodyBlocks;
   const sources = articleSources(article.blocks);
   const articleUrl = `${siteConfig.url}/articles/${article.slug}`;
   const imageUrl = article.image.startsWith("http") ? article.image : `${siteConfig.url}${article.image}`;
@@ -171,25 +173,27 @@ export default async function ArticlePage({
             <span>{getReadingTime(article)} min de lecture</span>
           </div>
         </div>
-        <ShareButtons title={article.title} />
-        <SaveArticle slug={article.slug} />
       </header>
-      <figure className="article-hero">
-        <Image src={article.image} alt={article.imageAlt} fill priority sizes="(max-width: 900px) 100vw, 1100px" />
+      <div className={opening ? "article-opening" : "article-opening image-only"}>
+        {opening && <div className="article-opening-copy">{readingParagraphs(opening.text).map((paragraph, i) => <p key={i}>{linkedText(paragraph)}</p>)}</div>}
+        <figure className="article-hero">
+        <div className="article-image-frame"><Image src={article.image} alt={article.imageAlt} fill priority sizes="(max-width: 700px) calc(100vw - 28px), 380px" /></div>
         <figcaption>{article.imageCredit.includes("illustration éditoriale") ? "Image : " : "Photo : "}{article.imageCredit}{article.imageSourceUrl && <> · <a href={article.imageSourceUrl} target="_blank" rel="noopener noreferrer">Source et licence</a></>}</figcaption>
-      </figure>
+        </figure>
+      </div>
       <div className="article-body">
-        {reading.points.length === 3 && <aside className="article-takeaways" aria-labelledby="takeaways-title"><span className="section-kicker">Pour comprendre vite</span><h2 id="takeaways-title">L’essentiel en 3 points</h2><ul>{reading.points.map(point => <li key={point}>{point}</li>)}</ul></aside>}
-        {bodyBlocks.filter(b => b.type === "heading").length > 1 && <nav className="article-outline" aria-label="Dans cet article"><strong>Dans cet article</strong>{bodyBlocks.map((b, i) => b.type === "heading" ? <a href={`#section-${i}`} key={i}>{b.text}</a> : null)}</nav>}
+        {reading.points.length === 3 && <details className="article-takeaways"><summary>L’essentiel en 3 points</summary><ul>{reading.points.map(point => <li key={point}>{point}</li>)}</ul></details>}
+        {bodyBlocks.filter(b => b.type === "heading").length > 1 && <details className="article-outline"><summary>Dans cet article</summary><nav aria-label="Dans cet article">{bodyBlocks.map((b, i) => b.type === "heading" ? <a href={`#section-${i}`} key={i}>{b.text}</a> : null)}</nav></details>}
         {article.correctionNote && (
           <aside className="correction-note">
             <strong>Note de la rédaction</strong>
             <p>{article.correctionNote}</p>
           </aside>
         )}
-        {bodyBlocks.map((block, index) => {
+        {remainingBlocks.map((block, bodyIndex) => {
+          const index = bodyIndex + (opening ? 1 : 0);
           if (block.type === "heading") return <h2 key={index} id={`section-${index}`}>{block.text}</h2>;
-          if (block.type === "paragraph") return <div key={index}>{readingParagraphs(block.text).map((paragraph, i) => <p key={i}>{linkedText(paragraph)}</p>)}{index === 2 && related[0] && <aside className="contextual-reading"><span>Pour aller plus loin</span><Link href={`/articles/${related[0].slug}`}>{related[0].title} →</Link></aside>}</div>;
+          if (block.type === "paragraph") return <div key={index}>{readingParagraphs(block.text).map((paragraph, i) => <p key={i}>{linkedText(paragraph)}</p>)}</div>;
           return (
             <figure key={index} className="inline-image">
               <Image src={block.src} alt={block.alt} width={900} height={560} />
@@ -197,6 +201,7 @@ export default async function ArticlePage({
             </figure>
           );
         })}
+        <div className="article-actions" aria-label="Partager ou enregistrer cet article"><ShareButtons title={article.title} /><SaveArticle slug={article.slug} /></div>
         {sources.length > 0 && (
           <aside className="article-sources" aria-label="Sources de l’article">
             <strong>Source{sources.length > 1 ? "s" : ""}</strong>
