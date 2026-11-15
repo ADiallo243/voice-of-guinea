@@ -1,3 +1,4 @@
+import { siteConfig } from "@/lib/site";
 import Image from "next/image";
 import Link from "next/link";
 import { Article, formatArticleDate, getReadingTime } from "@/lib/articles";
@@ -13,11 +14,12 @@ export function ArticleCard({
   headingLevel?: 1 | 2;
   eyebrow?: string;
 }) {
+  const textFirst = article.image === siteConfig.logo;
   const Heading = headingLevel === 1 ? "h1" : "h2";
 
   return (
-    <article data-article-card={article.slug} className={large ? "article-card article-card-large" : "article-card"}>
-      <Link href={`/articles/${article.slug}`} className="card-image">
+    <article data-article-card={article.slug} className={`${large ? "article-card article-card-large" : "article-card"}${textFirst ? " text-first" : ""}`}>
+      {!textFirst && <Link href={`/articles/${article.slug}`} className="card-image">
         <Image
           src={article.image}
           alt={article.imageAlt}
@@ -25,7 +27,7 @@ export function ArticleCard({
           priority={large}
           sizes={large ? "(max-width: 800px) 100vw, 65vw" : "(max-width: 800px) 100vw, 33vw"}
         />
-      </Link>
+      </Link>}
       <div className="card-content">
         <Link href={categoryHref(article.category)} className="eyebrow">
           {eyebrow || article.category}

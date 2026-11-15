@@ -81,6 +81,11 @@ export default async function Home() {
         )}
       </section>
 
+      {articles.some(article => article.category === "Diaspora") && <section className="shell section-space">
+        <div className="section-title-row"><h2>Diaspora</h2><Link href="/categories/diaspora" className="text-link">Les Guinéens à travers le monde →</Link></div>
+        <p>Vous avez une histoire à partager ? Entrepreneuriat, culture, études ou vie associative : <Link href="/contact">racontez-nous votre initiative.</Link></p>
+      </section>}
+
       <ReadingFormats />
 
       <section className="newsletter-band">

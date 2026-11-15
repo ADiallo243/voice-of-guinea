@@ -108,6 +108,7 @@ export default async function ArticlePage({
   const { slug } = await params;
   const article = await getPublicArticle(slug);
   if (!article) notFound();
+  const textFirst = article.image === siteConfig.logo;
   const related = relatedArticles(article, await getPublishedArticles());
   const reading = readingContent(article.blocks);
   const sourceHeading = reading.blocks.findIndex((block) => (
@@ -125,7 +126,7 @@ export default async function ArticlePage({
     mainEntityOfPage: { "@type": "WebPage", "@id": articleUrl },
     headline: article.title,
     description: article.summary,
-    image: [imageUrl],
+    ...(!textFirst ? { image: [imageUrl] } : {}),
     datePublished: article.publishedAt,
     dateModified: article.lastEditedAt || article.updatedAt || article.publishedAt,
     articleSection: article.category,
@@ -174,12 +175,12 @@ export default async function ArticlePage({
           </div>
         </div>
       </header>
-      <div className={opening ? "article-opening" : "article-opening image-only"}>
+      <div className={textFirst ? "article-opening text-first" : opening ? "article-opening" : "article-opening image-only"}>
         {opening && <div className="article-opening-copy">{readingParagraphs(opening.text).map((paragraph, i) => <p key={i}>{linkedText(paragraph)}</p>)}</div>}
-        <figure className="article-hero">
+        {!textFirst && <figure className="article-hero">
         <div className="article-image-frame"><Image src={article.image} alt={article.imageAlt} fill priority sizes="(max-width: 700px) calc(100vw - 28px), 380px" /></div>
         <figcaption>{article.imageCredit.includes("illustration éditoriale") ? "Image : " : "Photo : "}{article.imageCredit}{article.imageSourceUrl && <> · <a href={article.imageSourceUrl} target="_blank" rel="noopener noreferrer">Source et licence</a></>}</figcaption>
-        </figure>
+        </figure>}
       </div>
       <div className="article-body">
         {reading.points.length === 3 && <details className="article-takeaways"><summary>L’essentiel en 3 points</summary><ul>{reading.points.map(point => <li key={point}>{point}</li>)}</ul></details>}

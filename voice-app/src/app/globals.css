@@ -776,3 +776,8 @@ button:disabled { opacity: .45; cursor: not-allowed; }
   .public-site .article-opening-copy { font-size: 1.04rem; line-height: 1.75; }
   .public-site .article-image-frame { max-height: 210px; }
 }
+
+/* An absent licensed photograph uses the existing typography without a placeholder. */
+.public-site .article-opening.text-first { display: block; max-width: 740px; }
+.public-site .article-card-large.text-first { grid-template-columns: 1fr; }
+.public-site .article-card-large.text-first .card-content { padding-left: 0; }

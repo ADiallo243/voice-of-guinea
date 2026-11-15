@@ -32,5 +32,5 @@ export default async function DynamicCategoryPage({
   const { slug } = await params;
   const category = await findCategory(slug);
   if (!category) notFound();
-  return <CategoryPage category={category} intro={`Toutes les publications de la rubrique ${category}.`} />;
+  return <CategoryPage category={category} intro={category === "Diaspora" ? "Les parcours, les initiatives et les actualités des Guinéens à travers le monde." : `Toutes les publications de la rubrique ${category}.`} />;
 }
