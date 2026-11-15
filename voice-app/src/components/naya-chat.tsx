@@ -124,7 +124,7 @@ export default function NayaChat({ slug }: { slug: string }) {
       )}
       <small>
         N’indiquez pas de données personnelles. Votre question et le contexte
-        sont transmis à OpenAI. <a href="/confidentialite">Confidentialité</a>.
+        sont transmis à Groq. <a href="/confidentialite">Confidentialité</a>.
       </small>
     </div>
   );

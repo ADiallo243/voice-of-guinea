@@ -15,6 +15,7 @@ function harness({
   stale = false,
   disabled = false,
   unavailable = false,
+  groqKey = "test-only",
 } = {}) {
   let calls = 0;
   const chain = {
@@ -74,7 +75,8 @@ function harness({
         env: {
           NAYA_SUMMARIES_ENABLED: "true",
           NAYA_CHAT_ENABLED: "true",
-          OPENAI_API_KEY: "test-only",
+          GROQ_API_KEY: groqKey,
+          OPENAI_API_KEY: "must-never-be-used",
           NAYA_RATE_LIMIT_SECRET: "test-only",
         },
       },
@@ -102,4 +104,13 @@ test("only approved summary of the current article version is projected; reads n
 test("article-level opt-out and database failure hide Naya safely", async () => {
   assert.equal(await harness({ disabled: true }).read(), null);
   assert.equal(await harness({ unavailable: true }).read(), null);
+});
+
+test("an OpenAI key alone cannot activate chat or trigger a paid fallback", async () => {
+  const h = harness({ groqKey: "" });
+  assert.deepEqual(JSON.parse(JSON.stringify(await h.read())), {
+    points: ["a", "b", "c"],
+    chat: false,
+  });
+  assert.equal(h.calls(), 0);
 });
