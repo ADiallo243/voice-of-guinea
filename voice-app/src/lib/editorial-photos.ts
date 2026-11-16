@@ -382,7 +382,6 @@ const photos: Record<string, LicensedEditorialPhoto> = {
 
 const photoKeyBySlug: Record<string, string> = {
   "djelykaba-bintou-canada-avril-2027-annonce": "djelykaba-bintou-archive-2023",
-  "djelykaba-bintou-zenith-paris-7-novembre-2026": "djelykaba-bintou-archive-2023",
   "fonasem-2026-sous-traitance-pme-mines-conakry": "bauxite",
   "simandou-mining-summit-2026-bilan-conferences-conakry-entreprises-locales": "simandou-mining-summit-2026-bilan-conferences-conakry-entreprises-locales",
   "siao-2026-nafina-keita-fonio-guinee-ouagadougou": "siao-2023-archive",
