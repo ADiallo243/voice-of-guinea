@@ -10,6 +10,14 @@ export type LicensedEditorialPhoto = {
 // Every image was checked against its source page and visual subject.
 // Archive/illustration wording prevents an older photo from being read as the reported event.
 const photos: Record<string, LicensedEditorialPhoto> = {
+  "djelykaba-bintou-archive-2023": {
+    path: "/images/editorial-licensed/djelykaba-bintou-2023.jpg",
+    alt: "Djelykaba Bintou lors des Victoires de la musique guinéenne en 2023 (archive, hors concerts annoncés)",
+    credit: "Aboubacarkhoraa · Wikimedia Commons · CC BY 4.0 · photo d’archive 2023",
+    source: "https://commons.wikimedia.org/wiki/File:DJELYKABA_BINTOU_Meilleure_Artiste_F%C3%A9minine_2023.jpg",
+    license: "CC BY 4.0",
+    title: "Djelykaba Bintou aux Victoires de la musique guinéenne 2023",
+  },
   "simandou-mining-summit-2026-bilan-conferences-conakry-entreprises-locales": {
     path: "/images/editorial-licensed/radisson-blu-conakry-archive-2018.jpg",
     alt: "Bâtiment du Radisson Blu de Conakry photographié en 2018, alors sous l’enseigne Sheraton (archive, hors sommet de novembre 2026)",
@@ -373,6 +381,8 @@ const photos: Record<string, LicensedEditorialPhoto> = {
 };
 
 const photoKeyBySlug: Record<string, string> = {
+  "djelykaba-bintou-canada-avril-2027-annonce": "djelykaba-bintou-archive-2023",
+  "djelykaba-bintou-zenith-paris-7-novembre-2026": "djelykaba-bintou-archive-2023",
   "fonasem-2026-sous-traitance-pme-mines-conakry": "bauxite",
   "simandou-mining-summit-2026-bilan-conferences-conakry-entreprises-locales": "simandou-mining-summit-2026-bilan-conferences-conakry-entreprises-locales",
   "siao-2026-nafina-keita-fonio-guinee-ouagadougou": "siao-2023-archive",
