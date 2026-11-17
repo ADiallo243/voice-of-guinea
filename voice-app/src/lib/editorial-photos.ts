@@ -390,7 +390,6 @@ const photos: Record<string, LicensedEditorialPhoto> = {
 
 const photoKeyBySlug: Record<string, string> = {
   "see-france-2026-montpellier-diaspora-guineenne": "see-france-2026-montpellier-diaspora-guineenne",
-  "simandou-sommet-2026-guilab-medusa-via-africa-connectivite": "simandou-mining-summit-2026-bilan-conferences-conakry-entreprises-locales",
   "djelykaba-bintou-canada-avril-2027-annonce": "djelykaba-bintou-archive-2023",
   "fonasem-2026-sous-traitance-pme-mines-conakry": "bauxite",
   "simandou-mining-summit-2026-bilan-conferences-conakry-entreprises-locales": "simandou-mining-summit-2026-bilan-conferences-conakry-entreprises-locales",
