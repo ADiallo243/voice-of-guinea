@@ -10,6 +10,14 @@ export type LicensedEditorialPhoto = {
 // Every image was checked against its source page and visual subject.
 // Archive/illustration wording prevents an older photo from being read as the reported event.
 const photos: Record<string, LicensedEditorialPhoto> = {
+  "see-france-2026-montpellier-diaspora-guineenne": {
+    path: "/images/editorial-licensed/maison-relations-internationales-montpellier-2021.jpg",
+    alt: "Maison des relations internationales Nelson-Mandela à Montpellier photographiée en 2021 (archive, avant SEE France 2026)",
+    credit: "Chabe01 · Wikimedia Commons · CC BY-SA 4.0 · archive 2021",
+    source: "https://commons.wikimedia.org/wiki/File:H%C3%B4tel_Sully_-_Montpellier_(FR34)_-_2021-07-12_-_3.jpg",
+    license: "CC BY-SA 4.0",
+    title: "Maison des relations internationales Nelson-Mandela, Montpellier",
+  },
   "djelykaba-bintou-archive-2023": {
     path: "/images/editorial-licensed/djelykaba-bintou-2023.jpg",
     alt: "Djelykaba Bintou lors des Victoires de la musique guinéenne en 2023 (archive, hors concerts annoncés)",
@@ -381,6 +389,8 @@ const photos: Record<string, LicensedEditorialPhoto> = {
 };
 
 const photoKeyBySlug: Record<string, string> = {
+  "see-france-2026-montpellier-diaspora-guineenne": "see-france-2026-montpellier-diaspora-guineenne",
+  "simandou-sommet-2026-guilab-medusa-via-africa-connectivite": "simandou-mining-summit-2026-bilan-conferences-conakry-entreprises-locales",
   "djelykaba-bintou-canada-avril-2027-annonce": "djelykaba-bintou-archive-2023",
   "fonasem-2026-sous-traitance-pme-mines-conakry": "bauxite",
   "simandou-mining-summit-2026-bilan-conferences-conakry-entreprises-locales": "simandou-mining-summit-2026-bilan-conferences-conakry-entreprises-locales",
