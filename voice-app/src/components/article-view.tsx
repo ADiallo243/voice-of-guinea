@@ -359,7 +359,6 @@ export function ArticleView({
           <aside className="article-sources" aria-label="Sources de l’article">
             <strong>Source{sources.length > 1 ? "s" : ""}</strong>
             <p>
-              Cet article a été rédigé à partir des informations publiées par{" "}
               {sources.map((source, index) => (
                 <span key={source.url}>
                   {index > 0 && (index === sources.length - 1 ? " et " : ", ")}
